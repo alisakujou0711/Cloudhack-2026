@@ -1,0 +1,26 @@
+University: National University of Singapore
+Major: Computer Science
+Number of essay questions: 2
+
+--------------------------------------------------
+Essay Question 1: Why do you want to study Computer Science at NUS?
+--------------------------------------------------
+My interest in Computer Science started in secondary school when I joined my school's robotics
+club and helped write the control code for our competition robot. Since then I have taught
+myself the basics of Python and built a few small projects, including a to-do list app and a
+simple quiz game for my friends. I want to study Computer Science at NUS because I know it has
+a strong reputation in Southeast Asia and offers a wide range of modules covering both software
+engineering and artificial intelligence, which are areas I am curious about. I believe NUS will
+give me the technical foundation and the exposure to research that I need to grow from someone
+who tinkers with code into someone who can build real systems.
+
+--------------------------------------------------
+Essay Question 2: Describe a challenge you have overcome.
+--------------------------------------------------
+In my second year of junior college, I was made the leader of a group project to build a simple
+website for our school's recycling initiative, even though I had never led a team before. Two
+of my teammates disagreed on which framework to use, and the project stalled for almost a week.
+I organized a meeting where each person explained their reasoning, and we eventually agreed on
+a simpler approach that let everyone contribute. We finished the website a few days before the
+deadline and it is still used by the school today. This experience taught me that leadership is
+less about having all the answers and more about creating space for the team to reach one.

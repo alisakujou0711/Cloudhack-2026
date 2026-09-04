@@ -1,0 +1,41 @@
+PRIYA SHARMA
+priya.sharma@example.com | linkedin.com/in/priyasharma | github.com/priyasharma
+Singapore | +65 9123 4567
+
+EDUCATION
+National University of Singapore — B.Comp (Computer Science), Expected 2027
+GPA: 4.6/5.0 | Relevant coursework: Data Structures & Algorithms, Databases, Operating Systems
+
+TARGET ROLE
+Software Engineering Intern
+
+EXPERIENCE
+Teaching Assistant, Intro to Programming — NUS School of Computing (Aug 2025 – Present)
+- Held weekly office hours for 60+ students, improving average assignment pass rate from 72% to 89%
+  after introducing a shared debugging checklist.
+- Graded and gave written feedback on 400+ submissions per semester, cutting grading turnaround
+  from 2 weeks to 4 days by writing an auto-grading script.
+
+Freelance Web Developer (Jan 2025 – May 2025)
+- Delivered a booking site for a local tuition centre, reducing manual scheduling calls by roughly 80%
+  and handling 200+ bookings per month.
+- Integrated Stripe payments and deployed on Vercel with 99.9% uptime over 4 months.
+
+PROJECTS
+StudySync — Full-stack study group matcher (React, Node.js, PostgreSQL)
+- Built and shipped to 300+ NUS students; matched study groups based on module and availability,
+  cutting average time-to-find-a-group from ~3 days to same-day.
+- Wrote integration tests covering 85% of backend routes; set up CI with GitHub Actions.
+
+Campus Bus ETA Predictor (Python, scikit-learn)
+- Trained a regression model on 6 months of GPS ping data to predict shuttle arrival times within
+  ±90 seconds, an improvement over the university's static schedule.
+- Presented findings at the NUS Datathon, placing top 5 out of 42 teams.
+
+SKILLS
+Languages: Python, JavaScript/TypeScript, Java, SQL
+Frameworks/Tools: React, Node.js, Express, PostgreSQL, Docker, Git, GitHub Actions, AWS (EC2, S3)
+
+AWARDS
+- 2nd Place, NUS Hack&Roll 2026 (out of 80 teams)
+- Dean's List, AY2025/26
