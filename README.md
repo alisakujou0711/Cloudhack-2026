@@ -91,5 +91,7 @@ empty answer. All extracted/pre-filled fields stay editable. See `samples/` for 
 - University checklist covers NUS, NTU, SMU, SUTD across a few majors, Singapore only.
 - Internship/essay/cover-letter review uses general rubrics rather than real job postings
   or actual application portals.
-- All state (profile, portfolios, assessments, chat, history) is stored in `localStorage` —
-  no auth or persistent database for the demo.
+- Accounts are email + password, held in a local SQLite file the server creates on first boot;
+  the app opens on a sign-in screen and onboarding runs once per account.
+- Application state (profile, portfolios, assessments, chat, history) is still stored in
+  `localStorage`, so two accounts used in the same browser share it.

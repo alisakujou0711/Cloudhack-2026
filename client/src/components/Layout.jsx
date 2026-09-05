@@ -1,15 +1,11 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import ChatbotWidget from './ChatbotWidget';
 
 export default function Layout() {
-  const { profile, resetAll } = useApp();
-  const navigate = useNavigate();
-
-  const handleReset = () => {
-    resetAll();
-    navigate('/');
-  };
+  const { profile } = useApp();
+  const { signOut } = useAuth();
 
   return (
     <div className="app-shell">
@@ -31,8 +27,8 @@ export default function Layout() {
         </nav>
         <div className="header-right">
           <span className="user-chip">{profile.name}</span>
-          <button className="btn-ghost" onClick={handleReset}>
-            Start over
+          <button className="btn-ghost" onClick={signOut}>
+            Sign out
           </button>
         </div>
       </header>
