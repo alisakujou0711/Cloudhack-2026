@@ -158,7 +158,7 @@ test('signing back in after signing out issues a working session', async () => {
   assert.equal(me.body.user.email, 'again@example.com');
 });
 
-test('the health check stays open — the auth gate is on the new routes only', async () => {
+test('the health check stays open — it is the one endpoint outside the gate', async () => {
   const res = await harness.client().get('/health', { sendCookies: false });
   assert.equal(res.status, 200);
   assert.equal(res.body.ok, true);

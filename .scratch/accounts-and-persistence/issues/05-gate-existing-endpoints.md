@@ -22,10 +22,10 @@ app.
 
 **Status:** ready-for-agent
 
-- [ ] Every existing feature endpoint returns 401 without a valid session cookie.
-- [ ] The health check remains reachable without a session.
-- [ ] Every feature works exactly as before for a signed-in person — uploads, assessments, exports,
+- [x] Every existing feature endpoint returns 401 without a valid session cookie.
+- [x] The health check remains reachable without a session.
+- [x] Every feature works exactly as before for a signed-in person — uploads, assessments, exports,
       and the chatbot included.
-- [ ] File-upload endpoints reject unauthenticated requests before consuming the upload.
-- [ ] A test covers at least one pre-existing feature endpoint being unreachable without a session.
-- [ ] The API doc records that authentication is required on all endpoints except the health check.
+- [x] File-upload endpoints reject unauthenticated requests before consuming the upload.
+- [x] A test covers at least one pre-existing feature endpoint being unreachable without a session.
+- [x] The API doc records that authentication is required on all endpoints except the health check.

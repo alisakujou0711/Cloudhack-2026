@@ -8,9 +8,12 @@ methods are in `client/src/api/client.js`.
 - **Sessions are cookies.** Signing up or in sets an httpOnly `pp_session` cookie
   (`sameSite=lax`, 30 days). Browsers must send credentials; CORS is configured with an explicit
   origin so the cookie survives direct access to port 4000. See `docs/architecture.md`.
-- **`requireAuth` guards `/auth/me`, `/auth/logout`, and both `/state` endpoints.** The feature
-  endpoints below are still open and stateless — the client sends whatever state it needs
-  (including `profile`) in the body.
+- **`requireAuth` guards every endpoint except `GET /health` and the two credential routes**
+  (`/auth/signup`, `/auth/login`) — applied once as `router.use(requireAuth)` partway down
+  `routes/api.js`, so anything declared below that line is gated by default. On the upload routes
+  the guard sits ahead of `multer`, so an unauthenticated upload is never parsed into memory. See
+  `docs/architecture.md`. The feature endpoints stay stateless: the client still sends whatever
+  state it needs (including `profile`) in the body.
 - **401 `{error}`** is the response to a missing, unknown, or expired session, and to failed
   sign-in credentials.
 - **Uploads**: `multer` with `memoryStorage()`, `fileSize` capped at **10MB**, always the field
@@ -29,9 +32,9 @@ methods are in `client/src/api/client.js`.
 | `GET /health` | — | `{ok, llmConfigured, llmProvider}` | — |
 | `POST /auth/signup` | `{email, password}` — password min 8 chars | `201 {user{id, email, createdAt}}` + session cookie | `auth.signUp` |
 | `POST /auth/login` | `{email, password}` | `{user}` + session cookie | `auth.signIn` |
-| `POST /auth/logout` | — (session required) | `{ok: true}`, session deleted, cookie cleared | `auth.signOut` |
-| `GET /auth/me` | — (session required) | `{user}` or `401` | `auth.getSessionUser` |
-| `GET /state` | — (session required) | the account's whole state document, `{}` when nothing is saved yet | `userState.readState` |
+| `POST /auth/logout` | — | `{ok: true}`, session deleted, cookie cleared | `auth.signOut` |
+| `GET /auth/me` | — | `{user}` or `401` | `auth.getSessionUser` |
+| `GET /state` | — | the account's whole state document, `{}` when nothing is saved yet | `userState.readState` |
 | `PUT /state` | the whole state document as the body | `{ok: true}`, the stored document replaced | `userState.replaceState` |
 | `GET /university/options` | — | `{universities: [{code, name, majors[]}]}` | `universityAssessment.listOptions` |
 | `POST /assess/university` | `{university, major, portfolio{gpa?, subjects[], extracurriculars, languageProficiency}, profile?}` — first three required | `{university, universityCode, major, competitiveness, checklist[], checklistPassCount, checklistTotal, feedback{}, source}` | `universityAssessment` |
@@ -78,11 +81,12 @@ methods are in `client/src/api/client.js`.
 - **`/resume/export`** streams a `pdfkit` document; the filename is sanitized to
   `[a-z0-9_]` server-side. The client reads it as a blob and triggers an `<a download>`. This is
   the only non-JSON response — use `requestBlob`, not `request`.
-- **`/chat`** takes the full conversation each time (no server-side session) plus a `context`
-  object holding every feature's state. See `docs/features/chatbot.md`.
+- **`/chat`** takes the full conversation each time — nothing about the exchange is stored
+  server-side — plus a `context` object holding every feature's state. See `docs/features/chatbot.md`.
 
 ## Adding an endpoint
 
 Keep the route thin: validate required fields, call one service, `res.json()`. Put the logic and
 the prompt in `server/services/<feature>.js` (see `docs/llm.md`), then add a matching method to
-the `api` object in `client/src/api/client.js`.
+the `api` object in `client/src/api/client.js`. Declare it **below** the `router.use(requireAuth)`
+line so it inherits the gate; a genuinely public endpoint has to be placed above it deliberately.
