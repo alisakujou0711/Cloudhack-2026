@@ -13,9 +13,15 @@ no workspace config.
 | `client/` | 5173 | `client/src/main.jsx` | Vite + React 19, `BrowserRouter`, plain CSS |
 | `server/` | 4000 | `server/index.js` | Express 5, CommonJS, `node --watch` in dev. `app.js` builds and exports the configured app; `index.js` only listens |
 
+`server/db.js` opens a SQLite file (`better-sqlite3`, synchronous) and applies the schema on
+import, with every statement create-if-not-exists so repeated boots are safe. The path defaults to
+`server/data/portfoliopath.db` and is overridable with `DATABASE_PATH`; the file is git-ignored.
+
 `client/vite.config.js` proxies `/api/*` to `http://localhost:4000`, so the client only ever
 calls relative paths (`BASE = '/api'` in `client/src/api/client.js`). CORS is also enabled
-server-side for direct access.
+server-side for direct access — with `credentials: true` and an explicit origin
+(`CLIENT_ORIGIN`, default `http://localhost:5173`), because the session cookie cannot travel on a
+wildcard origin.
 
 ## Request lifecycle
 
@@ -31,6 +37,19 @@ Panel/Page  ->  api/client.js  ->  routes/api.js  ->  services/<feature>.js  -> 
   `res.json(result)`. `catch` logs and returns `400 {error}`. **No logic belongs here.**
 - `server/services/` — one file per feature, each owning its own prompt and mock. See
   `docs/llm.md`.
+
+## Authentication
+
+Accounts are email + password. `server/services/auth.js` owns hashing (bcryptjs, cost 10) and
+session creation; `server/middleware/auth.js` owns the cookie and the `requireAuth` guard.
+
+- A session is an opaque 32-byte random token in the `sessions` table, returned in an httpOnly,
+  `sameSite=lax` cookie (`pp_session`) with a 30-day expiry — **not a JWT**, so signing out
+  genuinely revokes it and no signing secret is needed. `SESSION_TTL_MS` overrides the lifetime;
+  it exists so the expiry test can observe a 401 over HTTP instead of editing the sessions table.
+- Sign-up may reveal that an email is taken; **sign-in must not** — a wrong password and an
+  unknown email return the same 401 and the same message.
+- `requireAuth` guards `/auth/me` and `/auth/logout` today. See `docs/api.md`.
 
 ## Client state
 
@@ -91,11 +110,10 @@ mode. Add styles here and reuse the existing tokens.
 
 Assume none of these are present before adding one:
 
-- **No auth and no user accounts** — "account" means one browser's `localStorage`.
-- **No database.** `server/data/universityRequirements.js` is the only persisted data, and it is
-  a hardcoded JS object.
-- **No server-side persistence at all** — uploads go through `multer.memoryStorage()` and are
-  never written to disk.
-- **No test suite.** `server`'s `npm test` is an unset placeholder that exits 1. `client` has
-  `npm run lint` (oxlint) only.
+- **No uploaded files on disk** — uploads go through `multer.memoryStorage()` and are never
+  written anywhere.
+- **No client-side tests.** `client` has `npm run lint` (oxlint) only; the suite lives in
+  `server/test/`.
 - **No TypeScript**, no build step for the server.
+- **No migration tool.** The schema is bootstrapped on boot by `server/db.js`; changing it means
+  adding another create-if-not-exists statement there.

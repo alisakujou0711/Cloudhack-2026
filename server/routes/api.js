@@ -11,6 +11,12 @@ const { classifyDocument } = require('../services/documentClassifier');
 const { assessEssays } = require('../services/essayOptimization');
 const { assessCoverLetter } = require('../services/coverLetterOptimization');
 const { prepareInterview } = require('../services/interviewPrep');
+const { signUp, signIn, signOut } = require('../services/auth');
+const {
+  setSessionCookie,
+  clearSessionCookie,
+  requireAuth,
+} = require('../middleware/auth');
 
 const router = express.Router();
 const upload = multer({
@@ -20,6 +26,51 @@ const upload = multer({
 
 router.get('/health', (req, res) => {
   res.json({ ok: true, llmConfigured: hasKey, llmProvider: provider });
+});
+
+// An expected rejection (a taken email, a bad password) carries its own status and is not
+// logged; anything else is a real failure and follows the file's 400-plus-log convention.
+function sendAuthError(res, err) {
+  if (!err.status) console.error(err);
+  res.status(err.status || 400).json({ error: err.message });
+}
+
+router.post('/auth/signup', (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ error: 'email and password are required' });
+    }
+    const { user, session } = signUp({ email, password });
+    setSessionCookie(res, session);
+    res.status(201).json({ user });
+  } catch (err) {
+    sendAuthError(res, err);
+  }
+});
+
+router.post('/auth/login', (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ error: 'email and password are required' });
+    }
+    const { user, session } = signIn({ email, password });
+    setSessionCookie(res, session);
+    res.json({ user });
+  } catch (err) {
+    sendAuthError(res, err);
+  }
+});
+
+router.post('/auth/logout', requireAuth, (req, res) => {
+  signOut(req.sessionToken);
+  clearSessionCookie(res);
+  res.json({ ok: true });
+});
+
+router.get('/auth/me', requireAuth, (req, res) => {
+  res.json({ user: req.user });
 });
 
 router.get('/university/options', (req, res) => {
