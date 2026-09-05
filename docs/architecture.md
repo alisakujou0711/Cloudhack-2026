@@ -11,7 +11,7 @@ no workspace config.
 | Package | Port | Entry | Notes |
 | --- | --- | --- | --- |
 | `client/` | 5173 | `client/src/main.jsx` | Vite + React 19, `BrowserRouter`, plain CSS |
-| `server/` | 4000 | `server/index.js` | Express 5, CommonJS, `node --watch` in dev |
+| `server/` | 4000 | `server/index.js` | Express 5, CommonJS, `node --watch` in dev. `app.js` builds and exports the configured app; `index.js` only listens |
 
 `client/vite.config.js` proxies `/api/*` to `http://localhost:4000`, so the client only ever
 calls relative paths (`BASE = '/api'` in `client/src/api/client.js`). CORS is also enabled
