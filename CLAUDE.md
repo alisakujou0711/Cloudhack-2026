@@ -1,13 +1,18 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Entry point for AI agents working in this repo. It carries what you need in *every* session —
+what the app is, how to run it, and the rules that must survive any edit. Everything else is in
+`docs/`, one file per feature; the map at the bottom says which one to read for the task at hand.
+Read the doc for the area you're touching before you touch it, and don't read the others.
 
 ## What this is
 
 PortfolioPath — a student application-optimization platform (React + Express). Students upload a
 document, pick what they're optimizing (university application / internship application / essay /
-cover letter), and get structured, itemized feedback. Also includes interview prep and an
-inspirations gallery. See `README.md` for the full feature/product description.
+cover letter), and get structured, itemized feedback. Plus interview prep, a curated inspirations
+gallery, a history log, and a context-aware chatbot. `README.md` is the product description.
+
+No auth, no database, no test suite. All state is one object in `localStorage`.
 
 ## Commands
 
@@ -29,95 +34,74 @@ There is no test suite in either package (`server`'s `npm test` is an unset plac
 no root-level install — `client/` and `server/` are independent npm packages with their own
 `node_modules`, always installed/run separately.
 
-## LLM integration — provider abstraction
+The app runs fully **offline and keyless** — every LLM call has a deterministic mock fallback. Set
+`GEMINI_API_KEY` or `ANTHROPIC_API_KEY` in `server/.env` for live output.
 
-All LLM calls go through `server/services/llm.js`, which picks a provider once at startup:
-`LLM_PROVIDER` env var if set, else Gemini if `GEMINI_API_KEY` is set, else Anthropic if
-`ANTHROPIC_API_KEY` is set, else `'none'`. Concrete provider implementations live in
-`server/services/providers/{gemini,anthropic}.js` and each export `completeJson`, `completeText`,
-`hasKey`, `MODEL`. `gemini.js` calls the REST API directly with a 25s `AbortController` timeout
-(no SDK); `anthropic.js` uses `@anthropic-ai/sdk`. Default model is `gemini-3.1-flash-lite`
-(override with `GEMINI_MODEL`).
+## Hard rules
 
-**Every feature-level service follows the same mock-fallback pattern**: call
-`completeJson({ system, prompt, mockFn })` (or `completeText`), passing a synchronous, dependency-free
-`mockFn` that returns a plausible deterministic result. `llm.js` uses the mock immediately if no
-provider is configured, or falls back to it if the live call throws (network error, rate limit,
-malformed JSON) — this makes the whole app work offline/keyless, and resilient to Gemini's
-free-tier rate limits. Every result the client renders carries a `source` field
-(`'gemini'|'anthropic'|'mock'|'mock-fallback'`); the client's `utils/llmSource.js` decides whether
-to show a "demo mode" notice and picks the wording based on *why* it's mocked (no key vs. transient
-failure) — don't reintroduce a single boolean "isMocked" check, the distinction matters to users.
+These are the conventions that repeat across the codebase. Breaking one is a regression even when
+the code still runs.
 
-When adding a new LLM-backed feature, add a `server/services/<feature>.js` with a `mock<Feature>()`
-function and a `system`/`prompt` pair passed through `completeJson`/`completeText` — don't call a
-provider directly.
+1. **Never call an LLM provider directly.** Feature services go through `completeJson` /
+   `completeText` in `server/services/llm.js`, always passing a synchronous, dependency-free
+   `mockFn` that returns the same shape as the prompt. -> `docs/llm.md`
+2. **Every LLM-backed result carries `source`.** Keep `'mock'` (no key) and `'mock-fallback'`
+   (key present, call failed) distinct — the client words the notice differently. Don't collapse
+   them into one boolean. -> `docs/llm.md`
+3. **Routes validate and delegate.** `server/routes/api.js` checks required fields and calls one
+   service; all logic and prompts live in `server/services/`. -> `docs/api.md`
+4. **Assessment services take an optional `profile`** and add an `internationalNote` only when
+   `profile.location` isn't Singapore. Follow it in any new one. -> `docs/features/onboarding.md`
+5. **Document-type mismatch confirms, never rejects.** `DocumentUploader` shows an inline
+   "continue anyway" banner; it is not a validation error.
+   -> `docs/features/application-optimization.md`
+6. **`ResumeReviewEditor` needs a `key` that changes per review**, or accept/reject state leaks
+   from the previous resume. -> `docs/features/internship-resume.md`
+7. **New persisted state must be added to `buildContext()`** in `ChatbotWidget.jsx`, or the
+   chatbot can't answer about it. -> `docs/features/chatbot.md`
+8. **New history-eligible types need both `TYPE_LABELS` and `renderSnapshot`** in `HistoryPage`.
+   Missing either fails silently. -> `docs/features/history.md`
+9. **Inspirations content stays original or reference-only** — never paste in third-party or
+   copyrighted sample text. -> `docs/features/inspirations.md`
+10. **Feedback is qualitative, never scored** for internship / essay / cover-letter review. This
+    is a deliberate product stance, enforced in the prompts.
+11. **Keep these docs current in the same change.** If you alter something a doc states — a
+    contract, an invariant, a flow, an endpoint — update that doc as part of the work, not later.
+    A genuinely new feature gets its own `docs/features/<name>.md` and a row in the table below.
+    Do **not** write or expand a doc for a bug fix or a refactor that changes nothing a doc
+    claims; these files are on-demand agent context, and length is a cost.
 
-## Server architecture (`server/`)
+## Where the detail lives
 
-- `routes/api.js` — all endpoints, thin (validate body → call a service → respond). No auth,
-  no database; multer (`memoryStorage`) handles file uploads, capped at 10MB.
-- `services/` — one file per feature (university/internship/essay/coverLetter assessment,
-  interview prep, chatbot, document classification, resume PDF export/parsing). Each is
-  independent and takes `profile` (the onboarding profile: name/educationLevel/location) as an
-  optional param to conditionally add an `internationalNote` when `profile.location` isn't
-  Singapore — this convention repeats across every assessment service and the chatbot; keep it
-  consistent if you add another one.
-- `data/universityRequirements.js` — hardcoded baseline admission requirements (GPA, subjects,
-  competitiveness) for NUS/NTU/SMU/SUTD across a handful of majors. This is the only "database"
-  in the app; extend it directly to add a university/major.
-- `services/resumeParser.js` / `universityProfileParser.js` — text extraction (pdf-parse / mammoth
-  for PDF/DOCX) and LLM-based structured-field extraction from a raw document (used by both the
-  university panel's pre-fill and essay optimization's "extract just the personal statement"
-  feature — same underlying extraction, different consumers).
+| Read this | When you're... |
+| --- | --- |
+| `docs/architecture.md` | Orienting; touching routing, `AppContext`, `localStorage`, styling, or the request path |
+| `docs/llm.md` | Adding or changing **any** LLM call, prompt, mock, or provider |
+| `docs/api.md` | Adding or changing an endpoint, or checking a request/response shape |
+| `docs/features/onboarding.md` | Touching the profile, education levels, or international-applicant behavior |
+| `docs/features/application-optimization.md` | Working on the type picker, uploads, or adding a new optimization type |
+| `docs/features/document-pipeline.md` | Touching text extraction, document classification, or field parsing |
+| `docs/features/university-application.md` | Working on the checklist, the requirements table, or adding a university/major |
+| `docs/features/internship-resume.md` | Working on resume review, accept/reject bullets, or PDF export |
+| `docs/features/essay-optimization.md` | Working on the essay question/answer flow |
+| `docs/features/cover-letter-optimization.md` | Working on the cover letter prompt/answer flow |
+| `docs/features/interview-prep.md` | Working on interview plans, common questions, or the salary/tell-me-about-yourself rules |
+| `docs/features/chatbot.md` | Working on the chatbot, chat context, or `ChatUIContext` |
+| `docs/features/history.md` | Working on the history log, snapshots, or bookmarking |
+| `docs/features/inspirations.md` | Working on the sample essay/resume galleries |
 
-## Client architecture (`client/src`)
+### Adding a feature doc
 
-- **Single global state**, no server-side persistence: `context/AppContext.jsx` holds one state
-  object (profile, each optimization type's form + latest assessment, chat history, history log)
-  and persists it wholesale to `localStorage` on every change. There's no per-slice reducer — every
-  setter does a shallow merge into one key. `ChatUIContext.jsx` is separate and deliberately
-  *not* persisted (just chat panel open/draft-text UI state).
-- **Routing**: `App.jsx` — onboarding at `/`, then `/app/{optimize,history,interviews,inspirations}`
-  under `Layout.jsx` (nav + the floating `ChatbotWidget`). `/app/university` and `/app/internship`
-  are legacy redirects to `/app/optimize` from an earlier two-tab layout — don't resurrect them as
-  real routes without checking why they were folded in.
-- **Application Optimization flow** (`pages/ApplicationOptimizationPage.jsx` +
-  `components/optimize/*Panel.jsx`): the user picks a type *first* (University/Internship/Essay/
-  CoverLetter), then each panel independently owns its own upload via
-  `components/optimize/DocumentUploader.jsx`. `DocumentUploader` calls `/api/optimize/classify`,
-  compares the predicted document type against what that panel expects, and — if they mismatch —
-  shows an inline confirm-to-proceed banner rather than blocking. This confirm-don't-reject pattern
-  is intentional; don't make it a hard validation error.
-- **Shared report pattern** ("Feedback then Corrections"): `UniversityPanel`'s exported
-  `UniversityReport`, `ResumeReviewEditor`, and `components/QAReview.jsx` all render an overview
-  block (`overallImpression`/summary + strengths/gaps + optional `internationalNote`) before an
-  itemized detail section. `ResumeReviewEditor` additionally supports inline accept/reject editing
-  of suggested bullet rewrites and PDF export via `/api/resume/export`; it must be given a `key`
-  that changes per-review (see `InternshipPanel`) or its accept/reject state leaks across resumes.
-- **History** (`pages/HistoryPage.jsx`): a flat, filterable, bookmarkable log of everything —
-  every completed optimization run (with a full `snapshot` of the result so an entry can be
-  re-rendered read-only) plus bookmarked items from Inspirations. Re-uses the same report
-  components (`UniversityReport`, `ResumeReviewEditor`, `QAReview`, `InterviewPlanView`) to render
-  a snapshot by `entry.type`, so a new history-eligible feature needs its `type` added to
-  `HistoryPage`'s `renderSnapshot`/`TYPE_LABELS` switch.
-- **Inspirations** (`pages/InspirationsPage.jsx`): static, curated data, not LLM-generated —
-  `data/sampleEssays.js` is a reference list (title/university/theme only, links out to the
-  source) and `data/sampleResumes.js` is original sample content. Both were deliberately written
-  to avoid reproducing third-party copyrighted text; keep new sample content original or
-  reference-only rather than copy-pasted from an external site.
-- **Chatbot** (`components/ChatbotWidget.jsx` + `server/services/chatbot.js`): one conversation
-  per account, never reset by navigation. On every message it sends the *entire* app context
-  (all four optimization types' portfolios/assessments + interview prep/plan + profile), not just
-  whatever tab is active — this is intentional so the bot can answer cross-feature questions
-  ("compare my resume and my university profile"). If you add new persisted state that a user
-  might reasonably ask about, add it to `buildContext()` in `ChatbotWidget.jsx`.
+Match the existing skeleton so the set stays skimmable: **What it does** (1-3 lines) · **Files**
+(path -> role table) · **Flow** (numbered client -> API -> service -> render) · **Contract** (the
+JSON shape, one line) · **Invariants** (one line each, claim + reason) · **Extending it**.
 
-## Samples
+Budget: **50-80 lines.** No pasted code or prompt text — name a rule in a clause and cite
+`file.js:line`. Link to other docs instead of restating them. If it won't fit, it's covering two
+features; split it.
 
-`samples/` (repo root) holds synthetic test files organized by feature (`university/`,
-`internship/`, `essay/`, `cover-letter/`) at weak/standard/strong (or weak/borderline/strong)
-quality tiers, used for manually exercising each assessment flow end-to-end.
+`samples/` (repo root) holds synthetic test files by feature (`university/`, `internship/`,
+`essay/`, `cover-letter/`) at weak/standard/strong tiers, for exercising each flow end-to-end.
 
 ## Agent skills
 
