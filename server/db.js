@@ -29,6 +29,12 @@ db.exec(`
   );
 
   CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+
+  CREATE TABLE IF NOT EXISTS user_state (
+    user_id    INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    state      TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
 `);
 
 module.exports = { db, close: () => db.close() };

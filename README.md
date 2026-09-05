@@ -93,5 +93,6 @@ empty answer. All extracted/pre-filled fields stay editable. See `samples/` for 
   or actual application portals.
 - Accounts are email + password, held in a local SQLite file the server creates on first boot;
   the app opens on a sign-in screen and onboarding runs once per account.
-- Application state (profile, portfolios, assessments, chat, history) is still stored in
-  `localStorage`, so two accounts used in the same browser share it.
+- Application state (profile, portfolios, assessments, chat, history) belongs to the account and
+  is saved to the server, so it follows you between browsers and two accounts on one machine stay
+  separate. The app needs the server running to open.

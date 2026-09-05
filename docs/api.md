@@ -8,8 +8,9 @@ methods are in `client/src/api/client.js`.
 - **Sessions are cookies.** Signing up or in sets an httpOnly `pp_session` cookie
   (`sameSite=lax`, 30 days). Browsers must send credentials; CORS is configured with an explicit
   origin so the cookie survives direct access to port 4000. See `docs/architecture.md`.
-- **`requireAuth` guards `/auth/me` and `/auth/logout`.** The feature endpoints below are still
-  open and stateless — the client sends whatever state it needs (including `profile`) in the body.
+- **`requireAuth` guards `/auth/me`, `/auth/logout`, and both `/state` endpoints.** The feature
+  endpoints below are still open and stateless — the client sends whatever state it needs
+  (including `profile`) in the body.
 - **401 `{error}`** is the response to a missing, unknown, or expired session, and to failed
   sign-in credentials.
 - **Uploads**: `multer` with `memoryStorage()`, `fileSize` capped at **10MB**, always the field
@@ -30,6 +31,8 @@ methods are in `client/src/api/client.js`.
 | `POST /auth/login` | `{email, password}` | `{user}` + session cookie | `auth.signIn` |
 | `POST /auth/logout` | — (session required) | `{ok: true}`, session deleted, cookie cleared | `auth.signOut` |
 | `GET /auth/me` | — (session required) | `{user}` or `401` | `auth.getSessionUser` |
+| `GET /state` | — (session required) | the account's whole state document, `{}` when nothing is saved yet | `userState.readState` |
+| `PUT /state` | the whole state document as the body | `{ok: true}`, the stored document replaced | `userState.replaceState` |
 | `GET /university/options` | — | `{universities: [{code, name, majors[]}]}` | `universityAssessment.listOptions` |
 | `POST /assess/university` | `{university, major, portfolio{gpa?, subjects[], extracurriculars, languageProficiency}, profile?}` — first three required | `{university, universityCode, major, competitiveness, checklist[], checklistPassCount, checklistTotal, feedback{}, source}` | `universityAssessment` |
 | `POST /university/extract` | multipart `file` | `{gpa?, subjects[], extracurriculars, essay, source, filename}` | `resumeParser` + `universityProfileParser` |
@@ -52,6 +55,13 @@ methods are in `client/src/api/client.js`.
   same message, so the form can't be used to discover who has an account. Don't split them.
 - **`/auth/logout`** — deletes the session row before clearing the cookie; a captured token stops
   working immediately. It requires a session, so a signed-out client gets `401`.
+- **`/state`** — one JSON document per account, mirroring `defaultState()` in `AppContext`,
+  stored opaquely: nothing on the server reads inside it. The document travels as itself in both
+  directions, not wrapped in an envelope. `PUT` replaces it **wholesale** — it does not merge —
+  and validates only that the body is a JSON object (a `400` otherwise), because the client is the
+  sole writer and a shape check would need updating on every state change. A row is created empty
+  at sign-up, so a new account reads `{}` rather than a `404`. Concurrent writes are
+  last-write-wins with no conflict detection. See `docs/architecture.md` for the client half.
 - **`/assess/university`** — `university` is the *code* (`NUS`), `major` the exact key from
   `server/data/universityRequirements.js`. Unknown values throw, surfacing as a 400.
 - **`/university/extract` vs `/university/extract-text`** — same parser, different input. The file

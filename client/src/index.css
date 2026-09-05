@@ -291,6 +291,15 @@ label {
   font-weight: 600;
 }
 
+.save-status {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.save-status.is-error {
+  color: var(--danger);
+}
+
 .app-main {
   flex: 1;
   padding: 2rem;
