@@ -27,4 +27,11 @@ function replaceState(userId, state) {
   ).run(userId, JSON.stringify(state), new Date().toISOString());
 }
 
-module.exports = { createEmptyState, readState, replaceState };
+// "Clear my data": the Account survives and only its document goes, back to the same empty one
+// sign-up creates. The client's defaults are not reconstructed here — the document stays opaque,
+// and an empty one is what the client spreads its defaults over on the next read.
+function clearState(userId) {
+  replaceState(userId, {});
+}
+
+module.exports = { createEmptyState, readState, replaceState, clearState };

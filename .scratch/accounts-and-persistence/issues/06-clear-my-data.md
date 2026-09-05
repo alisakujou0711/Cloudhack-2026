@@ -19,11 +19,11 @@ this — it is the one irreversible path in the design and nothing depends on it
 
 **Status:** ready-for-agent
 
-- [ ] A clear-my-data action is available on the History page and requires an explicit confirmation.
-- [ ] Cancelling the confirmation changes nothing.
-- [ ] Confirming resets the state document to defaults on the server, not only in the browser.
-- [ ] The account survives — the person remains signed in and can keep using the app.
-- [ ] After clearing, the person is routed to onboarding rather than into an app with no profile.
-- [ ] Signing out and back in after clearing shows the empty account, confirming the reset was
+- [x] A clear-my-data action is available on the History page and requires an explicit confirmation.
+- [x] Cancelling the confirmation changes nothing.
+- [x] Confirming resets the state document to defaults on the server, not only in the browser.
+- [x] The account survives — the person remains signed in and can keep using the app.
+- [x] After clearing, the person is routed to onboarding rather than into an app with no profile.
+- [x] Signing out and back in after clearing shows the empty account, confirming the reset was
       persisted.
-- [ ] The header still offers only Sign out; no destructive action returns to it.
+- [x] The header still offers only Sign out; no destructive action returns to it.

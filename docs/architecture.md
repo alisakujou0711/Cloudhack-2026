@@ -92,6 +92,14 @@ State keys (`defaultState()`): `profile`, `universityPortfolio`, `internshipPort
   header's indicator in `Layout.jsx` reports.
 - Signing out cancels any queued write and resets state to defaults, so a pending save can never
   land on the account that signs in next.
+- **Clearing is a server call, not a local reset.** `clearData()` (History page, "Clear my data")
+  cancels any queued write — it still holds the document being wiped — and **awaits any write
+  already on the wire**, which cannot be cancelled and would silently restore the document if its
+  `PUT` reached the server after the `DELETE`. It then sends `DELETE /state` and moves state to
+  defaults *without* scheduling a save; going through `mutate` would write the defaults straight
+  back over the wipe. On failure it puts the header back where it was, re-queueing the dropped
+  write if there was one. Losing `profile` with the document is what walks the person back through
+  onboarding, via the routing gate below.
 - `client/src/context/ChatUIContext.jsx` is a **separate**, deliberately unpersisted context for
   chat panel open/draft state. See `docs/features/chatbot.md`.
 
@@ -146,7 +154,7 @@ why they were merged.
 
 ## Styling
 
-One global stylesheet, `client/src/index.css` (~1160 lines), with CSS custom properties on
+One global stylesheet, `client/src/index.css` (~1230 lines), with CSS custom properties on
 `:root` (`--bg`, `--surface`, `--border`, `--text`, `--text-muted`, `--primary`, `--success`,
 `--danger`, …) and `color-scheme: light`. Semantic class names (`.card`, `.btn-primary`,
 `.link-btn`, `.subtitle`, `.error-text`, `.badge`), no CSS modules, no utility framework, no dark

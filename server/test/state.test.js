@@ -124,6 +124,9 @@ test('state requests without a usable session are rejected', async () => {
   const unknownCookie = await anonymous.get('/state', { cookieHeader: 'pp_session=not-a-real-token' });
   assert.equal(unknownCookie.status, 401);
 
+  const noCookieClear = await anonymous.del('/state');
+  assert.equal(noCookieClear.status, 401);
+
   const revoked = await signedUpClient('revoked@example.com');
   await revoked.post('/auth/logout');
   const afterSignOut = await revoked.get('/state');
@@ -144,4 +147,63 @@ test('a body that is not a json object is rejected', async () => {
 
   const read = await client.get('/state');
   assert.deepEqual(read.body, { profile: { name: 'Intact' } }, 'a rejected write changed nothing');
+});
+
+// Clearing — the destructive half of the old "Start over", now on the History page. It resets the
+// document, never the Account. See .scratch/accounts-and-persistence/issues/06-clear-my-data.md.
+test('clearing leaves the account holding the same empty document a new one starts with', async () => {
+  const client = await signedUpClient('clearing@example.com');
+  await client.put('/state', stateDocument('Clearing'));
+
+  const cleared = await client.del('/state');
+  assert.equal(cleared.status, 200);
+
+  const read = await client.get('/state');
+  assert.equal(read.status, 200);
+  assert.deepEqual(read.body, {}, 'the document is empty, exactly as a newly created account reads');
+});
+
+test('clearing keeps the account: the same session carries on and can write again', async () => {
+  const client = await signedUpClient('survives@example.com');
+  await client.put('/state', stateDocument('Survives'));
+
+  await client.del('/state');
+
+  const me = await client.get('/auth/me');
+  assert.equal(me.status, 200, 'the session outlives the wipe — this clears data, not the account');
+  assert.equal(me.body.user.email, 'survives@example.com');
+
+  // Onboarding again after the wipe is an ordinary write on the same session.
+  const write = await client.put('/state', { profile: { name: 'Starting again' } });
+  assert.equal(write.status, 200);
+  assert.deepEqual((await client.get('/state')).body, { profile: { name: 'Starting again' } });
+});
+
+test('a cleared document is still empty after signing out and signing back in', async () => {
+  const first = await signedUpClient('persisted@example.com');
+  await first.put('/state', stateDocument('Persisted'));
+  await first.del('/state');
+  assert.equal((await first.post('/auth/logout')).status, 200);
+
+  // A different client, as a different browser would be: nothing but the credentials carries over,
+  // so an empty read here is the server's document and not a cleared browser.
+  const second = harness.client();
+  const login = await second.post('/auth/login', { email: 'persisted@example.com', password: PASSWORD });
+  assert.equal(login.status, 200);
+
+  const read = await second.get('/state');
+  assert.equal(read.status, 200);
+  assert.deepEqual(read.body, {});
+});
+
+test("clearing one account leaves another account's document untouched", async () => {
+  const owner = await signedUpClient('keeper@example.com');
+  await owner.put('/state', stateDocument('Keeper'));
+
+  const other = await signedUpClient('wiper@example.com');
+  await other.put('/state', stateDocument('Wiper'));
+  assert.equal((await other.del('/state')).status, 200);
+
+  assert.deepEqual((await owner.get('/state')).body, stateDocument('Keeper'));
+  assert.deepEqual((await other.get('/state')).body, {});
 });
