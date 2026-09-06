@@ -66,9 +66,8 @@ the desk is scoped under `.optimize`.
   there) so the row prints the category once, above the subject.
 - The row header is a `<button>` with `aria-expanded`; Bookmark and Remove are siblings of it, not
   children, so neither needs `stopPropagation`. Only one row is open at a time.
-- The star saves quietly (`mutate`'s `{quiet: true}`, see `docs/architecture.md`): the bookmark
-  persists like any other mutation, but the header's save indicator stays put rather than
-  flickering for a one-tap toggle. Remove and every other write stay loud.
+- The star persists like any other mutation — a debounced `PUT` of the whole document, with no
+  visible save indicator anywhere. See `docs/architecture.md`.
 - **Arrival:** everything carries `.rise` and a `--rise-step` set from `HistoryPage`, so the page
   assembles once in reading order on the mount that clicking the tab causes. The log is keyed on
   `filter`/`bookmarkedOnly`, which replays the cascade when a chip is pressed. Under
