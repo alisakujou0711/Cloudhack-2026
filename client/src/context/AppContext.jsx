@@ -81,6 +81,9 @@ export function AppProvider({ children }) {
   const inFlightSave = useRef(null);
   // The account a queued or in-flight write belongs to; it must never land on the next one.
   const savingFor = useRef(null);
+  // Whether every mutation coalesced into the queued write asked to stay off the header. One loud
+  // mutation in the batch makes the whole write loud, since a single request covers them all.
+  const pendingSaveIsQuiet = useRef(true);
 
   useEffect(() => {
     latestState.current = state;
@@ -88,11 +91,15 @@ export function AppProvider({ children }) {
 
   const runSave = useCallback((forAccountId) => {
     if (!forAccountId || savingFor.current !== forAccountId) return;
-    setSaveStatus('saving');
+    const quiet = pendingSaveIsQuiet.current;
+    pendingSaveIsQuiet.current = true;
+    if (!quiet) setSaveStatus('saving');
     const request = api
       .saveState(latestState.current)
       .then(() => {
-        if (savingFor.current === forAccountId) setSaveStatus('saved');
+        // A quiet write leaves the header where it was — unless it is reporting a failure this
+        // write has just undone, which would be a lie the person acts on.
+        if (savingFor.current === forAccountId) setSaveStatus((prev) => (quiet && prev !== 'error' ? prev : 'saved'));
       })
       .catch((err) => {
         // A 401 is already handled centrally by the API client; anything else stays on screen as
@@ -114,10 +121,13 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  const scheduleSave = useCallback(() => {
+  const scheduleSave = useCallback((quiet) => {
     const forAccountId = savingFor.current;
     if (!forAccountId) return;
-    setSaveStatus('pending');
+    if (!quiet) {
+      pendingSaveIsQuiet.current = false;
+      setSaveStatus('pending');
+    }
     cancelPendingSave();
     saveTimer.current = setTimeout(() => {
       saveTimer.current = null;
@@ -167,9 +177,13 @@ export function AppProvider({ children }) {
   // Every mutation goes through here: React state moves immediately and the whole document is
   // scheduled for a write. Loading deliberately does not, or the document that just arrived
   // would be written straight back.
-  const mutate = (updater) => {
+  //
+  // `quiet` saves exactly the same, it just doesn't move the header's indicator. It is for
+  // incidental one-tap toggles, where "Saving... / Saved" flickering next to the account name is
+  // more noticeable than the thing that was toggled. A failure still shows.
+  const mutate = (updater, { quiet = false } = {}) => {
     setState(updater);
-    scheduleSave();
+    scheduleSave(quiet);
   };
 
   const setProfile = (profile) => mutate((s) => ({ ...s, profile }));
@@ -195,10 +209,13 @@ export function AppProvider({ children }) {
       history: [{ id: makeHistoryId(), timestamp: Date.now(), bookmarked: false, ...entry }, ...s.history],
     }));
   const toggleBookmark = (id) =>
-    mutate((s) => ({
-      ...s,
-      history: s.history.map((h) => (h.id === id ? { ...h, bookmarked: !h.bookmarked } : h)),
-    }));
+    mutate(
+      (s) => ({
+        ...s,
+        history: s.history.map((h) => (h.id === id ? { ...h, bookmarked: !h.bookmarked } : h)),
+      }),
+      { quiet: true },
+    );
   const removeHistoryEntry = (id) =>
     mutate((s) => ({ ...s, history: s.history.filter((h) => h.id !== id) }));
 
