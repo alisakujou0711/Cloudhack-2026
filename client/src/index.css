@@ -239,17 +239,421 @@ label {
   color: transparent;
 }
 
-/* Sign-in / sign-up */
+/* Sign-in / sign-up
+   Two panels: the form on paper, and the product's own mechanic — a draft being marked up —
+   running on the ink side. The ink palette is declared on .auth-screen rather than :root so it
+   cannot leak into the signed-in app, which stays light. */
+.auth-screen {
+  --auth-ink: #14172b;
+  --auth-paper: #fdfcf9;
+  --auth-accent: #a3a8ff;
+  --auth-rule: rgba(20, 23, 43, 0.18);
+  --auth-strike: #9b3232;
+  --auth-written: #14532d;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.auth-panel {
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem clamp(1.5rem, 5vw, 4rem);
+}
+
+.auth-panel-inner {
+  width: 100%;
+  max-width: 27rem;
+}
+
+.auth-wordmark {
+  margin: 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.auth-headline {
+  margin: 2rem 0 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.05rem, 3.4vw, 2.9rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.auth-deck {
+  margin: 0.9rem 0 0;
+  max-width: 44ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.auth-form {
+  display: grid;
+  gap: 1.15rem;
+  margin-top: 2.25rem;
+}
+
+.auth-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+/* The global `label` rule is a column flex box for the in-app forms; here the label is one
+   line above its own field. */
+.auth-field-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.auth-screen input[type='email'],
+.auth-screen input[type='password'],
+.auth-screen input[type='text'] {
+  padding: 0.72rem 0.85rem;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border-color: #d8dbe6;
+  background: #fbfbfd;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.auth-screen input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+}
+
+.auth-password {
+  position: relative;
+}
+.auth-password input {
+  padding-right: 4rem;
+}
+
+.auth-reveal {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.45rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.auth-reveal:hover {
+  color: var(--primary);
+  background: var(--optional-bg);
+}
+.auth-reveal:focus-visible,
+.auth-alt a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.auth-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 10px;
+}
+
 .auth-alt {
-  margin: 1.25rem 0 0;
+  margin: 1.6rem 0 0;
   font-size: 0.85rem;
   color: var(--text-muted);
-  text-align: center;
 }
 
 .auth-alt a {
   color: var(--primary);
   font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+/* The desk */
+.auth-desk {
+  position: relative;
+  overflow: hidden;
+  background: var(--auth-ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.75rem;
+  padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3.5rem);
+}
+
+/* One light source, so the page reads as an object lying on a surface, not a second panel. */
+.auth-desk::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(105% 80% at 62% 6%, rgba(122, 130, 255, 0.13), transparent 60%);
+  pointer-events: none;
+}
+
+.auth-desk-lede {
+  position: relative;
+  margin: 0;
+  max-width: 42ch;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--auth-accent);
+}
+
+.auth-page {
+  position: relative;
+  width: calc(100% + 5rem);
+  padding: 1.75rem 2.25rem 3.25rem;
+  border-radius: 4px;
+  background: var(--auth-paper);
+  color: var(--text);
+  box-shadow: 0 26px 60px -22px rgba(0, 0, 0, 0.6);
+  transform: rotate(-1.3deg);
+  animation: auth-page-in 620ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+/* The page carries on past what fits — the fade says so without inventing more text. */
+.auth-page::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4.25rem;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(to bottom, rgba(253, 252, 249, 0), var(--auth-paper) 78%);
+  pointer-events: none;
+}
+
+@keyframes auth-page-in {
+  from {
+    opacity: 0;
+    transform: rotate(-3.4deg) translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-1.3deg) translateY(0);
+  }
+}
+
+.auth-page-head {
+  margin-bottom: 1.4rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--auth-rule);
+}
+.auth-page-head h2 {
+  margin: 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.auth-page-head p {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.auth-page-body {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  transition: opacity 0.4s ease;
+}
+.auth-page-body.is-resetting {
+  opacity: 0;
+}
+
+/* The margin rule the annotations hang against, drawn once down the whole page. */
+.auth-page-body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 8.5rem;
+  width: 1px;
+  background: var(--auth-rule);
+}
+
+.auth-para {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 0 1.4rem;
+  align-items: start;
+}
+
+.auth-note {
+  margin: 0;
+  padding-right: 0.9rem;
+  text-align: right;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.45s ease 0.1s;
+}
+.auth-para.is-striking .auth-note,
+.auth-para.is-typing .auth-note,
+.auth-para.is-applied .auth-note {
+  opacity: 1;
+}
+
+.auth-lines {
+  max-width: 27rem;
+}
+
+.auth-line {
+  margin: 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 0.98rem;
+  line-height: 1.62;
+}
+
+/* The tint rides on the span, not the paragraph, so it hugs the words as they are written and
+   still follows the shape of a line that wraps. */
+.auth-line > span:first-child {
+  padding: 0.1rem 0.3rem;
+  margin-left: -0.3rem;
+  border-radius: 4px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.auth-line-original span {
+  color: var(--text);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: transparent;
+  transition: color 0.35s ease, background 0.35s ease, text-decoration-color 0.45s ease;
+}
+.auth-para.is-striking .auth-line-original span,
+.auth-para.is-typing .auth-line-original span,
+.auth-para.is-applied .auth-line-original span {
+  color: var(--auth-strike);
+  background: var(--danger-bg);
+  text-decoration-color: rgba(220, 38, 38, 0.55);
+}
+
+.auth-line-revised {
+  margin-top: 0.35rem;
+}
+.auth-ink {
+  color: var(--auth-written);
+  background: var(--success-bg);
+}
+.auth-ink:empty {
+  padding: 0;
+  background: none;
+}
+.auth-ghost {
+  visibility: hidden;
+}
+
+.auth-caret {
+  display: inline-block;
+  width: 2px;
+  height: 0.95em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: var(--auth-written);
+  animation: auth-caret 1s linear infinite;
+}
+
+@keyframes auth-caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1000px) {
+  .auth-screen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .auth-panel {
+    padding: 3rem 1.5rem 2.75rem;
+  }
+  .auth-panel-inner {
+    max-width: 30rem;
+  }
+  .auth-desk {
+    padding: 2.75rem 1.5rem 3rem;
+  }
+  .auth-page {
+    width: 100%;
+    transform: none;
+    padding: 1.75rem 1.5rem 3rem;
+    animation-name: auth-page-in-flat;
+  }
+  .auth-page-body::before {
+    display: none;
+  }
+  .auth-para {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+  }
+  .auth-lines {
+    order: 1;
+  }
+  .auth-note {
+    order: 2;
+    padding: 0 0 0 0.75rem;
+    text-align: left;
+    border-left: 2px solid var(--auth-rule);
+  }
+  .auth-note:empty {
+    display: none;
+  }
+}
+
+@keyframes auth-page-in-flat {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-page {
+    animation: none;
+  }
+  .auth-caret {
+    display: none;
+  }
+  .auth-line-original span,
+  .auth-note,
+  .auth-screen input {
+    transition: none;
+  }
 }
 
 /* Layout */

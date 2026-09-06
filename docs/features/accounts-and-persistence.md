@@ -16,6 +16,7 @@ session cookie, and one state document per Account read and written over `/api/s
 | `client/src/context/AuthContext.jsx` | The session — deliberately separate from `AppContext` |
 | `client/src/context/AppContext.jsx` | Loads the document once per Account, writes it back debounced |
 | `client/src/pages/SignInPage.jsx` · `SignUpPage.jsx` | The two screens over one `AuthForm` |
+| `client/src/components/AuthForm.jsx` · `AuthShowcase.jsx` | The shared form shell, and the marked-up-draft panel beside it |
 | `client/src/App.jsx` | `gateRedirect` (`:16`) — session, then profile |
 | `client/src/api/client.js` | `credentials: 'include'` on all three transports; central 401 (`:18`) |
 | `server/test/` | Auth, state, gated endpoints, expiry and reboot, over real HTTP |
