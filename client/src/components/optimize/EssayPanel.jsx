@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { api } from '../../api/client';
 import QAReview from '../QAReview';
 import DocumentUploader from './DocumentUploader';
+import MarkupPanel from './MarkupPanel';
 
 export default function EssayPanel({ onComplete }) {
   const { profile, essayOptimization, setEssayOptimization, essayAssessment, setEssayAssessment } = useApp();
@@ -96,9 +97,13 @@ export default function EssayPanel({ onComplete }) {
 
   return (
     <div className="page-grid">
-      <div className="card">
-        <h2>Essay Optimization</h2>
-        <p className="subtitle">Get feedback on your university application essays, question by question.</p>
+      <div className="card work-card">
+        <h1 className="panel-title">Essay</h1>
+        <p className="panel-deck">Feedback on your application essays, one question at a time.</p>
+        <ol className="panel-steps">
+          <li className={step === 'setup' ? 'is-current' : 'is-done'}>Where it is going</li>
+          <li className={step === 'questions' ? 'is-current' : ''}>The questions</li>
+        </ol>
 
         {step === 'setup' && (
           <form onSubmit={handleSetupSubmit} className="form">
@@ -185,11 +190,16 @@ export default function EssayPanel({ onComplete }) {
         )}
       </div>
 
-      <div className="card">
-        <h2>Report</h2>
-        {!essayAssessment && <p className="subtitle">Submit your essays to see feedback.</p>}
+      <MarkupPanel
+        title="Your markup"
+        loading={loading}
+        loadingLabel="Reading your answers…"
+        invitation="Write the answers in your own words. Each one comes back with what it is actually saying about you — and what it is leaving out."
+        sections={['Feedback', 'Strengths', 'Question by question']}
+        result={essayAssessment}
+      >
         {essayAssessment && <QAReview result={essayAssessment} items={essayAssessment.perQuestion} itemLabel="Q" />}
-      </div>
+      </MarkupPanel>
     </div>
   );
 }

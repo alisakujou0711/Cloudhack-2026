@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { api } from '../../api/client';
 import ResumeReviewEditor from '../ResumeReviewEditor';
 import DocumentUploader from './DocumentUploader';
+import MarkupPanel from './MarkupPanel';
 
 // Internship Application Optimization. Resume upload is the primary, prompted path here.
 export default function InternshipPanel({ onComplete }) {
@@ -47,9 +48,11 @@ export default function InternshipPanel({ onComplete }) {
 
   return (
     <div className="page-grid">
-      <div className="card">
-        <h2>Internship Application Optimization</h2>
-        <p className="subtitle">Upload your resume for a structured, itemized review.</p>
+      <div className="card work-card">
+        <h1 className="panel-title">Resume</h1>
+        <p className="panel-deck">
+          Upload it or paste it in. Every bullet comes back with a stronger version you can keep or drop.
+        </p>
         <form onSubmit={handleSubmit} className="form">
           <label>
             Target role / field
@@ -85,13 +88,18 @@ export default function InternshipPanel({ onComplete }) {
         </form>
       </div>
 
-      <div className="card">
-        <h2>Report</h2>
-        {!internshipAssessment && <p className="subtitle">Submit your resume to see your review.</p>}
+      <MarkupPanel
+        title="Your markup"
+        loading={loading}
+        loadingLabel="Reading your resume line by line…"
+        invitation="Send a resume over and it comes back marked up: the weak lines cut, stronger ones written underneath, each with the reason it changed."
+        sections={['Overall', 'Experience', 'Projects']}
+        result={internshipAssessment && internshipAssessment.sections ? internshipAssessment : null}
+      >
         {internshipAssessment && internshipAssessment.sections && (
           <ResumeReviewEditor key={reviewKey} result={internshipAssessment} />
         )}
-      </div>
+      </MarkupPanel>
     </div>
   );
 }

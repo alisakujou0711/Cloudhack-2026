@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { api } from '../../api/client';
 import QAReview from '../QAReview';
 import DocumentUploader from './DocumentUploader';
+import MarkupPanel from './MarkupPanel';
 
 export default function CoverLetterPanel({ onComplete }) {
   const { profile, coverLetterOptimization, setCoverLetterOptimization, coverLetterAssessment, setCoverLetterAssessment } =
@@ -72,9 +73,13 @@ export default function CoverLetterPanel({ onComplete }) {
 
   return (
     <div className="page-grid">
-      <div className="card">
-        <h2>Cover Letter Optimization</h2>
-        <p className="subtitle">Get feedback on your internship/job cover letter, prompt by prompt.</p>
+      <div className="card work-card">
+        <h1 className="panel-title">Cover letter</h1>
+        <p className="panel-deck">Feedback on the letter you are sending with an application, prompt by prompt.</p>
+        <ol className="panel-steps">
+          <li className={step === 'setup' ? 'is-current' : 'is-done'}>Who it is for</li>
+          <li className={step === 'prompts' ? 'is-current' : ''}>The letter</li>
+        </ol>
 
         {step === 'setup' && (
           <form onSubmit={handleSetupSubmit} className="form">
@@ -155,13 +160,18 @@ export default function CoverLetterPanel({ onComplete }) {
         )}
       </div>
 
-      <div className="card">
-        <h2>Report</h2>
-        {!coverLetterAssessment && <p className="subtitle">Submit your cover letter to see feedback.</p>}
+      <MarkupPanel
+        title="Your markup"
+        loading={loading}
+        loadingLabel="Reading your letter…"
+        invitation="Draft the letter the way you would send it. It comes back paragraph by paragraph, with whether the pitch lands on the person reading it."
+        sections={['Feedback', 'Strengths', 'Prompt by prompt']}
+        result={coverLetterAssessment}
+      >
         {coverLetterAssessment && (
           <QAReview result={coverLetterAssessment} items={coverLetterAssessment.perPrompt} itemLabel="Prompt" />
         )}
-      </div>
+      </MarkupPanel>
     </div>
   );
 }
