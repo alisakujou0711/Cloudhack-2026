@@ -234,13 +234,390 @@ label {
   width: 100%;
 }
 
-.onboarding-card h1 {
-  margin: 0 0 0.4rem;
-  font-size: 1.8rem;
-  background: linear-gradient(90deg, var(--primary), #7c3aed);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* Onboarding — the file
+   The screen someone lands on straight out of sign-in, so it keeps that screen's geometry: the
+   form on paper at the left, the ink desk at the right. What is lying on the desk has changed —
+   the stranger's draft is gone and a blank student file is in its place, filling in as the three
+   answers arrive. It is worth showing because the answers are load-bearing: the education level
+   decides which document the picker suggests first, and the location flips international
+   behaviour across seven modules. The palette is declared on .onboard, the way .auth-screen and
+   .optimize declare theirs, so the ink cannot leak into the signed-in app. */
+.onboard {
+  --on-ink: #14172b;
+  --on-paper: #fdfcf9;
+  --on-rule: rgba(20, 23, 43, 0.18);
+  --on-written: #14532d;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+/* Arriving at the page
+   One orchestrated sequence rather than an effect per element: everything rises into place once,
+   in reading order, on the mount that arriving here causes. The step comes in from
+   OnboardingPage — see the note there for why it is not set in this file. */
+.onboard-rise {
+  animation: rise-in 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 55ms);
+}
+
+.onboard-panel {
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem clamp(1.5rem, 5vw, 4rem);
+}
+
+.onboard-inner {
+  width: 100%;
+  max-width: 27rem;
+}
+
+.onboard-wordmark {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.onboard-headline {
+  margin: 1.75rem 0 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: clamp(2.05rem, 3.4vw, 2.9rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.onboard-deck {
+  margin: 0.9rem 0 0;
+  max-width: 44ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.onboard-form {
+  display: grid;
+  gap: 1.2rem;
+  margin-top: 1.9rem;
+}
+
+.onboard-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+/* The global `label` rule is a column flex box for the in-app forms; here the label is one line
+   above its own field, and the legend has to be told the same thing. */
+.onboard-label {
+  display: block;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.onboard input[type="text"],
+.onboard input:not([type]) {
+  padding: 0.72rem 0.85rem;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border-color: #d8dbe6;
+  background: #fbfbfd;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.onboard input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+}
+
+/* Education level: three options, laid out so all three are readable at once. A select would
+   hide the answer that decides which document the desk opens with. */
+.onboard-choice {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.onboard-levels {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* The global `label` rule is a column flex box; this one is a row. */
+.onboard-level {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #d8dbe6;
+  border-radius: 10px;
+  background: #fbfbfd;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+.onboard-level:hover {
+  border-color: #c3c7d6;
+  background: var(--surface);
+}
+.onboard-level.is-picked {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+/* The native control stays in the accessibility tree and keeps the keyboard behaviour; the dot
+   beside it is what is actually drawn. */
+.onboard-level input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.onboard-level-dot {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #c3c7d6;
+  border-radius: 50%;
+  background: var(--surface);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.onboard-level.is-picked .onboard-level-dot {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 3.5px var(--primary);
+}
+.onboard-level:focus-within {
+  border-color: var(--primary);
+}
+.onboard-level:focus-within .onboard-level-dot {
+  box-shadow:
+    inset 0 0 0 3.5px var(--primary),
+    0 0 0 3px rgba(79, 70, 229, 0.16);
+}
+
+/* The error answers a press, so it arrives the same way everything else on the page did. */
+.onboard .error-text {
+  animation: rise-in 300ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.onboard-submit {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 10px;
+}
+
+.onboard-footnote {
+  margin: 1.35rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* The desk */
+.onboard-desk {
+  position: relative;
+  overflow: hidden;
+  background: var(--on-ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3.5rem);
+}
+
+/* One light source, so the card reads as an object lying on a surface, not a second panel. */
+.onboard-desk::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    105% 80% at 62% 6%,
+    rgba(122, 130, 255, 0.13),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.onboard-card {
+  position: relative;
+  width: 100%;
+  max-width: 34rem;
+  margin-inline: auto;
+  padding: 2rem 2.4rem 2.3rem;
+  border-radius: 4px;
+  background: var(--on-paper);
+  color: var(--text);
+  box-shadow: 0 26px 60px -22px rgba(0, 0, 0, 0.6);
+  animation: onboard-card-in 620ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 55ms);
+}
+
+@keyframes onboard-card-in {
+  from {
+    opacity: 0;
+    transform: rotate(-3.2deg) translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-1.2deg) translateY(0);
+  }
+}
+
+.onboard-card-head {
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--on-rule);
+}
+.onboard-card-head h2 {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* Unanswered, the card shows the shape of the answer rather than a blank — so nothing on it
+   moves when the answer arrives, only its weight and colour change. */
+.onboard-card-name {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--on-rule);
+  transition: color 0.3s ease;
+}
+.onboard-card-name.is-set {
+  color: var(--on-ink);
+}
+
+.onboard-card-meta {
+  margin: 0.4rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--on-rule);
+  transition: color 0.3s ease;
+}
+.onboard-card-meta.is-set {
+  color: var(--text-muted);
+}
+
+.onboard-card-rule {
+  height: 1px;
+  margin: 1.35rem 0;
+  background: var(--on-rule);
+}
+
+.onboard-card-rows {
+  display: grid;
+  gap: 1.1rem;
+  margin: 0;
+}
+
+.onboard-card-row {
+  margin: 0;
+}
+.onboard-card-row dt {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.onboard-card-val {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--on-rule);
+}
+
+/* The consequence of an answer, written in the ink the app uses for the changes it accepts. It
+   rises on the mount its own answer causes. */
+.onboard-card-val.is-resolved {
+  color: var(--on-written);
+  font-weight: 500;
+  animation: rise-in 380ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.onboard-card-intl {
+  animation: rise-in 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.onboard-card-intl .onboard-card-val {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--text);
+}
+
+@media (max-width: 1000px) {
+  .onboard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .onboard-panel {
+    padding: 3rem 1.5rem 2.5rem;
+  }
+  .onboard-inner {
+    max-width: 30rem;
+  }
+  .onboard-desk {
+    padding: 2.5rem 1.5rem 3rem;
+  }
+  .onboard-card {
+    max-width: none;
+    animation-name: rise-in;
+  }
+}
+
+@media (max-width: 560px) {
+  .onboard-card {
+    padding: 1.5rem 1.35rem 1.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The arrival is the whole point of landing here, so under reduce the page is simply already
+     there — and the card states its consequences without announcing them. */
+  .onboard-rise,
+  .onboard .error-text,
+  .onboard-card,
+  .onboard-card-val.is-resolved,
+  .onboard-card-intl {
+    animation: none;
+  }
+  .onboard-card-name,
+  .onboard-card-meta,
+  .onboard-level,
+  .onboard-level-dot,
+  .onboard input {
+    transition: none;
+  }
 }
 
 /* Sign-in / sign-up

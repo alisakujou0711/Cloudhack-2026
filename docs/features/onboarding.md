@@ -38,6 +38,10 @@ it with the same expression:
 `universityAssessment.js`, `internshipAssessment.js`, `essayOptimization.js`,
 `coverLetterOptimization.js`, `interviewPrep.js`, `chatbot.js`, and `UniversityPanel.jsx`.
 
+`OnboardingPage.jsx` derives it an eighth time, on the answer being typed rather than on a saved
+profile, so the file card beside the form can show the consequence before it is committed to. It
+decides nothing.
+
 When true:
 
 - Assessment services add a non-null `internationalNote` (visa/work-pass, transcript equivalency,
