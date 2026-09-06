@@ -2125,15 +2125,6 @@ label {
   border-radius: 8px;
   font-style: italic;
 }
-.interview-question strong {
-  font-style: normal;
-  color: var(--text);
-}
-
-.save-history-btn {
-  margin-bottom: 1rem;
-}
-
 /* History — the log
    A record, not a feed: one continuous sheet with a dated rail down its left edge and entries
    hanging off it. Scoped on .history the way the desk is scoped on .optimize, so the ledger
@@ -2682,6 +2673,433 @@ label {
     transition: none;
   }
 }
+/* Interviews — the green room
+   Every other tab here is about paper: the desk marks documents up, the log files them away. This
+   is the one place where nothing is written down — you speak, at a fixed time in the future. So
+   two things carry the page: how long is left, and the lines to rehearse. Spruce is the room;
+   amber is time and nothing else; speech is set in the serif while the apparatus around it stays
+   in the sans. Scoped on .interviews and .prep-plan so none of it leaks into the rest of the app.
+   .prep-plan carries its own scope because HistoryPage renders it far from this tab. */
+.interviews,
+.prep-plan {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --iv-ink: #12281f;
+  --iv-ink-soft: rgba(18, 40, 31, 0.62);
+  --iv-mute: #5d6f66;
+  --iv-rule: rgba(18, 40, 31, 0.14);
+  --iv-cue: #b3701c;
+}
+
+.interviews {
+  max-width: 68rem;
+}
+
+.iv-headline {
+  margin: 0.25rem 0 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.95rem, 3.2vw, 2.7rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--iv-ink);
+  text-wrap: balance;
+}
+
+.iv-deck {
+  margin: 0.85rem 0 0;
+  max-width: 54ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--iv-mute);
+}
+
+/* Booking, and the plan it produces. No cards: hairlines and a rule between the two columns, so
+   every filled shape on the page is something you can act on. */
+.iv-body {
+  display: grid;
+  grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+  margin-top: 2.25rem;
+  padding-top: 2.25rem;
+  border-top: 1px solid var(--iv-rule);
+}
+
+.iv-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+}
+.interviews label {
+  color: var(--iv-mute);
+}
+.interviews input,
+.interviews select,
+.interviews textarea {
+  border-radius: 6px;
+  border-color: var(--iv-rule);
+  color: var(--iv-ink);
+}
+.interviews input:focus-visible,
+.interviews select:focus-visible,
+.interviews textarea:focus-visible {
+  outline: 2px solid var(--iv-ink);
+  outline-offset: 1px;
+  border-color: var(--iv-ink);
+}
+.interviews textarea {
+  resize: vertical;
+}
+
+/* The days field carries a note under it, so it is grouped rather than left to the form's gap.
+   The note holds one line's height whatever it says, which is what keeps the button below it
+   from moving as the number is typed. */
+.iv-days-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.iv-days-note {
+  margin: 0;
+  min-height: 1.15rem;
+  font-size: 0.78rem;
+  line-height: 1.15rem;
+  color: var(--iv-mute);
+}
+.iv-days-note.is-short {
+  color: var(--iv-cue);
+  font-weight: 600;
+}
+
+/* The one filled control on the tab. It takes the room's shape — full width under the fields —
+   but the app's primary colour, so the button that submits a form looks the same here as it does
+   on every other tab. */
+.iv-submit {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.8rem 1.1rem;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: background 0.18s ease, transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.iv-submit:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+.iv-submit:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+.iv-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.iv-plan-slot {
+  min-width: 0;
+  padding-left: 2.25rem;
+  border-left: 1px solid var(--iv-rule);
+}
+
+.plan-empty h2 {
+  margin: 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  color: var(--iv-mute);
+}
+.plan-empty p {
+  margin: 0.55rem 0 0;
+  max-width: 44ch;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--iv-mute);
+}
+
+/* The plan */
+.plan-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--iv-rule);
+}
+.plan-target {
+  margin: 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  color: var(--iv-ink);
+}
+
+.plan-save {
+  background: none;
+  border: 1px solid var(--iv-rule);
+  border-radius: 999px;
+  padding: 0.38rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--iv-mute);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.plan-save:hover:not(:disabled) {
+  color: var(--iv-ink);
+  border-color: var(--iv-ink);
+}
+.plan-save:disabled {
+  color: var(--iv-ink);
+  border-color: var(--iv-ink);
+  cursor: default;
+}
+.plan-save:disabled::before {
+  content: '\2713\00a0';
+}
+
+.plan-overview {
+  margin: 1.1rem 0 0;
+  max-width: 66ch;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--iv-ink);
+}
+.prep-plan .international-note {
+  margin: 1rem 0 0;
+}
+
+.plan-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem;
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--iv-rule);
+}
+.plan-lists h3,
+.plan-timeline h3 {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--iv-ink);
+}
+
+.plan-checks {
+  list-style: none;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.plan-checks li {
+  position: relative;
+  padding-left: 1.35rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--iv-mute);
+}
+/* An empty box rather than a tick: these are things still to do, not things done. */
+.plan-checks li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1px solid var(--iv-ink-soft);
+  border-radius: 2px;
+}
+
+/* The one place on the page that is about time, and so the one place amber appears. */
+.plan-timeline {
+  margin-top: 1.75rem;
+  padding: 0.1rem 0 0.1rem 1.1rem;
+  border-left: 2px solid var(--iv-cue);
+}
+.plan-timeline p {
+  margin: 0.6rem 0 0;
+  max-width: 62ch;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--iv-mute);
+}
+
+.plan-questions {
+  margin-top: 2.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--iv-rule);
+}
+.plan-questions-title {
+  margin: 0 0 1rem;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: var(--iv-ink);
+}
+
+/* A question and its answer are spoken, so they are the two things on the page set in the serif.
+   The sample is folded away: trying the question first is the whole exercise. */
+.rehearsal {
+  padding: 1rem 1.15rem 1.1rem;
+  border: 1px solid var(--iv-rule);
+  border-radius: 8px;
+  background: var(--surface);
+  transition: border-color 0.18s ease;
+}
+.rehearsal + .rehearsal {
+  margin-top: 0.7rem;
+}
+.rehearsal.is-open {
+  border-color: var(--iv-ink-soft);
+}
+
+.rehearsal-question {
+  margin: 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--iv-ink);
+}
+.rehearsal-how {
+  margin: 0.5rem 0 0;
+  max-width: 68ch;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--iv-mute);
+}
+
+.rehearsal-toggle {
+  margin-top: 0.75rem;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--iv-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(18, 40, 31, 0.35);
+  transition: text-decoration-color 0.15s ease;
+}
+.rehearsal-toggle:hover {
+  text-decoration-color: var(--iv-ink);
+}
+.rehearsal-toggle:focus-visible {
+  outline: 2px solid var(--iv-ink);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.rehearsal-sample {
+  margin: 0.85rem 0 0;
+  padding-left: 1rem;
+  max-width: 62ch;
+  border-left: 2px solid var(--iv-ink-soft);
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--iv-ink);
+  animation: rehearsal-sample-in 240ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes rehearsal-sample-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Arriving at the tab
+   One orchestrated sequence per arrival, in reading order, on the mount that clicking the tab
+   causes. Nothing animated here is a container: the headline, every field, every button and
+   every block of the plan rises on its own, so no fade ever runs inside another fade. The steps
+   come in from InterviewsPage, which is the only place that knows what order the form ends up in
+   once a type is chosen. */
+.iv-headline,
+.iv-deck,
+.iv-form > label,
+.iv-form > .iv-days-field,
+.iv-submit,
+.plan-empty > *,
+.prep-plan > * {
+  animation: rise-in 480ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 55ms);
+}
+
+/* Once the cascade has played, the form is done animating. Changing interview type remounts only
+   the fields that have no counterpart in the other branch, and a single field fading in by itself
+   reads as a glitch rather than an arrival. The plan side is deliberately left out: it mounts in
+   answer to pressing the button, which is a change worth showing. */
+.interviews.is-arrived .iv-form > label,
+.interviews.is-arrived .iv-form > .iv-days-field,
+.interviews.is-arrived .iv-submit {
+  animation: none;
+}
+
+/* Inside History the saved plan already arrives with the row that opened it — one fade, not two. */
+.log-entry-detail .prep-plan > * {
+  animation: none;
+}
+
+@media (max-width: 900px) {
+  .iv-body {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+  }
+  .iv-plan-slot {
+    padding-left: 0;
+    padding-top: 2rem;
+    border-left: none;
+    border-top: 1px solid var(--iv-rule);
+  }
+}
+
+@media (max-width: 620px) {
+  .plan-lists {
+    grid-template-columns: 1fr;
+    gap: 1.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The arrival is the whole point of opening the tab, so under reduce the page is simply
+     already there. */
+  .iv-headline,
+  .iv-deck,
+  .iv-form > label,
+  .iv-form > .iv-days-field,
+  .iv-submit,
+  .plan-empty > *,
+  .prep-plan > *,
+  .rehearsal-sample {
+    animation: none;
+  }
+  .iv-submit,
+  .plan-save,
+  .rehearsal,
+  .rehearsal-toggle {
+    transition: none;
+  }
+  .iv-submit:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
 /* Inspirations */
 .inspirations-mode-grid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

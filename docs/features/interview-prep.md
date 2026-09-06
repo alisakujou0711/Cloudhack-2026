@@ -13,6 +13,7 @@ advice, and answerable common questions with sample answers.
 | `POST /api/interview/prepare` | See `docs/api.md` |
 
 Lives at `/app/interviews`, its own tab — not part of the Application Optimization shell.
+Styles are scoped on `.interviews` / `.prep-plan` the way `.optimize` and `.history` are.
 
 ## Flow
 
@@ -66,5 +67,14 @@ and hedged, with the student told to verify.
 - Validation lives in both places: the client blocks an empty university/company, and the route
   re-checks `type` and the type-specific required field.
 - `InterviewPlanView` is exported and reused by `HistoryPage` to render saved plans; it hides the
-  save button when no `onSave` prop is passed. Keep that prop optional.
+  save button when no `onSave` prop is passed. Keep that prop optional. It carries its own
+  `.prep-plan` scope for the same reason — it renders far from this tab.
+- The headline and deck are fixed copy. The `daysUntil` echo is `.iv-days-note` under the field,
+  one line whatever it says, going amber at `days <= 3` — the mock's own timeline threshold.
+- Sample answers are folded behind a per-question toggle (`RehearsalLine`, local state, first one
+  open). The contract is untouched, and the fold applies in History too.
+- The arrival cascade animates leaves, never containers, so no fade runs inside another. Steps
+  come from `InterviewsPage`; it plays once (`.is-arrived` stops the form, so changing type cannot
+  fade one field in alone), and inside `.log-entry-detail` the plan's cascade is off because the
+  row it opens from already fades.
 - The plan is stored in `AppContext.interviewPlan` and is part of the chatbot's context.
