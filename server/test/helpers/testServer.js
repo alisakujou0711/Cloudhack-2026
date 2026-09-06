@@ -5,6 +5,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const net = require('net');
+const { spawn } = require('child_process');
 const { once } = require('events');
 
 function parseSetCookie(header) {
@@ -98,6 +99,35 @@ function temporaryDatabase() {
   };
 }
 
+// Boots the real `index.js` in a child process, which is the only way to exercise the boot path
+// itself — `startTestServer` below imports the app and so runs none of it. Resolves once
+// `readyWhen` accepts the stdout accumulated so far; `log()` hands that text to the caller.
+function startServerProcess({ port, databasePath, readyWhen = (output) => output.includes('listening') }) {
+  const child = spawn(process.execPath, ['index.js'], {
+    cwd: path.join(__dirname, '..', '..'),
+    env: { ...process.env, PORT: String(port), DATABASE_PATH: databasePath },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  let output = '';
+  const ready = new Promise((resolve, reject) => {
+    child.stdout.on('data', (chunk) => {
+      output += chunk;
+      if (readyWhen(output)) resolve();
+    });
+    child.on('exit', (code) => reject(new Error(`server exited early (${code}): ${output}`)));
+  });
+
+  return {
+    ready,
+    log: () => output,
+    async stop() {
+      child.kill();
+      await new Promise((resolve) => child.on('exit', resolve));
+    },
+  };
+}
+
 async function startTestServer() {
   const database = temporaryDatabase();
   process.env.DATABASE_PATH = database.file;
@@ -122,4 +152,4 @@ async function startTestServer() {
   };
 }
 
-module.exports = { startTestServer, createClient, temporaryDatabase, freePort };
+module.exports = { startTestServer, startServerProcess, createClient, temporaryDatabase, freePort };

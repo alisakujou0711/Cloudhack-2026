@@ -1,0 +1,731 @@
+{
+  "profile": {
+    "name": "Priya Sharma",
+    "educationLevel": "university",
+    "location": "Kuala Lumpur, Malaysia"
+  },
+  "universityPortfolio": {
+    "country": "Singapore",
+    "university": "NUS",
+    "major": "Computer Science",
+    "gpa": "3.85",
+    "subjects": "Mathematics, Additional Mathematics, Physics, Computing",
+    "extracurriculars": "President of school's Computing & Robotics Club (2 years); 3rd place in Singapore National Olympiad in Informatics (NOI); Built and open-sourced a study-scheduling web app; Volunteer coding instructor for Scratch; Merit award at the National STEM competition for a water-quality sensor project.",
+    "languageProficiency": "IELTS 8.0 (Academic)",
+    "rawText": "Name: Priya Sharma\nEducation Level: Junior College / Pre-University\nGPA: 3.85\n\nSubjects:\nMathematics\nAdditional Mathematics\nPhysics\nComputing\n\nExtracurriculars:\n- President of school's Computing & Robotics Club (2 years)\n- Placed 3rd nationally in the Singapore National Olympiad in Informatics (NOI)\n- Built and open-sourced a study-scheduling web app used by 300+ students across 3 junior colleges\n- Volunteer coding instructor for a weekend program teaching Scratch to primary school students\n- Represented school at the National STEM competition, won Merit award for a water-quality sensor project\n\nEssay:\nWhen I was fourteen, I taught myself Python by rewriting a broken attendance spreadsheet macro that our\nCCA teacher-in-charge had given up on. That small fix turned into a habit: I now look for the clumsy,\nmanual processes around me and ask whether code could do it better. Leading my school's Computing Club\ntaught me that the hardest part of a project is rarely the algorithm — it's convincing five other people\nto agree on a data model at 9pm before a deadline. Competing in NOI pushed me to think about efficiency\nnot as an afterthought but as a design constraint from the very first line of code. I want to study\nComputer Science at NUS because I am drawn to the intersection of systems programming and applied AI,\nand because Singapore's tech ecosystem gives me a direct path from classroom ideas to real deployed\nproducts. Beyond the degree, I want to keep building tools that quietly remove friction from students'\nlives, the same way that first spreadsheet fix did for my CCA.\n"
+  },
+  "internshipPortfolio": {
+    "resumeText": "PRIYA SHARMA\npriya.sharma@example.com | linkedin.com/in/priyasharma | github.com/priyasharma\nSingapore | +65 9123 4567\n\nEDUCATION\nNational University of Singapore — B.Comp (Computer Science), Expected 2027\nGPA: 4.6/5.0 | Relevant coursework: Data Structures & Algorithms, Databases, Operating Systems\n\nTARGET ROLE\nSoftware Engineering Intern\n\nEXPERIENCE\nTeaching Assistant, Intro to Programming — NUS School of Computing (Aug 2025 – Present)\n- Held weekly office hours for 60+ students, improving average assignment pass rate from 72% to 89%\n  after introducing a shared debugging checklist.\n- Graded and gave written feedback on 400+ submissions per semester, cutting grading turnaround\n  from 2 weeks to 4 days by writing an auto-grading script.\n\nFreelance Web Developer (Jan 2025 – May 2025)\n- Delivered a booking site for a local tuition centre, reducing manual scheduling calls by roughly 80%\n  and handling 200+ bookings per month.\n- Integrated Stripe payments and deployed on Vercel with 99.9% uptime over 4 months.\n\nPROJECTS\nStudySync — Full-stack study group matcher (React, Node.js, PostgreSQL)\n- Built and shipped to 300+ NUS students; matched study groups based on module and availability,\n  cutting average time-to-find-a-group from ~3 days to same-day.\n- Wrote integration tests covering 85% of backend routes; set up CI with GitHub Actions.\n\nCampus Bus ETA Predictor (Python, scikit-learn)\n- Trained a regression model on 6 months of GPS ping data to predict shuttle arrival times within\n  ±90 seconds, an improvement over the university's static schedule.\n- Presented findings at the NUS Datathon, placing top 5 out of 42 teams.\n\nSKILLS\nLanguages: Python, JavaScript/TypeScript, Java, SQL\nFrameworks/Tools: React, Node.js, Express, PostgreSQL, Docker, Git, GitHub Actions, AWS (EC2, S3)\n\nAWARDS\n- 2nd Place, NUS Hack&Roll 2026 (out of 80 teams)\n- Dean's List, AY2025/26\n",
+    "targetRole": "Software Engineering Intern"
+  },
+  "essayOptimization": {
+    "university": "National University of Singapore",
+    "major": "Computer Science",
+    "questionCount": 2,
+    "questions": [
+      "Why do you want to study Computer Science at NUS?",
+      "Describe a challenge you have overcome."
+    ],
+    "answers": [
+      "The first time I felt the specific thrill of computer science was at 2am, staring at a\nsegmentation fault in a pathfinding algorithm I had written for a school robotics competition.\nI had modeled our warehouse-navigation robot's map as a grid, but a single off-by-one error in\nmy boundary check meant the robot occasionally tried to plan a path through a wall. Fixing that\none line taught me more about how computers actually \"think\" than a semester of lectures could\nhave. Since then I have built a Discord bot that automated attendance-tracking for my CCA of 80\nmembers, cutting our weekly admin time from 45 minutes to under 5, and a small Android app that\nhelps my grandmother's neighborhood watch group log incidents in her first language. Both\nprojects left me wanting to understand the systems layer underneath the tools I was using —\nhow a database keeps data consistent under concurrent writes, how a compiler decides what code\nis even valid. NUS's School of Computing draws me specifically because of the depth of its\nsystems and AI tracks and its proximity to Singapore's tech industry, which means the research\nhappening in its labs is often only a short bus ride from the companies applying it. I want to\nspend the next four years moving from someone who patches bugs at 2am to someone who designs\nthe systems so those bugs are easier to catch in the first place.",
+      "Halfway through building the attendance bot I mentioned above, our CCA's exco unanimously voted\nto scrap the project. They were worried that an unfamiliar tool would confuse the 60% of members\nwho barely used Discord beyond reading announcements, and a failed rollout right before our\nannual showcase would embarrass the club. Rather than argue in the meeting, I asked for two\nweeks to run a small pilot with just my own section of 15 members, and I promised to revert to\nthe old paper sign-in sheet immediately if it caused problems. During the pilot I sat with the\nthree members who were least comfortable with the tool and rebuilt onboarding around their\nconfusion points — mainly, they didn't know they needed to react to a message rather than type\na command. I rewrote the bot's welcome message around that single insight. When I brought the\npilot's 100% adoption rate and zero complaints back to the exco, they approved a full rollout.\nThe experience reshaped how I handle disagreement: instead of trying to win an argument with a\nbetter pitch, I try to shrink the risk of being wrong down to something small enough that people\nare willing to let me test it."
+    ]
+  },
+  "coverLetterOptimization": {
+    "companyName": "Stripe",
+    "role": "Software Engineering Intern",
+    "promptCount": 1,
+    "prompts": [
+      "Cover letter"
+    ],
+    "answers": [
+      "Dear Hiring Manager,\n\nI'm writing to apply for the Software Engineering Intern role on the Payments Infrastructure\nteam at Stripe. I'm currently a third-year Computer Science student, and over the past year I've\nworked on a few backend-focused projects, including a booking platform that automated\nscheduling for a local business and reduced their manual admin work noticeably. I'm comfortable\nwith Python and JavaScript, and I've recently been learning Go because I'm interested in the\nkind of distributed systems work Stripe is known for.\n\nWhat draws me to Stripe specifically is the emphasis on developer experience — I've used the\nStripe API in a side project and was impressed by how clear the documentation and error messages\nwere compared to other payment providers I've tried. I'd like to contribute to that same quality\nbar as an intern, whether that's on the API surface itself or the internal tooling that supports\nit.\n\nI've attached my resume, which goes into more detail on my projects and coursework. I'd welcome\nthe chance to talk more about how I could contribute to the team.\n\nSincerely,\nPriya Sharma"
+    ]
+  },
+  "interviewPrep": {
+    "type": "internship",
+    "university": "",
+    "major": "",
+    "companyName": "Stripe",
+    "role": "Software Engineering Intern",
+    "jobDescription": "",
+    "daysUntil": "10"
+  },
+  "universityAssessment": {
+    "university": "National University of Singapore",
+    "universityCode": "NUS",
+    "major": "Computer Science",
+    "competitiveness": "Very High",
+    "checklist": [
+      {
+        "id": "gpa",
+        "label": "Minimum GPA (3.7)",
+        "met": true,
+        "detail": "Your GPA: 3.85"
+      },
+      {
+        "id": "subject-Mathematics",
+        "label": "Required subject: Mathematics",
+        "met": true,
+        "detail": "Found in your submitted subjects"
+      },
+      {
+        "id": "subject-Additional Mathematics",
+        "label": "Required subject: Additional Mathematics",
+        "met": true,
+        "detail": "Found in your submitted subjects"
+      },
+      {
+        "id": "preferred-Computing / Computer Science",
+        "label": "Preferred subject: Computing / Computer Science",
+        "met": false,
+        "detail": "Not listed — not required, but strengthens your application",
+        "optional": true
+      },
+      {
+        "id": "preferred-Physics",
+        "label": "Preferred subject: Physics",
+        "met": true,
+        "detail": "Found in your submitted subjects",
+        "optional": true
+      },
+      {
+        "id": "extracurriculars",
+        "label": "Extracurricular activities documented",
+        "met": true,
+        "detail": "Provided"
+      },
+      {
+        "id": "language-proficiency",
+        "label": "Language proficiency documented (e.g. IELTS/TOEFL)",
+        "met": true,
+        "detail": "Provided: IELTS 8.0 (Academic)"
+      }
+    ],
+    "checklistPassCount": 5,
+    "checklistTotal": 5,
+    "feedback": {
+      "summary": "Priya demonstrates a highly competitive profile for the NUS Computer Science program, characterized by an excellent academic record and significant, high-level engagement in computing and robotics. Her performance at the National Olympiad in Informatics strongly aligns with the program's emphasis on algorithmic problem-solving and technical excellence.",
+      "strengths": [
+        "GPA of 3.85 significantly exceeds the baseline requirement",
+        "Strong performance in competitive programming (NOI 3rd place)",
+        "Documented leadership experience as President of the Computing & Robotics Club",
+        "Tangible software development experience through open-source projects",
+        "High level of English proficiency confirmed by IELTS 8.0"
+      ],
+      "gaps": [
+        "Lack of advanced-level research or publications in CS to further differentiate from other top-tier applicants",
+        "Limited evidence of large-scale collaborative software projects beyond individual contributions",
+        "Need for a more cohesive narrative connecting the robotics and web development interests to a specific research area or professional goal"
+      ],
+      "recommendations": [
+        "Articulate a clear 'Statement of Purpose' that links your NOI experience and robotics projects to a specific research interest at NUS, such as AI or Systems.",
+        "Quantify the impact of your open-source web app (e.g., number of users, specific performance improvements) to demonstrate real-world utility.",
+        "Highlight any experience with complex software engineering practices, such as CI/CD, unit testing, or collaborative version control, in your personal statement.",
+        "Secure a strong recommendation letter from a mentor or teacher who can attest to your depth of technical reasoning and collaborative ability in a team setting."
+      ],
+      "internationalNote": "As an international applicant, ensure that your academic transcripts are officially certified and clearly mapped to the local grading scales to facilitate a smooth equivalence assessment by the NUS admissions office."
+    },
+    "source": "gemini"
+  },
+  "internshipAssessment": {
+    "name": "Priya Sharma",
+    "contact": "priya.sharma@example.com | linkedin.com/in/priyasharma | github.com/priyasharma | Singapore | +65 9123 4567",
+    "overallImpression": "This is an exceptionally strong resume for a software engineering internship, characterized by highly quantifiable impact and clear technical depth. To further elevate it, focus on articulating the 'how' behind your technical decisions in your project descriptions to demonstrate your engineering maturity.",
+    "strengths": [
+      "Strong use of metrics to quantify outcomes (e.g., 80% reduction in manual calls, 4-day grading turnaround).",
+      "Clear, logical layout that prioritizes relevant technical experience and project outcomes.",
+      "Excellent variety in technical stack, demonstrating both front-end, back-end, and machine learning proficiency.",
+      "Effective use of action-oriented verbs that focus on shipping products rather than just completing tasks."
+    ],
+    "improvementAreas": [
+      "Remove the 'TARGET ROLE' section, as it is redundant and takes up valuable space that could be used for a professional summary or more project details.",
+      "Standardize the verb tense consistency; ensure all bullet points start with strong, past-tense action verbs.",
+      "Consider adding a link to the GitHub repository for the 'Campus Bus ETA Predictor' project to provide recruiters with direct access to your code."
+    ],
+    "internationalNote": "Since you are based in Malaysia, ensure you explicitly state your current work authorization status in Singapore (e.g., 'Valid Student Pass for internship') on your resume or cover letter to reassure employers regarding your eligibility for local internships.",
+    "sections": [
+      {
+        "name": "EDUCATION",
+        "entries": [
+          {
+            "title": "B.Comp (Computer Science)",
+            "subtitle": "National University of Singapore",
+            "dateRange": "Expected 2027",
+            "bullets": [
+              {
+                "original": "GPA: 4.6/5.0 | Relevant coursework: Data Structures & Algorithms, Databases, Operating Systems",
+                "suggestion": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "EXPERIENCE",
+        "entries": [
+          {
+            "title": "Teaching Assistant, Intro to Programming",
+            "subtitle": "NUS School of Computing",
+            "dateRange": "Aug 2025 – Present",
+            "bullets": [
+              {
+                "original": "Held weekly office hours for 60+ students, improving average assignment pass rate from 72% to 89% after introducing a shared debugging checklist.",
+                "suggestion": "Facilitated weekly office hours for 60+ students and developed a shared debugging checklist that increased average assignment pass rates from 72% to 89%."
+              },
+              {
+                "original": "Graded and gave written feedback on 400+ submissions per semester, cutting grading turnaround from 2 weeks to 4 days by writing an auto-grading script.",
+                "suggestion": "Engineered an auto-grading script to streamline feedback for 400+ submissions per semester, reducing grading turnaround time from 2 weeks to 4 days."
+              }
+            ]
+          },
+          {
+            "title": "Freelance Web Developer",
+            "subtitle": "",
+            "dateRange": "Jan 2025 – May 2025",
+            "bullets": [
+              {
+                "original": "Delivered a booking site for a local tuition centre, reducing manual scheduling calls by roughly 80% and handling 200+ bookings per month.",
+                "suggestion": null
+              },
+              {
+                "original": "Integrated Stripe payments and deployed on Vercel with 99.9% uptime over 4 months.",
+                "suggestion": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "PROJECTS",
+        "entries": [
+          {
+            "title": "StudySync — Full-stack study group matcher (React, Node.js, PostgreSQL)",
+            "subtitle": "",
+            "dateRange": "",
+            "bullets": [
+              {
+                "original": "Built and shipped to 300+ NUS students; matched study groups based on module and availability, cutting average time-to-find-a-group from ~3 days to same-day.",
+                "suggestion": "Architected and deployed a full-stack study group matching platform for 300+ NUS students, reducing average group-matching time from 3 days to same-day."
+              },
+              {
+                "original": "Wrote integration tests covering 85% of backend routes; set up CI with GitHub Actions.",
+                "suggestion": null
+              }
+            ]
+          },
+          {
+            "title": "Campus Bus ETA Predictor (Python, scikit-learn)",
+            "subtitle": "",
+            "dateRange": "",
+            "bullets": [
+              {
+                "original": "Trained a regression model on 6 months of GPS ping data to predict shuttle arrival times within ±90 seconds, an improvement over the university's static schedule.",
+                "suggestion": "Developed a regression model using 6 months of GPS data to predict shuttle arrivals within ±90 seconds, significantly outperforming university static schedules."
+              },
+              {
+                "original": "Presented findings at the NUS Datathon, placing top 5 out of 42 teams.",
+                "suggestion": "Presented predictive model findings at the NUS Datathon, securing a Top 5 placement among 42 competing teams."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SKILLS",
+        "entries": [
+          {
+            "title": "Technical Proficiencies",
+            "subtitle": "",
+            "dateRange": "",
+            "bullets": [
+              {
+                "original": "Languages: Python, JavaScript/TypeScript, Java, SQL",
+                "suggestion": null
+              },
+              {
+                "original": "Frameworks/Tools: React, Node.js, Express, PostgreSQL, Docker, Git, GitHub Actions, AWS (EC2, S3)",
+                "suggestion": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "AWARDS",
+        "entries": [
+          {
+            "title": "Achievements",
+            "subtitle": "",
+            "dateRange": "",
+            "bullets": [
+              {
+                "original": "2nd Place, NUS Hack&Roll 2026 (out of 80 teams)",
+                "suggestion": null
+              },
+              {
+                "original": "Dean's List, AY2025/26",
+                "suggestion": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "targetRole": "Software Engineering Intern",
+    "source": "gemini"
+  },
+  "essayAssessment": {
+    "overallImpression": "These essays are exceptionally strong, grounded in authentic experiences that demonstrate both technical curiosity and pragmatic problem-solving. The single biggest lever for improvement is to bridge the gap between your technical goals and the specific unique resources at NUS, such as mentioning specific professors, modules, or research institutes that align with your interest in systems and AI.",
+    "strengths": [
+      "Compelling narrative voice that balances technical jargon with human impact.",
+      "Strong evidence of 'systems-level' thinking and iterative improvement.",
+      "Excellent use of concrete, relatable anecdotes to anchor abstract skills."
+    ],
+    "improvementAreas": [
+      "More explicit alignment with specific NUS programs (e.g., mention the NUS Overseas Colleges or specific labs).",
+      "Deepen the 'why NUS' section to distinguish the university from other top-tier regional institutions.",
+      "Ensure the transition between your technical project challenges and the broader lessons learned remains tightly focused."
+    ],
+    "internationalNote": "As an international applicant from Malaysia, emphasize how your regional perspective or specific cross-border technological challenges you have observed can contribute to the diverse classroom environment at NUS.",
+    "perQuestion": [
+      {
+        "question": "Why do you want to study Computer Science at NUS?",
+        "feedback": "This is a very strong opener that uses a 'hook' effectively. To make it more distinctively 'NUS,' replace the general mention of 'systems and AI tracks' with specific modules or faculty members whose research currently excites you. Demonstrating deeper research into the curriculum will show you are not just looking for a CS degree, but specifically an NUS education."
+      },
+      {
+        "question": "Describe a challenge you have overcome.",
+        "feedback": "This is a mature and well-structured response that highlights soft skills like stakeholder management and empathy, which are vital for a software engineer. The resolution is highly effective because it focuses on a tangible process change rather than just a personality trait. You could further strengthen this by briefly reflecting on how this 'risk-shrinking' approach applies to your future aspirations in complex systems architecture."
+      }
+    ],
+    "university": "National University of Singapore",
+    "major": "Computer Science",
+    "source": "gemini"
+  },
+  "coverLetterAssessment": {
+    "overallImpression": "Your letter is clear, concise, and effectively highlights a genuine interest in Stripe's developer experience. To make this stand out more, you need to move beyond describing your projects and explicitly quantify the impact or technical complexity of your backend work.",
+    "strengths": [
+      "Specific mention of personal experience with the Stripe API which establishes immediate credibility.",
+      "Clear, professional tone that aligns well with Stripe's company culture.",
+      "Effective link between personal skill development (learning Go) and the team's technical requirements."
+    ],
+    "improvementAreas": [
+      "Quantify the impact of the booking platform project with concrete metrics or percentages.",
+      "Elaborate on the specific technical challenges faced during your projects to demonstrate engineering maturity.",
+      "Expand on your interest in Payments Infrastructure to show you understand the team's specific role within Stripe."
+    ],
+    "internationalNote": "Since you are based in Kuala Lumpur, clarify your ability to obtain an internship visa (such as the Work Holiday Programme or Training Employment Pass) for Singapore in your application to reassure recruiters about your immediate availability.",
+    "perPrompt": [
+      {
+        "prompt": "Cover letter",
+        "feedback": "The letter is solid but a bit generic regarding the 'booking platform.' To improve, describe the backend architecture you used (e.g., did you use a specific framework, database, or handle concurrency?) and provide a clearer outcome metric than 'noticeably.' Additionally, connecting your interest in distributed systems more deeply to a specific Stripe product would show stronger research and intent."
+      }
+    ],
+    "companyName": "Stripe",
+    "role": "Software Engineering Intern",
+    "source": "gemini"
+  },
+  "interviewPlan": {
+    "targetName": "Stripe",
+    "overview": "Stripe is a global technology company that builds economic infrastructure for the internet. They focus on payment processing software and APIs for businesses, aiming to increase the GDP of the internet by simplifying complex financial transactions for companies of all sizes.",
+    "researchTips": [
+      "Read the Stripe blog and engineering documentation to understand their technical culture and API-first philosophy.",
+      "Familiarize yourself with their product suite, such as Connect, Billing, and Radar, to see how they integrate with different business models.",
+      "Research their corporate values, particularly 'Move with urgency' and 'Trust is our product,' which are often discussed in their engineering literature.",
+      "Look up recent news regarding their expansion into new markets or new financial product releases."
+    ],
+    "technicalPrep": [
+      "Review data structures and algorithms, focusing on API design and how to handle distributed systems at scale.",
+      "Practice coding in a language Stripe commonly uses, such as Ruby, Go, or Java, ensuring you can explain the trade-offs of your implementation.",
+      "Prepare for system design questions by thinking about how to handle high-concurrency payment processing and maintaining data consistency."
+    ],
+    "timelineAdvice": "With 10 days left, spend the first 5 days on rigorous LeetCode-style practice and system design fundamentals, then use the remaining 5 days to rehearse behavioral answers and review the Stripe-specific product ecosystem.",
+    "commonQuestions": [
+      {
+        "question": "Tell me about yourself",
+        "howToAnswer": "Use the past-present-future model. Start with your current status, bridge to a concrete achievement, mention a team experience, and end with why Stripe is the natural next step.",
+        "sampleAnswer": "I am currently in my third year of Computer Science at my university, where I have developed a strong foundation in backend development and distributed systems. Last year, I led a project to build a custom real-time data processing pipeline that handled over 10,000 requests per minute during peak testing. Outside of my coursework, I served as the lead developer for our university's hackathon committee, which required coordinating technical requirements across a team of six developers. I have always been fascinated by how financial infrastructure can empower global commerce, which is why I have followed Stripe's engineering approach for years. Your emphasis on high-quality documentation and developer experience really resonates with my own coding philosophy. I am eager to apply my skills to solve complex integration challenges within your engineering team. My goal is to transition my academic knowledge into a professional environment that prioritizes scalable and reliable code."
+      },
+      {
+        "question": "What is your greatest weakness?",
+        "howToAnswer": "Choose a real but non-fatal professional weakness and immediately follow up with the proactive steps you are taking to mitigate it.",
+        "sampleAnswer": "Sometimes I can be a bit too detail-oriented, which can slow me down during the initial phases of a project when speed is prioritized. I have realized that while precision is vital for backend systems, I need to balance it with the need for rapid prototyping. To manage this, I have started using time-boxing techniques to ensure I hit key milestones without getting stuck in the weeds. This allows me to maintain a high standard of quality while staying aligned with the team's broader delivery goals."
+      },
+      {
+        "question": "What is your expected salary?",
+        "howToAnswer": "Acknowledge the research you have done for similar roles in the region and keep the focus on value, while providing a clear numerical range.",
+        "sampleAnswer": "Based on my research into software engineering internship roles in the region, the compensation for top-tier tech companies typically ranges from SGD 3,500–5,500 per month. I am certainly open to discussing the full benefits package and am primarily looking for a role that offers significant learning and mentorship opportunities within a high-growth team."
+      },
+      {
+        "question": "Do you have any questions for us?",
+        "howToAnswer": "Ask insightful questions that show you have researched the team and care about their engineering culture.",
+        "sampleAnswer": "How does the engineering team balance the need for rapid feature deployment with the extreme requirement for 99.999% reliability in payment processing?"
+      }
+    ],
+    "internationalNote": "Since you are applying from Kuala Lumpur, be prepared to discuss your eligibility for a Singapore internship pass (such as the Work Holiday Programme or Training Employment Pass) and your plans for relocation.",
+    "type": "internship",
+    "source": "gemini"
+  },
+  "chatHistory": [
+    {
+      "role": "user",
+      "content": "Which of my applications needs the most work right now?"
+    },
+    {
+      "role": "assistant",
+      "content": "Based on your current portfolio status, your **Cover Letter** for the Stripe internship is the priority. \n\nWhile your university application and resume are in great shape, your cover letter is currently the weakest link because it is too generic and doesn't leverage the impressive metrics you've already established in your resume.\n\nHere is where you should focus your efforts:\n\n*   **Quantify your impact:** In the cover letter, you mention your booking platform \"reduced manual admin work noticeably.\" Swap this for the **80% reduction** you used on your resume. Concrete numbers signal professional maturity.\n*   **Deepen the technical narrative:** Stripe values engineering depth. Don’t just say you are \"learning Go\"—mention a specific technical challenge you solved (e.g., handling concurrency or database consistency) that makes you a good fit for their **Payments Infrastructure** team.\n*   **Address the international factor:** As an applicant from Kuala Lumpur, you need to proactively state your **work authorization** (e.g., your eligibility for a Singaporean student or training pass) to remove any hesitation a recruiter might have about your relocation logistics.\n\n**Why the others can wait:**\n*   **University (NUS):** Your profile is already highly competitive. You mainly need to perform final \"polishing\" (connecting your specific interests to NUS faculty or labs), which can be done in one sitting once you have time.\n*   **Interview Prep:** You have a 10-day buffer. Use the next 48 hours to fix the cover letter, then shift your full attention to the Stripe-specific technical prep outlined in your plan. \n\nWould you like me to draft a revised paragraph for your Stripe cover letter using those metrics?"
+    }
+  ],
+  "history": [
+    {
+      "id": "demo-interview",
+      "bookmarked": false,
+      "type": "interview",
+      "title": "Interview Prep — Stripe",
+      "summary": "Stripe is a global technology company that builds economic infrastructure for the internet. They focus on payment processing software and APIs for businesses, aiming to increase the GDP of the internet by simplifying complex financial transactions for companies of all sizes.",
+      "snapshot": {
+        "targetName": "Stripe",
+        "overview": "Stripe is a global technology company that builds economic infrastructure for the internet. They focus on payment processing software and APIs for businesses, aiming to increase the GDP of the internet by simplifying complex financial transactions for companies of all sizes.",
+        "researchTips": [
+          "Read the Stripe blog and engineering documentation to understand their technical culture and API-first philosophy.",
+          "Familiarize yourself with their product suite, such as Connect, Billing, and Radar, to see how they integrate with different business models.",
+          "Research their corporate values, particularly 'Move with urgency' and 'Trust is our product,' which are often discussed in their engineering literature.",
+          "Look up recent news regarding their expansion into new markets or new financial product releases."
+        ],
+        "technicalPrep": [
+          "Review data structures and algorithms, focusing on API design and how to handle distributed systems at scale.",
+          "Practice coding in a language Stripe commonly uses, such as Ruby, Go, or Java, ensuring you can explain the trade-offs of your implementation.",
+          "Prepare for system design questions by thinking about how to handle high-concurrency payment processing and maintaining data consistency."
+        ],
+        "timelineAdvice": "With 10 days left, spend the first 5 days on rigorous LeetCode-style practice and system design fundamentals, then use the remaining 5 days to rehearse behavioral answers and review the Stripe-specific product ecosystem.",
+        "commonQuestions": [
+          {
+            "question": "Tell me about yourself",
+            "howToAnswer": "Use the past-present-future model. Start with your current status, bridge to a concrete achievement, mention a team experience, and end with why Stripe is the natural next step.",
+            "sampleAnswer": "I am currently in my third year of Computer Science at my university, where I have developed a strong foundation in backend development and distributed systems. Last year, I led a project to build a custom real-time data processing pipeline that handled over 10,000 requests per minute during peak testing. Outside of my coursework, I served as the lead developer for our university's hackathon committee, which required coordinating technical requirements across a team of six developers. I have always been fascinated by how financial infrastructure can empower global commerce, which is why I have followed Stripe's engineering approach for years. Your emphasis on high-quality documentation and developer experience really resonates with my own coding philosophy. I am eager to apply my skills to solve complex integration challenges within your engineering team. My goal is to transition my academic knowledge into a professional environment that prioritizes scalable and reliable code."
+          },
+          {
+            "question": "What is your greatest weakness?",
+            "howToAnswer": "Choose a real but non-fatal professional weakness and immediately follow up with the proactive steps you are taking to mitigate it.",
+            "sampleAnswer": "Sometimes I can be a bit too detail-oriented, which can slow me down during the initial phases of a project when speed is prioritized. I have realized that while precision is vital for backend systems, I need to balance it with the need for rapid prototyping. To manage this, I have started using time-boxing techniques to ensure I hit key milestones without getting stuck in the weeds. This allows me to maintain a high standard of quality while staying aligned with the team's broader delivery goals."
+          },
+          {
+            "question": "What is your expected salary?",
+            "howToAnswer": "Acknowledge the research you have done for similar roles in the region and keep the focus on value, while providing a clear numerical range.",
+            "sampleAnswer": "Based on my research into software engineering internship roles in the region, the compensation for top-tier tech companies typically ranges from SGD 3,500–5,500 per month. I am certainly open to discussing the full benefits package and am primarily looking for a role that offers significant learning and mentorship opportunities within a high-growth team."
+          },
+          {
+            "question": "Do you have any questions for us?",
+            "howToAnswer": "Ask insightful questions that show you have researched the team and care about their engineering culture.",
+            "sampleAnswer": "How does the engineering team balance the need for rapid feature deployment with the extreme requirement for 99.999% reliability in payment processing?"
+          }
+        ],
+        "internationalNote": "Since you are applying from Kuala Lumpur, be prepared to discuss your eligibility for a Singapore internship pass (such as the Work Holiday Programme or Training Employment Pass) and your plans for relocation.",
+        "type": "internship",
+        "source": "gemini"
+      }
+    },
+    {
+      "id": "demo-cover-letter",
+      "bookmarked": false,
+      "type": "coverLetter",
+      "title": "Cover Letter Optimization — Software Engineering Intern at Stripe",
+      "summary": "Your letter is clear, concise, and effectively highlights a genuine interest in Stripe's developer experience. To make this stand out more, you need to move beyond describing your projects and explicitly quantify the impact or technical complexity of your backend work.",
+      "snapshot": {
+        "overallImpression": "Your letter is clear, concise, and effectively highlights a genuine interest in Stripe's developer experience. To make this stand out more, you need to move beyond describing your projects and explicitly quantify the impact or technical complexity of your backend work.",
+        "strengths": [
+          "Specific mention of personal experience with the Stripe API which establishes immediate credibility.",
+          "Clear, professional tone that aligns well with Stripe's company culture.",
+          "Effective link between personal skill development (learning Go) and the team's technical requirements."
+        ],
+        "improvementAreas": [
+          "Quantify the impact of the booking platform project with concrete metrics or percentages.",
+          "Elaborate on the specific technical challenges faced during your projects to demonstrate engineering maturity.",
+          "Expand on your interest in Payments Infrastructure to show you understand the team's specific role within Stripe."
+        ],
+        "internationalNote": "Since you are based in Kuala Lumpur, clarify your ability to obtain an internship visa (such as the Work Holiday Programme or Training Employment Pass) for Singapore in your application to reassure recruiters about your immediate availability.",
+        "perPrompt": [
+          {
+            "prompt": "Cover letter",
+            "feedback": "The letter is solid but a bit generic regarding the 'booking platform.' To improve, describe the backend architecture you used (e.g., did you use a specific framework, database, or handle concurrency?) and provide a clearer outcome metric than 'noticeably.' Additionally, connecting your interest in distributed systems more deeply to a specific Stripe product would show stronger research and intent."
+          }
+        ],
+        "companyName": "Stripe",
+        "role": "Software Engineering Intern",
+        "source": "gemini"
+      }
+    },
+    {
+      "id": "demo-internship",
+      "bookmarked": true,
+      "type": "internship",
+      "title": "Internship Application — Software Engineering Intern",
+      "summary": "This is an exceptionally strong resume for a software engineering internship, characterized by highly quantifiable impact and clear technical depth. To further elevate it, focus on articulating the 'how' behind your technical decisions in your project descriptions to demonstrate your engineering maturity.",
+      "snapshot": {
+        "name": "Priya Sharma",
+        "contact": "priya.sharma@example.com | linkedin.com/in/priyasharma | github.com/priyasharma | Singapore | +65 9123 4567",
+        "overallImpression": "This is an exceptionally strong resume for a software engineering internship, characterized by highly quantifiable impact and clear technical depth. To further elevate it, focus on articulating the 'how' behind your technical decisions in your project descriptions to demonstrate your engineering maturity.",
+        "strengths": [
+          "Strong use of metrics to quantify outcomes (e.g., 80% reduction in manual calls, 4-day grading turnaround).",
+          "Clear, logical layout that prioritizes relevant technical experience and project outcomes.",
+          "Excellent variety in technical stack, demonstrating both front-end, back-end, and machine learning proficiency.",
+          "Effective use of action-oriented verbs that focus on shipping products rather than just completing tasks."
+        ],
+        "improvementAreas": [
+          "Remove the 'TARGET ROLE' section, as it is redundant and takes up valuable space that could be used for a professional summary or more project details.",
+          "Standardize the verb tense consistency; ensure all bullet points start with strong, past-tense action verbs.",
+          "Consider adding a link to the GitHub repository for the 'Campus Bus ETA Predictor' project to provide recruiters with direct access to your code."
+        ],
+        "internationalNote": "Since you are based in Malaysia, ensure you explicitly state your current work authorization status in Singapore (e.g., 'Valid Student Pass for internship') on your resume or cover letter to reassure employers regarding your eligibility for local internships.",
+        "sections": [
+          {
+            "name": "EDUCATION",
+            "entries": [
+              {
+                "title": "B.Comp (Computer Science)",
+                "subtitle": "National University of Singapore",
+                "dateRange": "Expected 2027",
+                "bullets": [
+                  {
+                    "original": "GPA: 4.6/5.0 | Relevant coursework: Data Structures & Algorithms, Databases, Operating Systems",
+                    "suggestion": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "EXPERIENCE",
+            "entries": [
+              {
+                "title": "Teaching Assistant, Intro to Programming",
+                "subtitle": "NUS School of Computing",
+                "dateRange": "Aug 2025 – Present",
+                "bullets": [
+                  {
+                    "original": "Held weekly office hours for 60+ students, improving average assignment pass rate from 72% to 89% after introducing a shared debugging checklist.",
+                    "suggestion": "Facilitated weekly office hours for 60+ students and developed a shared debugging checklist that increased average assignment pass rates from 72% to 89%."
+                  },
+                  {
+                    "original": "Graded and gave written feedback on 400+ submissions per semester, cutting grading turnaround from 2 weeks to 4 days by writing an auto-grading script.",
+                    "suggestion": "Engineered an auto-grading script to streamline feedback for 400+ submissions per semester, reducing grading turnaround time from 2 weeks to 4 days."
+                  }
+                ]
+              },
+              {
+                "title": "Freelance Web Developer",
+                "subtitle": "",
+                "dateRange": "Jan 2025 – May 2025",
+                "bullets": [
+                  {
+                    "original": "Delivered a booking site for a local tuition centre, reducing manual scheduling calls by roughly 80% and handling 200+ bookings per month.",
+                    "suggestion": null
+                  },
+                  {
+                    "original": "Integrated Stripe payments and deployed on Vercel with 99.9% uptime over 4 months.",
+                    "suggestion": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "PROJECTS",
+            "entries": [
+              {
+                "title": "StudySync — Full-stack study group matcher (React, Node.js, PostgreSQL)",
+                "subtitle": "",
+                "dateRange": "",
+                "bullets": [
+                  {
+                    "original": "Built and shipped to 300+ NUS students; matched study groups based on module and availability, cutting average time-to-find-a-group from ~3 days to same-day.",
+                    "suggestion": "Architected and deployed a full-stack study group matching platform for 300+ NUS students, reducing average group-matching time from 3 days to same-day."
+                  },
+                  {
+                    "original": "Wrote integration tests covering 85% of backend routes; set up CI with GitHub Actions.",
+                    "suggestion": null
+                  }
+                ]
+              },
+              {
+                "title": "Campus Bus ETA Predictor (Python, scikit-learn)",
+                "subtitle": "",
+                "dateRange": "",
+                "bullets": [
+                  {
+                    "original": "Trained a regression model on 6 months of GPS ping data to predict shuttle arrival times within ±90 seconds, an improvement over the university's static schedule.",
+                    "suggestion": "Developed a regression model using 6 months of GPS data to predict shuttle arrivals within ±90 seconds, significantly outperforming university static schedules."
+                  },
+                  {
+                    "original": "Presented findings at the NUS Datathon, placing top 5 out of 42 teams.",
+                    "suggestion": "Presented predictive model findings at the NUS Datathon, securing a Top 5 placement among 42 competing teams."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "SKILLS",
+            "entries": [
+              {
+                "title": "Technical Proficiencies",
+                "subtitle": "",
+                "dateRange": "",
+                "bullets": [
+                  {
+                    "original": "Languages: Python, JavaScript/TypeScript, Java, SQL",
+                    "suggestion": null
+                  },
+                  {
+                    "original": "Frameworks/Tools: React, Node.js, Express, PostgreSQL, Docker, Git, GitHub Actions, AWS (EC2, S3)",
+                    "suggestion": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "AWARDS",
+            "entries": [
+              {
+                "title": "Achievements",
+                "subtitle": "",
+                "dateRange": "",
+                "bullets": [
+                  {
+                    "original": "2nd Place, NUS Hack&Roll 2026 (out of 80 teams)",
+                    "suggestion": null
+                  },
+                  {
+                    "original": "Dean's List, AY2025/26",
+                    "suggestion": null
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "targetRole": "Software Engineering Intern",
+        "source": "gemini"
+      }
+    },
+    {
+      "id": "demo-essay",
+      "bookmarked": false,
+      "type": "essay",
+      "title": "Essay Optimization — Computer Science (National University of Singapore)",
+      "summary": "These essays are exceptionally strong, grounded in authentic experiences that demonstrate both technical curiosity and pragmatic problem-solving. The single biggest lever for improvement is to bridge the gap between your technical goals and the specific unique resources at NUS, such as mentioning specific professors, modules, or research institutes that align with your interest in systems and AI.",
+      "snapshot": {
+        "overallImpression": "These essays are exceptionally strong, grounded in authentic experiences that demonstrate both technical curiosity and pragmatic problem-solving. The single biggest lever for improvement is to bridge the gap between your technical goals and the specific unique resources at NUS, such as mentioning specific professors, modules, or research institutes that align with your interest in systems and AI.",
+        "strengths": [
+          "Compelling narrative voice that balances technical jargon with human impact.",
+          "Strong evidence of 'systems-level' thinking and iterative improvement.",
+          "Excellent use of concrete, relatable anecdotes to anchor abstract skills."
+        ],
+        "improvementAreas": [
+          "More explicit alignment with specific NUS programs (e.g., mention the NUS Overseas Colleges or specific labs).",
+          "Deepen the 'why NUS' section to distinguish the university from other top-tier regional institutions.",
+          "Ensure the transition between your technical project challenges and the broader lessons learned remains tightly focused."
+        ],
+        "internationalNote": "As an international applicant from Malaysia, emphasize how your regional perspective or specific cross-border technological challenges you have observed can contribute to the diverse classroom environment at NUS.",
+        "perQuestion": [
+          {
+            "question": "Why do you want to study Computer Science at NUS?",
+            "feedback": "This is a very strong opener that uses a 'hook' effectively. To make it more distinctively 'NUS,' replace the general mention of 'systems and AI tracks' with specific modules or faculty members whose research currently excites you. Demonstrating deeper research into the curriculum will show you are not just looking for a CS degree, but specifically an NUS education."
+          },
+          {
+            "question": "Describe a challenge you have overcome.",
+            "feedback": "This is a mature and well-structured response that highlights soft skills like stakeholder management and empathy, which are vital for a software engineer. The resolution is highly effective because it focuses on a tangible process change rather than just a personality trait. You could further strengthen this by briefly reflecting on how this 'risk-shrinking' approach applies to your future aspirations in complex systems architecture."
+          }
+        ],
+        "university": "National University of Singapore",
+        "major": "Computer Science",
+        "source": "gemini"
+      }
+    },
+    {
+      "id": "demo-university",
+      "bookmarked": true,
+      "type": "university",
+      "title": "University Application — National University of Singapore (Computer Science)",
+      "summary": "Priya demonstrates a highly competitive profile for the NUS Computer Science program, characterized by an excellent academic record and significant, high-level engagement in computing and robotics. Her performance at the National Olympiad in Informatics strongly aligns with the program's emphasis on algorithmic problem-solving and technical excellence.",
+      "snapshot": {
+        "university": "National University of Singapore",
+        "universityCode": "NUS",
+        "major": "Computer Science",
+        "competitiveness": "Very High",
+        "checklist": [
+          {
+            "id": "gpa",
+            "label": "Minimum GPA (3.7)",
+            "met": true,
+            "detail": "Your GPA: 3.85"
+          },
+          {
+            "id": "subject-Mathematics",
+            "label": "Required subject: Mathematics",
+            "met": true,
+            "detail": "Found in your submitted subjects"
+          },
+          {
+            "id": "subject-Additional Mathematics",
+            "label": "Required subject: Additional Mathematics",
+            "met": true,
+            "detail": "Found in your submitted subjects"
+          },
+          {
+            "id": "preferred-Computing / Computer Science",
+            "label": "Preferred subject: Computing / Computer Science",
+            "met": false,
+            "detail": "Not listed — not required, but strengthens your application",
+            "optional": true
+          },
+          {
+            "id": "preferred-Physics",
+            "label": "Preferred subject: Physics",
+            "met": true,
+            "detail": "Found in your submitted subjects",
+            "optional": true
+          },
+          {
+            "id": "extracurriculars",
+            "label": "Extracurricular activities documented",
+            "met": true,
+            "detail": "Provided"
+          },
+          {
+            "id": "language-proficiency",
+            "label": "Language proficiency documented (e.g. IELTS/TOEFL)",
+            "met": true,
+            "detail": "Provided: IELTS 8.0 (Academic)"
+          }
+        ],
+        "checklistPassCount": 5,
+        "checklistTotal": 5,
+        "feedback": {
+          "summary": "Priya demonstrates a highly competitive profile for the NUS Computer Science program, characterized by an excellent academic record and significant, high-level engagement in computing and robotics. Her performance at the National Olympiad in Informatics strongly aligns with the program's emphasis on algorithmic problem-solving and technical excellence.",
+          "strengths": [
+            "GPA of 3.85 significantly exceeds the baseline requirement",
+            "Strong performance in competitive programming (NOI 3rd place)",
+            "Documented leadership experience as President of the Computing & Robotics Club",
+            "Tangible software development experience through open-source projects",
+            "High level of English proficiency confirmed by IELTS 8.0"
+          ],
+          "gaps": [
+            "Lack of advanced-level research or publications in CS to further differentiate from other top-tier applicants",
+            "Limited evidence of large-scale collaborative software projects beyond individual contributions",
+            "Need for a more cohesive narrative connecting the robotics and web development interests to a specific research area or professional goal"
+          ],
+          "recommendations": [
+            "Articulate a clear 'Statement of Purpose' that links your NOI experience and robotics projects to a specific research interest at NUS, such as AI or Systems.",
+            "Quantify the impact of your open-source web app (e.g., number of users, specific performance improvements) to demonstrate real-world utility.",
+            "Highlight any experience with complex software engineering practices, such as CI/CD, unit testing, or collaborative version control, in your personal statement.",
+            "Secure a strong recommendation letter from a mentor or teacher who can attest to your depth of technical reasoning and collaborative ability in a team setting."
+          ],
+          "internationalNote": "As an international applicant, ensure that your academic transcripts are officially certified and clearly mapped to the local grading scales to facilitate a smooth equivalence assessment by the NUS admissions office."
+        },
+        "source": "gemini"
+      }
+    }
+  ]
+}
