@@ -39,8 +39,8 @@ derives one of three states from `loading` and `result`:
 
 - **empty** — the `invitation` plus a ghost of `sections`, so the column describes the work that
   is coming instead of reading "Report / Submit your … to see feedback".
-- **working** — `PenPass`, ruled lines being struck and rewritten. The only thing on the page that
-  moves on its own, and only while a request is in flight.
+- **working** — `PenPass`, ruled lines being struck and rewritten, only while a request is in
+  flight.
 - **marked** — `children`, revealed once.
 
 Pass `result` as **null** whenever the report cannot render (`InternshipPanel` passes null unless
@@ -86,6 +86,12 @@ a different file" link. Accepted: `.pdf`, `.docx`, `.txt`, `.md`. See
 - A new optimization type needs: an entry in `TYPE_OPTIONS`, a case in `DocumentSpecimen`'s
   `SPECIMENS` map, a panel, an `expectedType` the classifier can actually predict, and its `type`
   registered in `HistoryPage`.
+- **Arriving at the tab plays one sequence, not an effect per element.** `rise-in` staggers the
+  desk (headline, deck, then the four specimens left to right) off `--rise-step`, set in CSS so
+  the panels never pass ordering as props; `--rise-step` inherits, which is how `.markup-report`
+  shares `.markup`'s beat instead of running ahead of it. Selecting a lane replays it for the work
+  card and markup only — `.doc-rail` is not remounted, so it stays put while the document swaps
+  under it. `prefers-reduced-motion` drops the whole sequence rather than shortening it.
 - The page carries the sign-in screen's manuscript palette (ink / paper / strike / written),
   declared on `.optimize` rather than `:root` so it cannot leak into the other tabs. `.markup`
   retints the shared report components — `.reviewer-note`, `.checklist`, `.badge`, `.qa-item` —
