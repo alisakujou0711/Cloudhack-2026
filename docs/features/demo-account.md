@@ -1,6 +1,6 @@
 # Demo account
 
-**What it does** — Seeds one ordinary account, `demo@portfoliopath.app` / `portfoliopath`, on
+**What it does** — Seeds one ordinary account, `demo@portify.app` / `portify`, on
 boot against a database that doesn't have it. It arrives with a complete profile and five
 finished runs in History, so someone evaluating the app sees a used product instead of an empty
 state they have to fill in first.
@@ -36,7 +36,7 @@ key `addHistoryEntry` adds except `timestamp`.
 - **Seeding keys on the account existing, not on what it holds.** A restart mid-demo never writes
   over edits someone is showing, and a demo account put through "Clear my data" stays cleared —
   deliberately, since silently restoring it mid-demo is the worse surprise. Deleting
-  `server/data/portfoliopath.db` is what brings the fixtures back. See `docs/features/history.md`.
+  `server/data/portify.db` is what brings the fixtures back. See `docs/features/history.md`.
 - **No demo affordance on the sign-in screen.** Discoverability is the README and the startup log,
   so the screen reads as a real product's rather than a demo harness. Don't add a button.
 - **Seeding lives in `index.js`, not `app.js`.** The test harness boots the exported app, so

@@ -22,7 +22,7 @@ Secondary readers exist — hackathon judges, mentors — but no surface is writ
 
 ## Product Purpose
 
-PortfolioPath takes a document a student has already written and returns structured, itemized
+Portify takes a document a student has already written and returns structured, itemized
 feedback on it: what is strong, what is missing, and specific line-level rewrites with the reason
 for each. Four document types are supported — university application, internship resume, essay,
 cover letter — plus interview preparation, a curated inspirations gallery, a history log, and a
@@ -95,7 +95,7 @@ intended to operate beyond the current build.
 
 ## Brand Commitments
 
-- **Name:** PortfolioPath. Used verbatim.
+- **Name:** Portify. Used verbatim.
 - **Voice:** plain, specific, second person, and unflattering about weak writing without being
   unkind to the writer. The product's own copy models the standard it asks for — it names the
   concrete problem with a line and what to do instead ("Adjectives do not travel. Show the
@@ -110,7 +110,7 @@ intended to operate beyond the current build.
 
 Everything real is in the repository. Nothing else exists yet.
 
-- A seeded demo account, `demo@portfoliopath.app` / `portfoliopath`, carrying a profile and
+- A seeded demo account, `demo@portify.app` / `portify`, carrying a profile and
   several finished runs in History. The credentials are printed in the server startup log and
   documented in `README.md` — they are genuinely usable and may be shown.
 - Synthetic sample documents at weak/standard/strong tiers under `samples/`

@@ -7,7 +7,7 @@ Read the doc for the area you're touching before you touch it, and don't read th
 
 ## What this is
 
-PortfolioPath — a student application-optimization platform (React + Express). Students upload a
+Portify — a student application-optimization platform (React + Express). Students upload a
 document, pick what they're optimizing (university application / internship application / essay /
 cover letter), and get structured, itemized feedback. Plus interview prep, a curated inspirations
 gallery, a history log, and a context-aware chatbot. `README.md` is the product description.
@@ -15,8 +15,8 @@ gallery, a history log, and a context-aware chatbot. `README.md` is the product 
 Accounts are email + password, backed by a SQLite file the server creates on first boot
 (`server/db.js`). Everything a student produces is one JSON state document per account, held in
 that database and read and written over `/api/state` — nothing is kept in browser storage. A
-fresh database is seeded with one worked-in demo account (`demo@portfoliopath.app` /
-`portfoliopath`) — the credentials the startup log prints.
+fresh database is seeded with one worked-in demo account (`demo@portify.app` /
+`portify`) — the credentials the startup log prints.
 
 ## Commands
 

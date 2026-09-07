@@ -17,7 +17,7 @@ function seedAndAnnounceDemoAccount() {
 }
 
 app.listen(PORT, () => {
-  console.log(`PortfolioPath API listening on http://localhost:${PORT}`);
+  console.log(`Portify API listening on http://localhost:${PORT}`);
   if (!hasKey) {
     console.log('No LLM provider configured (GEMINI_API_KEY / ANTHROPIC_API_KEY) — assessments/chatbot will use mock responses.');
   } else {

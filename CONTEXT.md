@@ -1,6 +1,6 @@
-# PortfolioPath
+# Portify
 
-PortfolioPath helps students improve the documents they submit when applying — to universities, to
+Portify helps students improve the documents they submit when applying — to universities, to
 internships, and to anything that needs an essay or a cover letter. This glossary fixes the words
 this project uses for that domain, so that code, docs and conversation stay in one language.
 

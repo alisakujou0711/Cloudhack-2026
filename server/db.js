@@ -4,7 +4,7 @@ const Database = require('better-sqlite3');
 
 // Optional override so tests can point at a throwaway file. Unset, the database lives next to
 // the other server data and creates itself on first boot.
-const databasePath = process.env.DATABASE_PATH || path.join(__dirname, 'data', 'portfoliopath.db');
+const databasePath = process.env.DATABASE_PATH || path.join(__dirname, 'data', 'portify.db');
 
 fs.mkdirSync(path.dirname(databasePath), { recursive: true });
 

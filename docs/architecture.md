@@ -16,7 +16,7 @@ no workspace config.
 `server/db.js` opens a SQLite file (`better-sqlite3`, synchronous) and applies the schema on
 import — `users`, `sessions`, and `user_state` (one state document per account) — with every
 statement create-if-not-exists so repeated boots are safe. The path defaults to
-`server/data/portfoliopath.db` and is overridable with `DATABASE_PATH`; the file is git-ignored.
+`server/data/portify.db` and is overridable with `DATABASE_PATH`; the file is git-ignored.
 
 `client/vite.config.js` proxies `/api/*` to `http://localhost:4000`, so the client only ever
 calls relative paths (`BASE = '/api'` in `client/src/api/client.js`). CORS is also enabled

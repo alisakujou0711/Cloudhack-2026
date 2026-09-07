@@ -43,7 +43,7 @@ export default function AuthForm({
     <div className="auth-screen">
       <section className="auth-panel">
         <div className="auth-panel-inner">
-          <p className="auth-wordmark">PortfolioPath</p>
+          <p className="auth-wordmark">Portify</p>
           <h1 className="auth-headline">{headline}</h1>
           <p className="auth-deck">{subtitle}</p>
 

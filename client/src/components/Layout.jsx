@@ -16,7 +16,7 @@ export default function Layout() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div className="brand">PortfolioPath</div>
+        <div className="brand">Portify</div>
         <nav className="tabs">
           <NavLink to="/app/optimize" className={({ isActive }) => (isActive ? 'tab active' : 'tab')}>
             Application Optimization

@@ -4,7 +4,7 @@ Status: ready-for-agent
 
 ## Problem Statement
 
-PortfolioPath has no accounts and no database. "Your account" means one browser's `localStorage`
+Portify has no accounts and no database. "Your account" means one browser's `localStorage`
 key, and everything the student produces — their profile, every completed optimization run, their
 bookmarks, their chat history, their in-progress drafts — lives in a single JSON blob in that
 browser.

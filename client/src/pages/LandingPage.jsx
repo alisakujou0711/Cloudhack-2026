@@ -232,7 +232,7 @@ export default function LandingPage() {
   return (
     <div className="landing">
       <header className="lp-header">
-        <span className="lp-brand">PortfolioPath</span>
+        <span className="lp-brand">Portify</span>
         <Link className="lp-signin" to="/signin">Sign in</Link>
       </header>
 
@@ -241,7 +241,7 @@ export default function LandingPage() {
           <div className="lp-hero-copy">
             <h1>Every change comes with its reason.</h1>
             <p className="lp-lede">
-              PortfolioPath reads the draft you already wrote and marks what is weak, what is
+              Portify reads the draft you already wrote and marks what is weak, what is
               missing, and what to do instead. On a resume it proposes the sharper line and you
               accept or reject it, one bullet at a time.
             </p>
@@ -384,7 +384,7 @@ export default function LandingPage() {
             ))}
           </div>
           <p className="lp-footnote">
-            PortfolioPath does not score your writing. Resume, essay and cover-letter feedback is
+            Portify does not score your writing. Resume, essay and cover-letter feedback is
             qualitative by design — there is no number to optimize toward.
           </p>
         </section>
@@ -446,7 +446,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="lp-footer">
-        <span className="lp-brand">PortfolioPath</span>
+        <span className="lp-brand">Portify</span>
         <p>
           Works with no API key — feedback falls back to rule-based output, and every report says
           so when it does.

@@ -92,7 +92,7 @@ async function freePort() {
 }
 
 function temporaryDatabase() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'portfoliopath-test-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'portify-test-'));
   return {
     dir,
     file: path.join(dir, 'test.db'),

@@ -44,7 +44,7 @@ export default function OnboardingPage() {
       <section className="onboard-panel">
         <div className="onboard-inner">
           <p className="onboard-rise onboard-wordmark" style={rise(0)}>
-            PortfolioPath
+            Portify
           </p>
           <h1 className="onboard-rise onboard-headline" style={rise(1)}>
             Tell us who&apos;s applying.

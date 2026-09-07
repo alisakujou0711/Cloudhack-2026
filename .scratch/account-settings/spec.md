@@ -4,7 +4,7 @@ Status: ready-for-agent
 
 ## Problem Statement
 
-Everything a student tells PortfolioPath about themselves is entered once and then frozen.
+Everything a student tells Portify about themselves is entered once and then frozen.
 
 The three Profile facts — name, education level, location — are captured at onboarding and there is
 no screen that shows them again, let alone changes them. A student who typed their name in a hurry,
