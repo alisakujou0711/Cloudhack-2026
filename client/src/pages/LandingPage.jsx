@@ -107,6 +107,35 @@ function useInView(rootMargin = '-12% 0px -12% 0px') {
   return [ref, seen];
 }
 
+// Reversible, unlike `useInView`: the top bar docks once the hero's Get started button has left
+// the top of the viewport and undocks when the visitor scrolls back up to it, so the observer
+// stays connected rather than disconnecting on its first hit.
+//
+// The observer is only the notification — the answer comes from measuring the element when it
+// fires, because an entry's `boundingClientRect` is a snapshot from when the crossing was
+// recorded and a batched callback carries several of them. Measuring cannot read a stale one.
+// `bottom <= 0` distinguishes the two ways the button can be out of view, which `isIntersecting`
+// alone cannot: above the fold is passed, below it is not yet reached.
+function useScrolledPast(ref) {
+  const [passed, setPassed] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === 'undefined') return undefined;
+    const measure = () => setPassed(node.getBoundingClientRect().bottom <= 0);
+    const observer = new IntersectionObserver(measure);
+    observer.observe(node);
+    // A resize can move the button across the top edge without any intersection change.
+    window.addEventListener('resize', measure, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [ref]);
+
+  return passed;
+}
+
 // The signature interaction: one line strikes through, its replacement writes itself underneath,
 // and the reason arrives in the margin. Under reduced motion the same three things are simply
 // already true — the information without the movement, the way AuthShowcase handles it.
@@ -221,6 +250,9 @@ export default function LandingPage() {
   // scrolled 12% into view like the sheets below it.
   const [heroRef, heroSeen] = useInView('0px');
   const [marginRef, marginSeen] = useInView();
+  // The hero's Get started button is the threshold: past it, the bar follows.
+  const heroActionsRef = useRef(null);
+  const docked = useScrolledPast(heroActionsRef);
 
   // The desk is dark and the app is light, so the document itself has to carry the ink while this
   // page is mounted — otherwise overscroll rubber-banding flashes the app's pale background.
@@ -231,10 +263,16 @@ export default function LandingPage() {
 
   return (
     <div className="landing">
-      <header className="lp-header">
-        <span className="lp-brand">Portify</span>
-        <Link className="lp-signin" to="/signin">Sign in</Link>
-      </header>
+      {/* The slot holds the bar's height whether or not the bar is in it, so docking changes
+          only where the bar is painted and never the position of anything below it. */}
+      <div className="lp-topbar-slot">
+        <header className={`lp-header ${docked ? 'is-docked' : ''}`.trim()}>
+          <div className="lp-header-row">
+            <span className="lp-brand">Portify</span>
+            <Link className="lp-signin" to="/signin">Sign in</Link>
+          </div>
+        </header>
+      </div>
 
       <main>
         <section className="lp-hero" ref={heroRef}>
@@ -246,7 +284,7 @@ export default function LandingPage() {
               accept or reject it, one bullet at a time.
             </p>
             <p className="lp-lede lp-lede-tight">Nothing changes without you.</p>
-            <div className="lp-actions">
+            <div className="lp-actions" ref={heroActionsRef}>
               <Link className="lp-cta" to="/signin">Get started</Link>
               <a className="lp-quiet-link" href="#the-desk">See what it returns</a>
             </div>

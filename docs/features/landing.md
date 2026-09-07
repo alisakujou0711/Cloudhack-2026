@@ -9,7 +9,7 @@ persisted state.
 
 | Path | Role |
 | --- | --- |
-| `client/src/pages/LandingPage.jsx` | The whole page: copy, demo content, `Revision`, `Sheet`, `useInView` |
+| `client/src/pages/LandingPage.jsx` | The whole page: copy, demo content, `Revision`, `Sheet`, `useInView`, `useScrolledPast` |
 | `client/src/index.css` | `.landing` / `.lp-*` block at the end of the file — the only dark surface in the app |
 | `client/src/App.jsx` | The `/` branch: landing when signed out, gate redirect when signed in |
 | `.impeccable/surfaces/client-src-pages-landingpage-jsx.md` | Direction contract for the surface |
@@ -21,7 +21,9 @@ persisted state.
 2. On mount the page adds `landing-active` to `<html>` and removes it on unmount.
 3. `useInView` fires once per sheet as it reaches the viewport, adding `.is-in`.
 4. On the two sheets that carry one, `Revision` runs the pass: strike → write → reason.
-5. Every CTA is a `<Link>` to `/signin`. There is no form and no auth on this page.
+5. `useScrolledPast` watches the hero's `.lp-actions`; once it is above the viewport the top bar
+   gets `.is-docked` and becomes fixed, and it undocks on the way back up.
+6. Every CTA is a `<Link>` to `/signin`. There is no form and no auth on this page.
 
 ## Contract
 
@@ -55,6 +57,14 @@ None — no endpoint, no state key. All content is module-level constants in the
   exists only so overscroll and the scrollbar match the page. Nothing dark belongs on `:root`.
 - The desk is the one authored motion moment. Don't add a second entrance choreography per
   section.
+- **`overflow-x: clip` belongs on `.landing main`, not on `.landing`.** It bounds the hero's lamp,
+  but a clip on an ancestor of the top bar clips the bar out of existence the moment it docks.
+- **`.lp-topbar-slot` holds `--lp-bar-h` whether or not the bar is in it.** The bar is out of flow
+  from the first frame, so docking repaints and never reflows; giving the bar back its own space
+  in the flow reintroduces a jump at the docking threshold.
+- **`useScrolledPast` measures on notification, never from the entry.** An
+  `IntersectionObserverEntry` carries a rect from when the crossing was recorded and a batched
+  callback holds several, so the live `getBoundingClientRect()` is the only current answer.
 
 ## Extending it
 
