@@ -31,8 +31,10 @@ function createClient(baseUrl) {
   const jar = new Map();
 
   async function request(method, endpoint, options = {}) {
-    const { body, cookieHeader, sendCookies = true } = options;
+    const { body, form, cookieHeader, sendCookies = true } = options;
     const headers = {};
+    // Only a JSON body needs a declared type; fetch gives a multipart `form` its own, boundary
+    // and all.
     if (body !== undefined) headers['content-type'] = 'application/json';
     const cookie = cookieHeader !== undefined
       ? cookieHeader
@@ -44,7 +46,7 @@ function createClient(baseUrl) {
     const res = await fetch(baseUrl + endpoint, {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: form !== undefined ? form : body === undefined ? undefined : JSON.stringify(body),
     });
 
     const setCookie = res.headers.getSetCookie();
@@ -72,6 +74,7 @@ function createClient(baseUrl) {
     get: (endpoint, options) => request('GET', endpoint, options),
     post: (endpoint, body, options) => request('POST', endpoint, { ...options, body }),
     put: (endpoint, body, options) => request('PUT', endpoint, { ...options, body }),
+    postForm: (endpoint, form, options) => request('POST', endpoint, { ...options, form }),
   };
 }
 

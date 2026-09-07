@@ -64,23 +64,28 @@ router.post('/auth/login', (req, res) => {
   }
 });
 
-router.post('/auth/logout', requireAuth, (req, res) => {
+// Everything below this line needs a session. The health check and the two credential routes
+// above are the only open endpoints — a route added below is gated by default, and the guard sits
+// ahead of `upload.single`, so a stranger's upload is refused without multer ever parsing it.
+router.use(requireAuth);
+
+router.post('/auth/logout', (req, res) => {
   signOut(req.sessionToken);
   clearSessionCookie(res);
   res.json({ ok: true });
 });
 
-router.get('/auth/me', requireAuth, (req, res) => {
+router.get('/auth/me', (req, res) => {
   res.json({ user: req.user });
 });
 
-router.get('/state', requireAuth, (req, res) => {
+router.get('/state', (req, res) => {
   res.json(readState(req.user.id));
 });
 
 // The only check is that the body is a JSON object. The thirteen keys are not validated: the
 // client is the sole writer, and a shape check here would need updating on every state change.
-router.put('/state', requireAuth, (req, res) => {
+router.put('/state', (req, res) => {
   const state = req.body;
   if (!state || typeof state !== 'object' || Array.isArray(state)) {
     return res.status(400).json({ error: 'The state document must be a JSON object' });

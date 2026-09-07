@@ -51,8 +51,10 @@ session creation; `server/middleware/auth.js` owns the cookie and the `requireAu
   it exists so the expiry test can observe a 401 over HTTP instead of editing the sessions table.
 - Sign-up may reveal that an email is taken; **sign-in must not** — a wrong password and an
   unknown email return the same 401 and the same message.
-- `requireAuth` guards `/auth/me`, `/auth/logout`, and both `/state` endpoints today. See
-  `docs/api.md`.
+- `requireAuth` guards every route except the health check and the two credential routes — one
+  `router.use` rather than a per-route list, so a new endpoint is closed unless it is deliberately
+  declared above the gate. The feature endpoints hold no Account's data, so this is posture rather
+  than data protection. See `docs/api.md`.
 - On the client, `client/src/context/AuthContext.jsx` owns the session — deliberately **separate**
   from `AppContext`, because auth resolves first and gates whether the app is reachable at all. It
   resolves `/auth/me` once on mount, exposes `signUp` / `signIn` / `signOut`, and registers the API
