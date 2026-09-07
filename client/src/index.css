@@ -4214,3 +4214,821 @@ label {
 .settings-confirm .error-text {
   margin: 0;
 }
+
+/* ---------------------------------------------------------------------------
+   Landing page (`/`, signed out). The one dark surface in the product: the use
+   scene is a student at their desk late at night, so the page is the desk and
+   the drafts are paper lying on it. Tokens are scoped to `.landing` rather
+   than `:root` — the app itself stays light and must not inherit any of this.
+   --------------------------------------------------------------------------- */
+
+/* The document carries the ink while this page is mounted, so overscroll
+   rubber-banding shows the desk rather than the app's pale background. */
+html.landing-active {
+  background: #0e1120;
+  color-scheme: dark;
+  scrollbar-color: #3a405c #14172b;
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.landing-active {
+    scroll-behavior: auto;
+  }
+}
+/* The hero's jump link lands the heading clear of the top edge. */
+.landing [id] {
+  scroll-margin-top: 2.5rem;
+}
+
+.landing {
+  --lp-desk: #14172b;
+  --lp-desk-deep: #0e1120;
+  --lp-paper: #ffffff;
+  --lp-paper-edge: #e6e8ef;
+  --lp-ink: #1c2130;
+  --lp-ink-soft: #5c6478;
+  --lp-accent: #4f46e5;
+  --lp-accent-lift: #a5b4fc;
+  --lp-on-desk: #eef0f6;
+  --lp-on-desk-soft: #a8b0c6;
+  --lp-paper-under: #f6f7fb;
+  --lp-tab: #dcdfe9;
+  --lp-sheet-shadow: 0 26px 60px -22px rgba(0, 0, 0, 0.65);
+  --lp-sheet-shadow-low: 0 12px 30px -16px rgba(0, 0, 0, 0.55);
+  --lp-rule: rgba(238, 240, 246, 0.14);
+
+  background: var(--lp-desk);
+  color: var(--lp-on-desk);
+  min-height: 100dvh;
+  /* The same stack the auth screens set, so the marketing surface and the product it leads into
+     are set in one face rather than two. */
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  /* The lamp and the glow are bounded to the two sections that own them, rather than being one
+     fixed-attachment wash over a 4,500px page — that repaints the whole viewport on every scroll
+     frame and is ignored or janky on iOS. `clip` rather than `hidden` so nothing here can turn
+     the page into a scroll container. */
+  overflow-x: clip;
+}
+
+.landing ::selection {
+  background: rgba(79, 70, 229, 0.42);
+  color: #fff;
+}
+
+.landing :focus-visible {
+  outline: 2px solid var(--lp-accent-lift);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.landing h1,
+.landing h2,
+.landing h3 {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.landing p {
+  margin: 0;
+}
+
+/* --- Header ---------------------------------------------------------------- */
+
+.lp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.6rem clamp(1.25rem, 5vw, 4.5rem);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.lp-brand {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  color: var(--lp-on-desk);
+}
+
+.lp-signin {
+  color: var(--lp-on-desk-soft);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.45rem 0.2rem;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.lp-signin:hover {
+  color: var(--lp-on-desk);
+  border-bottom-color: var(--lp-accent-lift);
+}
+
+/* --- Shared layout --------------------------------------------------------- */
+
+.lp-section,
+.lp-hero,
+.lp-close {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: clamp(4.5rem, 11vh, 9rem) clamp(1.25rem, 5vw, 4.5rem);
+}
+
+.lp-section-head {
+  max-width: 46rem;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+.lp-section-head h2 {
+  font-size: clamp(1.9rem, 3.4vw, 2.9rem);
+  letter-spacing: -0.022em;
+  line-height: 1.12;
+  margin-bottom: 1.1rem;
+}
+.lp-section-head p {
+  color: var(--lp-on-desk-soft);
+  font-size: 1.02rem;
+  line-height: 1.65;
+  max-width: 68ch;
+}
+
+/* --- Hero ------------------------------------------------------------------ */
+
+.lp-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  padding-top: clamp(2rem, 5vh, 4rem);
+  padding-bottom: clamp(5rem, 12vh, 10rem);
+}
+
+/* The lamp over the desk — bounded to the hero it lights. */
+.lp-hero::before {
+  content: "";
+  position: absolute;
+  inset: -40% -12% auto -18%;
+  height: 165%;
+  background: radial-gradient(58% 62% at 22% 34%, rgba(124, 136, 196, 0.3), transparent 68%);
+  pointer-events: none;
+  z-index: 0;
+}
+.lp-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* The sheet sits left, the headline upper-right — so the copy is placed rather
+   than ordered, and the DOM keeps the headline first for reading and for AT. */
+.lp-hero-copy {
+  grid-column: 2;
+  grid-row: 1;
+}
+.lp-hero-sheet {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.lp-hero h1 {
+  font-size: clamp(2.6rem, 5.4vw, 4.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.032em;
+  margin-bottom: 1.6rem;
+}
+
+.lp-lede {
+  color: var(--lp-on-desk-soft);
+  font-size: clamp(1rem, 1.25vw, 1.12rem);
+  line-height: 1.62;
+  max-width: 40ch;
+}
+.lp-lede-tight {
+  margin-top: 0.9rem;
+  color: var(--lp-on-desk);
+  font-weight: 500;
+}
+
+.lp-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 2.2rem;
+  flex-wrap: wrap;
+}
+
+.lp-cta {
+  display: inline-flex;
+  align-items: center;
+  background: var(--lp-accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.98rem;
+  padding: 0.85rem 1.6rem;
+  border-radius: 10px;
+  box-shadow: 0 14px 30px -14px rgba(79, 70, 229, 0.9);
+  transition: background 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+.lp-cta:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px -14px rgba(79, 70, 229, 1);
+}
+.lp-cta:active {
+  transform: translateY(0);
+}
+
+.lp-quiet-link {
+  color: var(--lp-on-desk-soft);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--lp-rule);
+  padding-bottom: 2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.lp-quiet-link:hover {
+  color: var(--lp-on-desk);
+  border-bottom-color: var(--lp-accent-lift);
+}
+
+/* --- Sheets ---------------------------------------------------------------- */
+
+.lp-sheet {
+  position: relative;
+  background: var(--lp-paper);
+  color: var(--lp-ink);
+  border-radius: 4px;
+  padding: clamp(1.4rem, 2.4vw, 2rem);
+  box-shadow: var(--lp-sheet-shadow);
+  rotate: var(--tilt, 0deg);
+  opacity: 0;
+  translate: 0 16px;
+  transition: opacity 0.7s cubic-bezier(0.16, 0.8, 0.3, 1), translate 0.7s cubic-bezier(0.16, 0.8, 0.3, 1);
+}
+.lp-sheet.is-in {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* The sheet nearest the reader sits highest off the desk; the two lying under the others are on
+   the second paper tone and cast a shorter shadow. Altitude is the whole reason these are sheets
+   rather than cards. */
+.lp-sheet-hero {
+  rotate: -1.2deg;
+  max-width: 34rem;
+  margin-left: auto;
+  box-shadow: 0 36px 80px -26px rgba(0, 0, 0, 0.7);
+}
+.lp-sheet-essay,
+.lp-sheet-cover {
+  background: var(--lp-paper-under);
+  box-shadow: var(--lp-sheet-shadow-low);
+}
+
+.lp-sheet-head h2 {
+  font-size: 1.02rem;
+  font-weight: 600;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  letter-spacing: -0.005em;
+  color: var(--lp-ink);
+}
+.lp-sheet-head p {
+  font-size: 0.8rem;
+  color: var(--lp-ink-soft);
+  margin-top: 0.2rem;
+}
+
+/* A filing tab on the sheet's own edge, not a kicker set above the heading — the label belongs to
+   the paper, and indigo goes back to meaning one thing only: the applied revision. */
+.lp-sheet-type {
+  position: absolute;
+  bottom: 100%;
+  left: clamp(1.4rem, 2.4vw, 2rem);
+  margin: 0;
+  padding: 0.34rem 0.75rem 0.4rem;
+  background: var(--lp-tab);
+  color: var(--lp-ink);
+  border-radius: 4px 4px 0 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+}
+
+.lp-sheet-quiet {
+  margin-top: 1.15rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--lp-paper-edge);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--lp-ink-soft);
+}
+
+/* --- The revision pass ------------------------------------------------------ */
+
+.lp-revision {
+  margin-top: 1.35rem;
+  font-size: 0.97rem;
+  line-height: 1.6;
+}
+.lp-revision-lg {
+  font-size: 1.05rem;
+}
+
+.lp-revision-original {
+  color: var(--lp-ink);
+  text-decoration-line: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.7s ease, color 0.7s ease;
+}
+.lp-revision.is-striking .lp-revision-original,
+.lp-revision.is-typing .lp-revision-original,
+.lp-revision.is-written .lp-revision-original,
+.lp-revision.is-applied .lp-revision-original {
+  text-decoration-color: rgba(28, 33, 48, 0.55);
+  color: var(--lp-ink-soft);
+}
+
+.lp-revision-revised {
+  margin-top: 0.5rem;
+  color: var(--lp-accent);
+  font-weight: 500;
+}
+.lp-revision-ghost {
+  visibility: hidden;
+}
+.lp-revision-ink:empty::after {
+  content: "";
+}
+
+.lp-caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 1.05em;
+  background: var(--lp-accent);
+  margin-left: 1px;
+  vertical-align: -0.18em;
+  animation: lp-caret 1s steps(1, end) infinite;
+}
+@keyframes lp-caret {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+.lp-revision-reason {
+  margin-top: 0.85rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--lp-paper-edge);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--lp-ink-soft);
+  opacity: 0;
+  translate: 0 4px;
+  transition: opacity 0.5s ease, translate 0.5s ease;
+}
+.lp-revision.is-written .lp-revision-reason,
+.lp-revision.is-applied .lp-revision-reason {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* --- The margin section ----------------------------------------------------- */
+
+.lp-margin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
+}
+.lp-margin-note h2 {
+  font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+  line-height: 1.14;
+  letter-spacing: -0.022em;
+  margin-bottom: 1.1rem;
+}
+.lp-margin-note p {
+  color: var(--lp-on-desk-soft);
+  line-height: 1.68;
+  max-width: 46ch;
+}
+.lp-sheet-margin {
+  rotate: 0.7deg;
+}
+
+/* --- The desk (four sheets) -------------------------------------------------- */
+
+.lp-desk {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.75rem);
+  align-items: start;
+}
+
+/* Sheets are objects lying on a desk, not a card grid: they carry different
+   weights and sit at different heights. */
+.lp-sheet-resume { margin-top: 1.9rem; }
+.lp-sheet-uni { margin-top: calc(1.9rem + clamp(0rem, 3vw, 2.5rem)); }
+.lp-sheet-essay { margin-top: calc(1.9rem + clamp(0rem, 1.5vw, 1.25rem)); }
+.lp-sheet-cover { margin-top: calc(1.9rem + clamp(0rem, 4vw, 3.5rem)); }
+.lp-sheet-index { margin-top: 1.9rem; max-width: 64rem; }
+
+.lp-decision-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.3rem;
+  flex-wrap: wrap;
+}
+.lp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--lp-paper-edge);
+  color: var(--lp-ink-soft);
+}
+.lp-chip-accept {
+  border-color: rgba(22, 163, 74, 0.4);
+  color: #15803d;
+  background: #ecfdf3;
+}
+.lp-chip-reject {
+  border-color: rgba(220, 38, 38, 0.32);
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.lp-mark {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.lp-uni-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+.lp-uni-head h3 {
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--lp-ink);
+}
+.lp-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--lp-ink);
+  background: var(--lp-tab);
+  border: 1px solid #cfd4e0;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+}
+
+.lp-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.lp-checklist li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 0.25rem 0.6rem;
+  align-items: start;
+  padding: 0.62rem 0;
+  border-bottom: 1px solid var(--lp-paper-edge);
+  font-size: 0.88rem;
+}
+.lp-checklist li:last-child {
+  border-bottom: none;
+}
+.lp-checklist li.is-met { color: #15803d; }
+.lp-checklist li.is-unmet { color: #b91c1c; }
+.lp-checklist li.is-optional { color: var(--lp-ink-soft); }
+
+.lp-check-label {
+  color: var(--lp-ink);
+  font-weight: 500;
+}
+.lp-check-detail {
+  grid-column: 2;
+  color: var(--lp-ink-soft);
+  font-size: 0.8rem;
+}
+
+.lp-question {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--lp-ink);
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--lp-paper-edge);
+}
+.lp-critique {
+  font-size: 0.92rem;
+  line-height: 1.68;
+  color: var(--lp-ink-soft);
+}
+
+/* --- Decide ----------------------------------------------------------------- */
+
+.lp-sheet-decide {
+  max-width: 74rem;
+  padding: clamp(1.5rem, 3vw, 2.6rem) clamp(1.5rem, 3vw, 3rem);
+}
+/* The rows are the content; the paper is allowed to run wider than they do. */
+.lp-sheet-decide .lp-decision-lines {
+  max-width: 64ch;
+}
+.lp-decision {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 1.35rem 0;
+  border-bottom: 1px solid var(--lp-paper-edge);
+}
+.lp-decision:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.lp-decision:first-child {
+  padding-top: 0;
+}
+.lp-decision-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-top: 0.15rem;
+}
+.lp-decision.is-accepted .lp-decision-label { color: #15803d; }
+.lp-decision.is-rejected .lp-decision-label { color: #b91c1c; }
+.lp-decision.is-untouched .lp-decision-label { color: var(--lp-ink-soft); }
+
+.lp-decision-lines {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.lp-decision-original {
+  color: var(--lp-ink);
+}
+.lp-decision.is-accepted .lp-decision-original {
+  color: var(--lp-ink-soft);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: rgba(28, 33, 48, 0.5);
+}
+.lp-decision-revised {
+  margin-top: 0.45rem;
+  color: var(--lp-accent);
+  font-weight: 500;
+}
+.lp-decision.is-rejected .lp-decision-revised {
+  color: var(--lp-ink-soft);
+  font-weight: 400;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: rgba(28, 33, 48, 0.5);
+}
+.lp-decision-note {
+  margin-top: 0.7rem;
+  font-size: 0.83rem;
+  color: var(--lp-ink-soft);
+  line-height: 1.6;
+}
+
+.lp-footnote {
+  margin-top: 1.75rem;
+  max-width: 62ch;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--lp-on-desk-soft);
+}
+
+/* --- The rest of the desk ---------------------------------------------------- */
+
+.lp-more-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.4rem) clamp(2rem, 5vw, 3.5rem);
+}
+.lp-more-item {
+  padding-top: 1rem;
+  border-top: 1px solid var(--lp-paper-edge);
+}
+.lp-more-item h3 {
+  font-size: 1.14rem;
+  letter-spacing: -0.012em;
+  margin-bottom: 0.5rem;
+  color: var(--lp-ink);
+}
+.lp-more-item p {
+  color: var(--lp-ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.62;
+  max-width: 46ch;
+}
+
+/* --- Close ------------------------------------------------------------------- */
+
+.lp-close {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
+  padding-bottom: clamp(5rem, 12vh, 9rem);
+}
+
+/* The page ends warm rather than trailing off into flat ink. */
+.lp-close::before {
+  content: "";
+  position: absolute;
+  inset: auto -12% -30% -12%;
+  height: 150%;
+  background: radial-gradient(52% 58% at 74% 78%, rgba(79, 70, 229, 0.26), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.lp-close > * {
+  position: relative;
+  z-index: 1;
+}
+.lp-sheet-close {
+  rotate: -1.4deg;
+  padding: clamp(2rem, 4vw, 3rem);
+}
+.lp-close-line {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--lp-ink-soft);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: rgba(28, 33, 48, 0.5);
+}
+.lp-close-caption {
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--lp-paper-edge);
+  font-size: 0.85rem;
+  color: var(--lp-ink-soft);
+}
+.lp-close-copy h2 {
+  font-size: clamp(1.9rem, 3.6vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.026em;
+  margin-bottom: 1.1rem;
+}
+.lp-close-copy p {
+  color: var(--lp-on-desk-soft);
+  line-height: 1.68;
+  max-width: 46ch;
+  margin-bottom: 2rem;
+}
+
+/* --- Footer ------------------------------------------------------------------ */
+
+.lp-footer {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem clamp(1.25rem, 5vw, 4.5rem) 3rem;
+  border-top: 1px solid var(--lp-rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem 2rem;
+  flex-wrap: wrap;
+}
+.lp-footer p {
+  color: var(--lp-on-desk-soft);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  max-width: 52ch;
+}
+
+/* --- Responsive --------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .lp-hero,
+  .lp-margin-grid,
+  .lp-close,
+  .lp-desk,
+  .lp-more-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lp-hero-copy,
+  .lp-hero-sheet {
+    grid-column: 1;
+  }
+  .lp-hero-copy { grid-row: 1; }
+  .lp-hero-sheet { grid-row: 2; }
+  .lp-close > .lp-sheet-close { order: 2; }
+
+  .lp-sheet-hero {
+    margin-left: 0;
+    max-width: none;
+  }
+  /* Paper lies flat once the sheets are stacked — a tilt reads as a mistake
+     when there is nothing beside it to be tilted against. */
+  .lp-sheet,
+  .lp-sheet-hero,
+  .lp-sheet-margin,
+  .lp-sheet-close {
+    rotate: 0deg;
+  }
+  .lp-sheet-uni,
+  .lp-sheet-essay,
+  .lp-sheet-cover,
+  .lp-sheet-resume,
+  .lp-sheet-index {
+    /* still enough room for the filing tab above each sheet */
+    margin-top: 1.9rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .lp-decision {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+  }
+  .lp-header {
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
+  }
+  .lp-more-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* On a phone the whole point has to clear the fold: the struck line and its replacement are the
+     argument, so the copy above them gives up its slack rather than pushing them off-screen. */
+  .lp-hero {
+    padding-top: 0.5rem;
+    padding-bottom: clamp(3rem, 8vh, 5rem);
+    gap: 1.6rem;
+  }
+  .lp-hero h1 {
+    margin-bottom: 1.1rem;
+  }
+  .lp-lede {
+    font-size: 0.97rem;
+    line-height: 1.55;
+  }
+  .lp-lede-tight {
+    margin-top: 0.65rem;
+  }
+  .lp-actions {
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-sheet {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+  .lp-revision-original,
+  .lp-revision-reason {
+    transition: none;
+  }
+  .lp-revision-reason {
+    opacity: 1;
+    translate: 0 0;
+  }
+  .lp-caret {
+    animation: none;
+  }
+  .lp-cta:hover {
+    transform: none;
+  }
+}

@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ChatUIProvider } from './context/ChatUIContext';
+import LandingPage from './pages/LandingPage';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import OnboardingPage from './pages/OnboardingPage';
@@ -61,13 +62,19 @@ function AppRoutes() {
     );
   }
 
-  // The two gates, in order: a session, then a profile. `/` is nothing but this three-way
-  // redirect; every other route re-checks the gates it depends on.
+  // The two gates, in order: a session, then a profile. Every route re-checks the gates it
+  // depends on.
   const blockedAt = gateRedirect(isAuthenticated, profile);
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={blockedAt || '/app/optimize'} replace />} />
+      {/* `/` is the only public surface: signed out it renders the landing page, and with a
+          session it goes straight on to the app (or to onboarding, if that gate is still open).
+          Signing out therefore lands back on the landing page rather than a bare redirect. */}
+      <Route
+        path="/"
+        element={isAuthenticated ? <Navigate to={blockedAt || '/app/optimize'} replace /> : <LandingPage />}
+      />
       <Route path="/signin" element={isAuthenticated ? <Navigate to="/" replace /> : <SignInPage />} />
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/" replace /> : <SignUpPage />} />
       {/* The one route a profile sends you away from rather than towards. */}

@@ -126,8 +126,13 @@ three conditions to three destinations:
 | Session, no profile | `/onboarding` |
 | Session and profile | `/app/optimize` |
 
-`/` is nothing but that three-way redirect. Every other route re-checks the gates it depends on,
-so typing an in-app URL while signed out lands on sign-in rather than rendering. While `/auth/me`
+The gate table above governs the **guarded** routes. `/` itself is the one public surface: with no
+session it renders the landing page (`docs/features/landing.md`), and with a session it applies the
+table — on to `/app/optimize`, or to `/onboarding` if that gate is still open. So "no session"
+sends an in-app URL to `/signin`, but sends `/` to the landing page; someone who types the bare
+domain is a visitor, someone who types `/app/history` is a returning student. Every other route
+re-checks the gates it depends on, so typing an in-app URL while signed out lands on sign-in rather
+than rendering. While `/auth/me`
 is still in flight `AuthProvider`'s status is `'resolving'` and `AppRoutes` renders a loading
 screen — deciding earlier would flash the sign-in screen at someone who is already signed in. The
 profile gate waits on a second condition for the same reason: until `AppContext`'s `loadStatus` is
@@ -174,11 +179,19 @@ every fixed control sideways as you crossed between tabs. Two consequences: scro
 `.app-main`, not `window` (`Layout.jsx` resets it to the top on every route change), and a page
 cannot rely on the document growing past the viewport.
 
-One global stylesheet, `client/src/index.css` (~4100 lines), with CSS custom properties on
+That applies to everything under `/app`, which is what `.app-shell` wraps. The landing page at `/`
+is outside `Layout` and deliberately scrolls the **document** instead — it is the one long page in
+the product. `100dvh`/`overflow: hidden` is scoped to `.app-shell`, never to `html` or `body`, so
+the two coexist; don't promote it.
+
+One global stylesheet, `client/src/index.css` (~5000 lines), with CSS custom properties on
 `:root` (`--bg`, `--surface`, `--border`, `--text`, `--text-muted`, `--primary`, `--success`,
 `--danger`, …) and `color-scheme: light`. Semantic class names (`.card`, `.btn-primary`,
-`.link-btn`, `.subtitle`, `.error-text`, `.badge`), no CSS modules, no utility framework, no dark
-mode. Add styles here and reuse the existing tokens.
+`.link-btn`, `.subtitle`, `.error-text`, `.badge`), no CSS modules and no utility framework. The
+app has no dark mode and no theme switch; the **landing page is the one dark surface**, and it
+owns that entirely through `.landing`-scoped `--lp-*` tokens plus an `html.landing-active` class
+the page adds while mounted. Nothing dark leaks into `:root`. Add styles here and reuse the
+existing tokens.
 
 ## What does not exist here
 

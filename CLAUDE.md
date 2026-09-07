@@ -87,6 +87,7 @@ the code still runs.
 | `docs/architecture.md` | Orienting; touching routing, `AppContext`, state loading and saving, styling, or the request path |
 | `docs/llm.md` | Adding or changing **any** LLM call, prompt, mock, or provider |
 | `docs/api.md` | Adding or changing an endpoint, or checking a request/response shape |
+| `docs/features/landing.md` | Working on the public landing page at `/`, its demo content, or its claims |
 | `docs/features/accounts-and-persistence.md` | Touching sign-in/sign-up, sessions, the routing gate, or where the state document is stored |
 | `docs/features/account-settings.md` | Working on the settings page, the header account menu, or changing/deleting an account |
 | `docs/features/onboarding.md` | Touching the profile, education levels, or international-applicant behavior |
