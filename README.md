@@ -48,28 +48,32 @@ Gemini is used if `GEMINI_API_KEY` is set; otherwise falls back to Anthropic if
 
 Four tabs after onboarding:
 
-- **Application Optimization** — the core flow. Upload a document first; the server extracts
-  its text and predicts what kind of document it is (resume / university application /
-  essay / cover letter). You then pick what you want optimized from four options. If your
-  choice doesn't match the prediction (e.g. you upload a resume but pick "University
-  Application Optimization"), you get a non-blocking confirmation — never an automatic
-  rejection — so you can proceed anyway if you know better.
-  - *University* / *Internship*: as before — structured checklist/diff-editor review.
+- **Application Optimization** — the core flow. You pick what you're optimizing first
+  (University / Internship / Essay / Cover Letter), then that panel handles its own upload.
+  The server extracts the file's text and predicts what kind of document it is (resume /
+  university application / essay / cover letter). If the prediction doesn't match what the
+  panel expects (e.g. you upload a resume in the Essay panel), you get a non-blocking
+  confirmation — never an automatic rejection — so you can proceed anyway if you know better.
+  - *University*: baseline checklist against NUS/NTU/SMU/SUTD requirements plus qualitative
+    feedback. Upload is optional and only pre-fills the form.
+  - *Internship*: a line-by-line resume review — weak bullets come back as suggested rewrites
+    you can accept or reject, then export as a PDF.
   - *Essay*: asks university, major, and how many essay questions, then collects each
     question + your answer, then gives itemized feedback per question.
   - *Cover Letter*: same pattern, scoped to company/role/prompts instead.
-- **History** — every optimization run (any of the four types), filterable by type, with
-  bookmarking.
-- **Interviews** / **Inspirations** — placeholders for now; no functional spec was given for
-  these yet, so they're stubbed rather than guessed at.
+- **History** — every optimization run (any of the four types), plus saved interview plans and
+  bookmarked inspirations, filterable by type. Entries reopen as full read-only reports.
+- **Interviews** — a prep plan for an upcoming university or internship interview: research and
+  technical checklists, timeline-aware advice, and common questions with sample answers.
+- **Inspirations** — a gallery of original sample application essays and internship resumes,
+  readable in full and bookmarkable into History.
 
 ## File upload & classification
 
-Upload happens once, up front, for the whole Application Optimization flow (PDF/DOCX/TXT).
-The extracted text is reused by whichever sub-flow you pick — University pre-fills
-GPA/subjects/ECAs/essay, Internship seeds the resume text, Essay/Cover Letter use it as a
-starting draft for the first answer. All extracted/pre-filled fields stay editable. See
-`samples/` for test files.
+Each optimization panel owns its own upload (PDF/DOCX/TXT), and each does something different
+with the extracted text — University pre-fills GPA/subjects/ECAs, Internship seeds the resume
+text, Essay pulls out just the personal statement, Cover Letter drops the draft into the first
+empty answer. All extracted/pre-filled fields stay editable. See `samples/` for test files.
 
 ## Design notes
 
