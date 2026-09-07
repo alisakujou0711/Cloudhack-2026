@@ -25,13 +25,13 @@ the most reliable way to produce a correct snapshot to seed from.
 
 **Status:** ready-for-agent
 
-- [ ] A fresh database boots with a demo account whose credentials are fixed and documented.
-- [ ] The demo account signs in through the normal sign-in form, with no special affordance on the
+- [x] A fresh database boots with a demo account whose credentials are fixed and documented.
+- [x] The demo account signs in through the normal sign-in form, with no special affordance on the
       screen.
-- [ ] The demo account has a complete profile and goes straight into the app, never to onboarding.
-- [ ] Its History contains several entries spanning more than one optimization type.
-- [ ] Expanding any seeded entry renders the full report, not an empty panel.
-- [ ] Seeding is skipped when the demo account already exists; restarting never overwrites its data.
-- [ ] The credentials appear in the README and in the server's startup log.
-- [ ] Clearing the demo account's data and restarting does not silently re-seed it mid-demo, or if
+- [x] The demo account has a complete profile and goes straight into the app, never to onboarding.
+- [x] Its History contains several entries spanning more than one optimization type.
+- [x] Expanding any seeded entry renders the full report, not an empty panel.
+- [x] Seeding is skipped when the demo account already exists; restarting never overwrites its data.
+- [x] The credentials appear in the README and in the server's startup log.
+- [x] Clearing the demo account's data and restarting does not silently re-seed it mid-demo, or if
       it does, that behaviour is intentional and documented.

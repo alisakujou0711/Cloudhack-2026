@@ -26,10 +26,10 @@ is idempotent; and that the database path is configurable solely so tests can re
 
 **Status:** ready-for-agent
 
-- [ ] A feature doc for accounts and persistence exists, following the established skeleton.
-- [ ] It is within the 50–80 line budget and contains no pasted code or prompt text.
-- [ ] It has a row in the docs map table with a clear "when you're..." trigger.
-- [ ] Its invariants section records the non-obvious constraints, each with its reason.
-- [ ] It links to related docs rather than restating them.
-- [ ] The doc corrections owed by tickets 02 through 07 are verified as landed, and any that were
+- [x] A feature doc for accounts and persistence exists, following the established skeleton.
+- [x] It is within the 50–80 line budget and contains no pasted code or prompt text.
+- [x] It has a row in the docs map table with a clear "when you're..." trigger.
+- [x] Its invariants section records the non-obvious constraints, each with its reason.
+- [x] It links to related docs rather than restating them.
+- [x] The doc corrections owed by tickets 02 through 07 are verified as landed, and any that were
       missed are completed here.
