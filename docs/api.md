@@ -36,6 +36,7 @@ methods are in `client/src/api/client.js`.
 | `GET /auth/me` | — | `{user}` or `401` | `auth.getSessionUser` |
 | `GET /state` | — | the account's whole state document, `{}` when nothing is saved yet | `userState.readState` |
 | `PUT /state` | the whole state document as the body | `{ok: true}`, the stored document replaced | `userState.replaceState` |
+| `DELETE /state` | — | `{ok: true}`, the document reset to the empty one a new account holds | `userState.clearState` |
 | `GET /university/options` | — | `{universities: [{code, name, majors[]}]}` | `universityAssessment.listOptions` |
 | `POST /assess/university` | `{university, major, portfolio{gpa?, subjects[], extracurriculars, languageProficiency}, profile?}` — first three required | `{university, universityCode, major, competitiveness, checklist[], checklistPassCount, checklistTotal, feedback{}, source}` | `universityAssessment` |
 | `POST /university/extract` | multipart `file` | `{gpa?, subjects[], extracurriculars, essay, source, filename}` | `resumeParser` + `universityProfileParser` |
@@ -65,6 +66,10 @@ methods are in `client/src/api/client.js`.
   sole writer and a shape check would need updating on every state change. A row is created empty
   at sign-up, so a new account reads `{}` rather than a `404`. Concurrent writes are
   last-write-wins with no conflict detection. See `docs/architecture.md` for the client half.
+- **`DELETE /state`** — what "Clear my data" on the History page calls. It resets the document to
+  the same `{}` a new account reads, and stops there: the account and its session are untouched,
+  so the person stays signed in and simply lands back in onboarding without a profile. It is **not** account deletion, which is deliberately not built. Clearing an
+  already-empty document is a no-op, not an error.
 - **`/assess/university`** — `university` is the *code* (`NUS`), `major` the exact key from
   `server/data/universityRequirements.js`. Unknown values throw, surfacing as a 400.
 - **`/university/extract` vs `/university/extract-text`** — same parser, different input. The file

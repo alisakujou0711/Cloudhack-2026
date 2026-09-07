@@ -77,6 +77,8 @@ export function AppProvider({ children }) {
   // rather than whatever was current when it was scheduled.
   const latestState = useRef(state);
   const saveTimer = useRef(null);
+  // The write currently on the wire, if any. Cancelling the timer cannot recall one already sent.
+  const inFlightSave = useRef(null);
   // The account a queued or in-flight write belongs to; it must never land on the next one.
   const savingFor = useRef(null);
 
@@ -87,7 +89,7 @@ export function AppProvider({ children }) {
   const runSave = useCallback((forAccountId) => {
     if (!forAccountId || savingFor.current !== forAccountId) return;
     setSaveStatus('saving');
-    api
+    const request = api
       .saveState(latestState.current)
       .then(() => {
         if (savingFor.current === forAccountId) setSaveStatus('saved');
@@ -97,7 +99,12 @@ export function AppProvider({ children }) {
         // an unsettled save rather than interrupting whatever the person is doing.
         console.warn('Failed to save your work', err);
         if (savingFor.current === forAccountId) setSaveStatus('error');
+      })
+      .finally(() => {
+        if (inFlightSave.current === request) inFlightSave.current = null;
       });
+    // Settled or not, this is the write "clear my data" has to outlast. It never rejects.
+    inFlightSave.current = request;
   }, []);
 
   const cancelPendingSave = useCallback(() => {
@@ -195,9 +202,37 @@ export function AppProvider({ children }) {
   const removeHistoryEntry = (id) =>
     mutate((s) => ({ ...s, history: s.history.filter((h) => h.id !== id) }));
 
-  // No caller since the header's "Start over" became "Sign out"; the History page picks it up
-  // as "Clear my data". The account survives — only its state document goes back to defaults.
-  const resetAll = () => mutate(() => defaultState());
+  // "Clear my data" on the History page — the destructive half of the header's old "Start over",
+  // which became Sign out. The account survives; only the document goes, and it goes on the
+  // server rather than just here, so signing back in shows the same empty account. Losing the
+  // profile with it is what walks the person back to onboarding through the routing gate.
+  const clearData = async () => {
+    const forAccountId = savingFor.current;
+    if (!forAccountId) return;
+    // A queued write still holds the document being cleared and would put it straight back.
+    const hadQueuedWrite = Boolean(saveTimer.current);
+    const statusBeforeClearing = saveStatus;
+    cancelPendingSave();
+    setSaveStatus('saving');
+    // One already on the wire cannot be cancelled, only outlasted: a PUT that reached the server
+    // after the DELETE would silently restore everything. Waiting orders the two.
+    if (inFlightSave.current) await inFlightSave.current;
+    try {
+      await api.clearState();
+    } catch (err) {
+      // Nothing was cleared, so the document still stands. The header goes back to what it was
+      // saying — a dropped write is re-queued, and with none queued there was nothing
+      // outstanding — and the History page reports the failure itself.
+      if (hadQueuedWrite) scheduleSave();
+      else setSaveStatus(statusBeforeClearing);
+      throw err;
+    }
+    if (savingFor.current !== forAccountId) return;
+    // The server is already at the empty document, so this moves state without scheduling a
+    // write of it — `mutate` here would save the defaults straight back over the wipe.
+    setState(defaultState());
+    setSaveStatus('saved');
+  };
 
   const value = {
     ...state,
@@ -219,7 +254,7 @@ export function AppProvider({ children }) {
     addHistoryEntry,
     toggleBookmark,
     removeHistoryEntry,
-    resetAll,
+    clearData,
     suggestedOptimizationType: state.profile ? suggestedOptimizationType(state.profile.educationLevel) : 'university',
   };
 

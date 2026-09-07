@@ -12,7 +12,7 @@ const { assessEssays } = require('../services/essayOptimization');
 const { assessCoverLetter } = require('../services/coverLetterOptimization');
 const { prepareInterview } = require('../services/interviewPrep');
 const { signUp, signIn, signOut } = require('../services/auth');
-const { readState, replaceState } = require('../services/userState');
+const { readState, replaceState, clearState } = require('../services/userState');
 const {
   setSessionCookie,
   clearSessionCookie,
@@ -91,6 +91,13 @@ router.put('/state', (req, res) => {
     return res.status(400).json({ error: 'The state document must be a JSON object' });
   }
   replaceState(req.user.id, state);
+  res.json({ ok: true });
+});
+
+// Clearing the document, not the Account: the Session and the credentials are untouched, so the
+// person stays signed in and the routing gate walks them back through onboarding.
+router.delete('/state', (req, res) => {
+  clearState(req.user.id);
   res.json({ ok: true });
 });
 

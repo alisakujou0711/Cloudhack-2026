@@ -63,6 +63,9 @@ export const api = {
   // takes back.
   getState: () => request('/state'),
   saveState: (state) => request('/state', { method: 'PUT', body: JSON.stringify(state) }),
+  // "Clear my data": the document goes back to the empty one a new account holds. The account,
+  // and this session, are untouched.
+  clearState: () => request('/state', { method: 'DELETE' }),
   universityOptions: () => request('/university/options'),
   assessUniversity: (payload) =>
     request('/assess/university', { method: 'POST', body: JSON.stringify(payload) }),
