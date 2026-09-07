@@ -5,8 +5,13 @@ methods are in `client/src/api/client.js`.
 
 ## Shared behavior
 
-- **No auth, no sessions.** Every request is independent; the client sends whatever state it
-  needs (including `profile`) in the body.
+- **Sessions are cookies.** Signing up or in sets an httpOnly `pp_session` cookie
+  (`sameSite=lax`, 30 days). Browsers must send credentials; CORS is configured with an explicit
+  origin so the cookie survives direct access to port 4000. See `docs/architecture.md`.
+- **`requireAuth` guards `/auth/me` and `/auth/logout`.** The feature endpoints below are still
+  open and stateless — the client sends whatever state it needs (including `profile`) in the body.
+- **401 `{error}`** is the response to a missing, unknown, or expired session, and to failed
+  sign-in credentials.
 - **Uploads**: `multer` with `memoryStorage()`, `fileSize` capped at **10MB**, always the field
   name `file`. Nothing is written to disk.
 - **JSON bodies**: capped at `2mb` (`express.json({ limit: '2mb' })` in `app.js`).
@@ -21,6 +26,10 @@ methods are in `client/src/api/client.js`.
 | Method + path | Request | Response | Service |
 | --- | --- | --- | --- |
 | `GET /health` | — | `{ok, llmConfigured, llmProvider}` | — |
+| `POST /auth/signup` | `{email, password}` — password min 8 chars | `201 {user{id, email, createdAt}}` + session cookie | `auth.signUp` |
+| `POST /auth/login` | `{email, password}` | `{user}` + session cookie | `auth.signIn` |
+| `POST /auth/logout` | — (session required) | `{ok: true}`, session deleted, cookie cleared | `auth.signOut` |
+| `GET /auth/me` | — (session required) | `{user}` or `401` | `auth.getSessionUser` |
 | `GET /university/options` | — | `{universities: [{code, name, majors[]}]}` | `universityAssessment.listOptions` |
 | `POST /assess/university` | `{university, major, portfolio{gpa?, subjects[], extracurriculars, languageProficiency}, profile?}` — first three required | `{university, universityCode, major, competitiveness, checklist[], checklistPassCount, checklistTotal, feedback{}, source}` | `universityAssessment` |
 | `POST /university/extract` | multipart `file` | `{gpa?, subjects[], extracurriculars, essay, source, filename}` | `resumeParser` + `universityProfileParser` |
@@ -36,6 +45,13 @@ methods are in `client/src/api/client.js`.
 
 ## Endpoint notes
 
+- **`/auth/signup`** — `400` for a missing field, a password under 8 characters, or an email that
+  is already registered (sign-up necessarily reveals that). Email is stored and matched
+  case-insensitively.
+- **`/auth/login`** — a wrong password and an unregistered email return the **same** `401` and the
+  same message, so the form can't be used to discover who has an account. Don't split them.
+- **`/auth/logout`** — deletes the session row before clearing the cookie; a captured token stops
+  working immediately. It requires a session, so a signed-out client gets `401`.
 - **`/assess/university`** — `university` is the *code* (`NUS`), `major` the exact key from
   `server/data/universityRequirements.js`. Unknown values throw, surfacing as a 400.
 - **`/university/extract` vs `/university/extract-text`** — same parser, different input. The file

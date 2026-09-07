@@ -31,25 +31,25 @@ Use the runtime's built-in test runner and assertions — no new development dep
 
 **Status:** ready-for-agent
 
-- [ ] Signing up with a new email and a valid password creates an account and returns a session
+- [x] Signing up with a new email and a valid password creates an account and returns a session
       cookie.
-- [ ] Signing up with an email that already exists is rejected with a clear message.
-- [ ] Signing up with a password under 8 characters is rejected with a message naming the rule.
-- [ ] Signing in with correct credentials returns a session cookie.
-- [ ] Signing in with a wrong password and signing in with an unregistered email produce an
+- [x] Signing up with an email that already exists is rejected with a clear message.
+- [x] Signing up with a password under 8 characters is rejected with a message naming the rule.
+- [x] Signing in with correct credentials returns a session cookie.
+- [x] Signing in with a wrong password and signing in with an unregistered email produce an
       identical status and message.
-- [ ] An identity endpoint returns the signed-in user for a valid session and 401 for a missing,
+- [x] An identity endpoint returns the signed-in user for a valid session and 401 for a missing,
       unknown, or expired one.
-- [ ] Signing out deletes the session server-side and clears the cookie; the old token is rejected
+- [x] Signing out deletes the session server-side and clears the cookie; the old token is rejected
       afterwards.
-- [ ] The session cookie is httpOnly.
-- [ ] The database file and its write-ahead-log and shared-memory sidecars are git-ignored.
-- [ ] Schema creation is idempotent — booting repeatedly against an existing database is safe and
+- [x] The session cookie is httpOnly.
+- [x] The database file and its write-ahead-log and shared-memory sidecars are git-ignored.
+- [x] Schema creation is idempotent — booting repeatedly against an existing database is safe and
       destroys nothing.
-- [ ] The server package's test script runs the suite and passes; it is no longer a placeholder
+- [x] The server package's test script runs the suite and passes; it is no longer a placeholder
       that exits non-zero.
-- [ ] Tests run against a temporary database and leave no artefact behind.
-- [ ] No new required environment variables; the app still starts with no configuration at all.
-- [ ] The API doc gains the authentication endpoints.
-- [ ] The claims that there is no test suite, in both the root agent guide and the architecture
+- [x] Tests run against a temporary database and leave no artefact behind.
+- [x] No new required environment variables; the app still starts with no configuration at all.
+- [x] The API doc gains the authentication endpoints.
+- [x] The claims that there is no test suite, in both the root agent guide and the architecture
       doc, are corrected.

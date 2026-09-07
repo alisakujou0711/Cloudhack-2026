@@ -12,7 +12,8 @@ document, pick what they're optimizing (university application / internship appl
 cover letter), and get structured, itemized feedback. Plus interview prep, a curated inspirations
 gallery, a history log, and a context-aware chatbot. `README.md` is the product description.
 
-No auth, no database, no test suite. All state is one object in `localStorage`.
+Accounts are email + password, backed by a SQLite file the server creates on first boot
+(`server/db.js`). Application state is still one object in `localStorage`.
 
 ## Commands
 
@@ -21,6 +22,7 @@ No auth, no database, no test suite. All state is one object in `localStorage`.
 cd server
 npm install
 npm run dev          # node --watch index.js, http://localhost:4000
+npm test             # node --test, boots the app over HTTP against a temp database
 
 # Frontend (Terminal 2)
 cd client
@@ -30,12 +32,16 @@ npm run build
 npm run lint           # oxlint
 ```
 
-There is no test suite in either package (`server`'s `npm test` is an unset placeholder). There is
-no root-level install — `client/` and `server/` are independent npm packages with their own
-`node_modules`, always installed/run separately.
+`server` has a test suite — Node's built-in runner driving the exported app over real HTTP
+(`server/test/`). `client` has none. There is no root-level install — `client/` and `server/` are
+independent npm packages with their own `node_modules`, always installed/run separately.
 
 The app runs fully **offline and keyless** — every LLM call has a deterministic mock fallback. Set
 `GEMINI_API_KEY` or `ANTHROPIC_API_KEY` in `server/.env` for live output.
+
+There are **no required** environment variables. Three optional ones: `DATABASE_PATH` (where the
+SQLite file lives — the tests point it at a throwaway file), `SESSION_TTL_MS` (session lifetime,
+default 30 days), and `CLIENT_ORIGIN` (the CORS origin).
 
 ## Hard rules
 
