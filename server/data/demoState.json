@@ -16,7 +16,8 @@
   },
   "internshipPortfolio": {
     "resumeText": "PRIYA SHARMA\npriya.sharma@example.com | linkedin.com/in/priyasharma | github.com/priyasharma\nSingapore | +65 9123 4567\n\nEDUCATION\nNational University of Singapore — B.Comp (Computer Science), Expected 2027\nGPA: 4.6/5.0 | Relevant coursework: Data Structures & Algorithms, Databases, Operating Systems\n\nTARGET ROLE\nSoftware Engineering Intern\n\nEXPERIENCE\nTeaching Assistant, Intro to Programming — NUS School of Computing (Aug 2025 – Present)\n- Held weekly office hours for 60+ students, improving average assignment pass rate from 72% to 89%\n  after introducing a shared debugging checklist.\n- Graded and gave written feedback on 400+ submissions per semester, cutting grading turnaround\n  from 2 weeks to 4 days by writing an auto-grading script.\n\nFreelance Web Developer (Jan 2025 – May 2025)\n- Delivered a booking site for a local tuition centre, reducing manual scheduling calls by roughly 80%\n  and handling 200+ bookings per month.\n- Integrated Stripe payments and deployed on Vercel with 99.9% uptime over 4 months.\n\nPROJECTS\nStudySync — Full-stack study group matcher (React, Node.js, PostgreSQL)\n- Built and shipped to 300+ NUS students; matched study groups based on module and availability,\n  cutting average time-to-find-a-group from ~3 days to same-day.\n- Wrote integration tests covering 85% of backend routes; set up CI with GitHub Actions.\n\nCampus Bus ETA Predictor (Python, scikit-learn)\n- Trained a regression model on 6 months of GPS ping data to predict shuttle arrival times within\n  ±90 seconds, an improvement over the university's static schedule.\n- Presented findings at the NUS Datathon, placing top 5 out of 42 teams.\n\nSKILLS\nLanguages: Python, JavaScript/TypeScript, Java, SQL\nFrameworks/Tools: React, Node.js, Express, PostgreSQL, Docker, Git, GitHub Actions, AWS (EC2, S3)\n\nAWARDS\n- 2nd Place, NUS Hack&Roll 2026 (out of 80 teams)\n- Dean's List, AY2025/26\n",
-    "targetRole": "Software Engineering Intern"
+    "targetRole": "Software Engineering Intern",
+    "jobDescription": ""
   },
   "essayOptimization": {
     "university": "National University of Singapore",
@@ -40,7 +41,8 @@
     ],
     "answers": [
       "Dear Hiring Manager,\n\nI'm writing to apply for the Software Engineering Intern role on the Payments Infrastructure\nteam at Stripe. I'm currently a third-year Computer Science student, and over the past year I've\nworked on a few backend-focused projects, including a booking platform that automated\nscheduling for a local business and reduced their manual admin work noticeably. I'm comfortable\nwith Python and JavaScript, and I've recently been learning Go because I'm interested in the\nkind of distributed systems work Stripe is known for.\n\nWhat draws me to Stripe specifically is the emphasis on developer experience — I've used the\nStripe API in a side project and was impressed by how clear the documentation and error messages\nwere compared to other payment providers I've tried. I'd like to contribute to that same quality\nbar as an intern, whether that's on the API surface itself or the internal tooling that supports\nit.\n\nI've attached my resume, which goes into more detail on my projects and coursework. I'd welcome\nthe chance to talk more about how I could contribute to the team.\n\nSincerely,\nPriya Sharma"
-    ]
+    ],
+    "jobDescription": ""
   },
   "interviewPrep": {
     "type": "internship",

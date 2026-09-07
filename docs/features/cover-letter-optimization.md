@@ -15,9 +15,9 @@ critique per prompt.
 
 ## Flow
 
-1. **Setup step** — company name, role, and how many prompts (clamped 1-10). When the count is
-   **1**, the single prompt defaults to the literal string `"Cover letter"`, so the common case of
-   one plain letter needs no thought from the user.
+1. **Setup step** — company name, role, an optional pasted job description, and how many prompts
+   (clamped 1-10). When the count is **1**, the single prompt defaults to the literal string
+   `"Cover letter"`, so the common case of one plain letter needs no thought from the user.
 2. **Prompts step** — one prompt input + answer textarea per slot. An optional draft upload
    (expects `cover_letter`) prefills the **first empty answer**.
 3. Submit requires every prompt's *text* to be non-empty; blank answers are allowed.
@@ -46,7 +46,7 @@ Same pattern, three deliberate divergences — don't accidentally unify them:
 | --- | --- | --- |
 | Item key | `question` / `perQuestion` | `prompt` / `perPrompt` |
 | Draft upload | extracted through `parseUniversityApplication`, essay field only | **raw text used directly** |
-| Context fields | university, major | companyName, role |
+| Context fields | university, major | companyName, role, **jobDescription** |
 
 ## Invariants
 

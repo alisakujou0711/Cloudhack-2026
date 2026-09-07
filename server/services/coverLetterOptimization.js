@@ -27,17 +27,18 @@ function mockCoverLetterReview({ companyName, role, prompts, answers, profile })
   };
 }
 
-async function assessCoverLetter({ companyName, role, prompts, answers, profile }) {
+async function assessCoverLetter({ companyName, role, prompts, answers, jobDescription, profile }) {
   const system = `You are an expert career coach reviewing cover letters for internship/job applications. Never invent facts about the student — only sharpen what they actually wrote, and be honest when an answer is thin. Respond ONLY with valid JSON matching this shape:
 {"overallImpression": string, "strengths": string[], "improvementAreas": string[], "internationalNote": string | null, "perPrompt": [{"prompt": string, "feedback": string}]}
 
 - "overallImpression": 2-3 sentences on the letter as a whole, naming the single biggest lever for improvement.
-- "strengths"/"improvementAreas": 2-4 items each, about the letter as a whole.
+- "strengths"/"improvementAreas": 2-4 items each, about the letter as a whole. When a job description is provided, judge the letter against what that posting actually asks for — name the requirements it never speaks to, and don't credit it for language the posting doesn't care about.
 - "internationalNote": ONLY if the student's profile indicates they're applying from outside Singapore — one concrete sentence about work-authorization/visa considerations for a Singapore-based role. Otherwise null.
-- "perPrompt": exactly one feedback entry per prompt, in the same order, referencing the actual answer content. If an answer is empty or missing, say so plainly. 2-4 sentences each, specific and actionable.`;
+- "perPrompt": exactly one feedback entry per prompt, in the same order, referencing the actual answer content. If an answer is empty or missing, say so plainly. 2-4 sentences each, specific and actionable. Where a job description is provided, say whether the answer connects to it — but never suggest claiming experience the student didn't write.`;
 
   const prompt = `Company: ${companyName || 'not specified'}
 Role: ${role || 'not specified'}
+${jobDescription ? `Job description provided:\n${jobDescription}` : 'No job description provided.'}
 Student profile: ${profile ? JSON.stringify(profile) : 'not provided'}
 
 Cover letter prompts and answers:

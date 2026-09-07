@@ -238,11 +238,11 @@ router.post('/optimize/essay', async (req, res) => {
 
 router.post('/optimize/cover-letter', async (req, res) => {
   try {
-    const { companyName, role, prompts, answers, profile } = req.body;
+    const { companyName, role, prompts, answers, jobDescription, profile } = req.body;
     if (!Array.isArray(prompts) || prompts.length === 0) {
       return res.status(400).json({ error: 'prompts is required' });
     }
-    const result = await assessCoverLetter({ companyName, role, prompts, answers: answers || [], profile });
+    const result = await assessCoverLetter({ companyName, role, prompts, answers: answers || [], jobDescription, profile });
     res.json(result);
   } catch (err) {
     console.error(err);
@@ -266,11 +266,11 @@ router.post('/resume/extract', upload.single('file'), async (req, res) => {
 
 router.post('/assess/internship', async (req, res) => {
   try {
-    const { resumeText, targetRole, profile } = req.body;
+    const { resumeText, targetRole, jobDescription, profile } = req.body;
     if (!resumeText || resumeText.trim().length < 10) {
       return res.status(400).json({ error: 'resumeText is required (min 10 characters)' });
     }
-    const result = await assessInternship({ resumeText, targetRole, profile });
+    const result = await assessInternship({ resumeText, targetRole, jobDescription, profile });
     res.json(result);
   } catch (err) {
     console.error(err);

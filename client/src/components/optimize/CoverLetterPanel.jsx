@@ -55,6 +55,7 @@ export default function CoverLetterPanel({ onComplete }) {
         role: coverLetterOptimization.role,
         prompts: coverLetterOptimization.prompts,
         answers: coverLetterOptimization.answers,
+        jobDescription: coverLetterOptimization.jobDescription,
         profile,
       });
       setCoverLetterAssessment(result);
@@ -97,6 +98,15 @@ export default function CoverLetterPanel({ onComplete }) {
                 value={coverLetterOptimization.role}
                 onChange={(e) => setCoverLetterOptimization({ role: e.target.value })}
                 placeholder="e.g. Software Engineering Intern"
+              />
+            </label>
+            <label>
+              Job description (optional)
+              <textarea
+                rows={5}
+                value={coverLetterOptimization.jobDescription || ''}
+                onChange={(e) => setCoverLetterOptimization({ jobDescription: e.target.value })}
+                placeholder="Paste the posting here and the feedback checks your letter against it."
               />
             </label>
             <label>

@@ -29,6 +29,7 @@ export default function InternshipPanel({ onComplete }) {
       const result = await api.assessInternship({
         resumeText: internshipPortfolio.resumeText,
         targetRole: internshipPortfolio.targetRole,
+        jobDescription: internshipPortfolio.jobDescription,
         profile,
       });
       setInternshipAssessment(result);
@@ -60,6 +61,15 @@ export default function InternshipPanel({ onComplete }) {
               value={internshipPortfolio.targetRole}
               onChange={update('targetRole')}
               placeholder="Software Engineering Intern"
+            />
+          </label>
+          <label>
+            Job description (optional)
+            <textarea
+              rows={5}
+              value={internshipPortfolio.jobDescription || ''}
+              onChange={update('jobDescription')}
+              placeholder="Paste the posting here and the review targets what this employer is actually asking for."
             />
           </label>
           <label>

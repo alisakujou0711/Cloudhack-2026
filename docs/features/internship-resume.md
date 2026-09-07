@@ -18,7 +18,9 @@ resume as a PDF. The most complex feature in the app.
 
 1. Upload (expects `resume`) is the **primary prompted path**; the extracted text fills an
    editable textarea, which can also be pasted into directly. Minimum 10 characters.
-2. Submit sends `{resumeText, targetRole, profile}`.
+2. Submit sends `{resumeText, targetRole, jobDescription, profile}`. The job description is an
+   optional paste-in that aims `improvementAreas` and the bullet rewrites at one specific posting;
+   it is a targeting signal only and never relaxes the no-fabrication rule below.
 3. The model returns the parsed resume plus per-bullet suggestions; the result is stored and
    `reviewKey` is incremented.
 4. `ResumeReviewEditor` renders overview, then every section/entry/bullet. Bullets with a

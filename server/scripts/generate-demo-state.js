@@ -92,7 +92,7 @@ async function main() {
   });
 
   // Internship.
-  const internshipPortfolio = { resumeText, targetRole: 'Software Engineering Intern' };
+  const internshipPortfolio = { resumeText, targetRole: 'Software Engineering Intern', jobDescription: '' };
   const internshipAssessment = await assessInternship({ ...internshipPortfolio, profile: PROFILE });
 
   // Essay.
@@ -114,6 +114,7 @@ async function main() {
     promptCount: coverLetterSample.items.length,
     prompts: coverLetterSample.items.map((item) => item.heading),
     answers: coverLetterSample.items.map((item) => item.body),
+    jobDescription: '',
   };
   const coverLetterAssessment = await assessCoverLetter({ ...coverLetterOptimization, profile: PROFILE });
 

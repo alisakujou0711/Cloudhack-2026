@@ -24,9 +24,9 @@ function defaultState() {
   return {
     profile: null,
     universityPortfolio: { country: 'Singapore', major: '', university: '', gpa: '', subjects: '', extracurriculars: '', languageProficiency: '', rawText: '' },
-    internshipPortfolio: { resumeText: '', targetRole: '' },
+    internshipPortfolio: { resumeText: '', targetRole: '', jobDescription: '' },
     essayOptimization: { university: '', major: '', questionCount: 1, questions: [''], answers: [''] },
-    coverLetterOptimization: { companyName: '', role: '', promptCount: 1, prompts: [''], answers: [''] },
+    coverLetterOptimization: { companyName: '', role: '', promptCount: 1, prompts: [''], answers: [''], jobDescription: '' },
     interviewPrep: { type: 'internship', university: '', major: '', companyName: '', role: '', jobDescription: '', daysUntil: '' },
     universityAssessment: null,
     internshipAssessment: null,

@@ -114,3 +114,30 @@ test('a signed-in upload still comes back classified', async () => {
   assert.ok(res.body.predictedType, 'the classification still comes back');
   assert.match(res.body.text, /Ada Lovelace/);
 });
+
+// The job description added to resume review and cover letter feedback is prompt context only:
+// it must reach the service without widening either endpoint's response.
+test('a job description is extra context, not a new response field', async () => {
+  const client = await signedUpClient('jobdesc@example.com');
+  const jobDescription = 'Software Engineering Intern. Required: Python, SQL, and shipping tested code.';
+
+  const resume = await client.post('/assess/internship', {
+    resumeText: 'Ada Lovelace\n\nEXPERIENCE\n- Built the first program',
+    targetRole: 'Software Engineering Intern',
+    jobDescription,
+  });
+  assert.equal(resume.status, 200);
+  assert.ok(Array.isArray(resume.body.sections), 'the resume still comes back parsed into sections');
+  assert.equal(resume.body.jobDescription, undefined, 'the job description is never echoed into the result');
+
+  const letter = await client.post('/optimize/cover-letter', {
+    prompts: ['Why this role?'],
+    answers: ['Because I ship.'],
+    companyName: 'Stripe',
+    role: 'Software Engineering Intern',
+    jobDescription,
+  });
+  assert.equal(letter.status, 200);
+  assert.equal(letter.body.perPrompt.length, 1, 'still exactly one feedback entry per prompt');
+  assert.equal(letter.body.jobDescription, undefined, 'the job description is never echoed into the result');
+});

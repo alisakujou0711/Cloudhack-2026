@@ -46,9 +46,9 @@ methods are in `client/src/api/client.js`.
 | `POST /university/extract-text` | `{text}` | `{gpa?, subjects[], extracurriculars, essay, source}` | `universityProfileParser` |
 | `POST /optimize/classify` | multipart `file` | `{text, filename, predictedType, reason, source}` | `resumeParser` + `documentClassifier` |
 | `POST /resume/extract` | multipart `file` | `{text, filename}` | `resumeParser` (no LLM) |
-| `POST /assess/internship` | `{resumeText, targetRole?, profile?}` — `resumeText` min 10 chars | `{name, contact, overallImpression, strengths[], improvementAreas[], internationalNote, sections[], targetRole, source}` | `internshipAssessment` |
+| `POST /assess/internship` | `{resumeText, targetRole?, jobDescription?, profile?}` — `resumeText` min 10 chars | `{name, contact, overallImpression, strengths[], improvementAreas[], internationalNote, sections[], targetRole, source}` | `internshipAssessment` |
 | `POST /optimize/essay` | `{questions[], answers[], university?, major?, profile?}` — `questions` non-empty array | `{overallImpression, strengths[], improvementAreas[], internationalNote, perQuestion[], university, major, source}` | `essayOptimization` |
-| `POST /optimize/cover-letter` | `{prompts[], answers[], companyName?, role?, profile?}` — `prompts` non-empty array | `{overallImpression, strengths[], improvementAreas[], internationalNote, perPrompt[], companyName, role, source}` | `coverLetterOptimization` |
+| `POST /optimize/cover-letter` | `{prompts[], answers[], companyName?, role?, jobDescription?, profile?}` — `prompts` non-empty array | `{overallImpression, strengths[], improvementAreas[], internationalNote, perPrompt[], companyName, role, source}` | `coverLetterOptimization` |
 | `POST /interview/prepare` | `{type, university?, major?, companyName?, role?, jobDescription?, daysUntil?, profile?}` | `{targetName, overview, researchTips[], technicalPrep[], timelineAdvice, commonQuestions[], internationalNote, type, source}` | `interviewPrep` |
 | `POST /resume/export` | `{name, contact, sections[{name, entries[{title, subtitle, dateRange, bullets: string[]}]}]}` | **`application/pdf` stream**, not JSON | `resumePdf` (no LLM) |
 | `POST /chat` | `{message, history[], context{}}` — `message` required | `{reply, source}` | `chatbot` |
