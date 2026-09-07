@@ -1,6 +1,7 @@
 # Onboarding & profile
 
-**What it does** — A single gate screen at `/` that captures three fields and unlocks the app.
+**What it does** — The second of the app's two routing gates: a screen at `/onboarding` that
+captures three fields and unlocks the app once a session exists.
 The resulting `profile` is passed to every assessment service and drives the international-student
 behavior throughout the product.
 
@@ -10,15 +11,15 @@ behavior throughout the product.
 | --- | --- |
 | `client/src/pages/OnboardingPage.jsx` | The form; all three fields required, inline error otherwise |
 | `client/src/context/AppContext.jsx` | `EDUCATION_LEVELS`, `suggestedOptimizationType`, `setProfile` |
-| `client/src/App.jsx` | Route guard — no profile means every `/app/*` route redirects to `/` |
-| `client/src/components/Layout.jsx` | Shows `profile.name`; "Start over" calls `resetAll()` |
+| `client/src/App.jsx` | Route guard — with a session but no profile, every `/app/*` route redirects to `/onboarding` |
+| `client/src/components/Layout.jsx` | Shows `profile.name`; "Sign out" ends the session |
 
 ## Flow
 
 1. User fills name / education level / location, then `setProfile({name, educationLevel, location})`.
 2. Navigate to `/app/optimize`. From then on `profile` is truthy, so `Layout` renders.
 3. Every panel pulls `profile` from `useApp()` and passes it in its API payload.
-4. "Start over" in the header wipes `localStorage` and returns to `/`.
+4. "Sign out" in the header ends the session and returns to `/signin`.
 
 ## Shape
 

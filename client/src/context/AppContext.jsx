@@ -100,6 +100,8 @@ export function AppProvider({ children }) {
   const removeHistoryEntry = (id) =>
     setState((s) => ({ ...s, history: s.history.filter((h) => h.id !== id) }));
 
+  // No caller since the header's "Start over" became "Sign out"; the History page picks it up
+  // as "Clear my data".
   const resetAll = () => {
     localStorage.removeItem(STORAGE_KEY);
     setState(defaultState());

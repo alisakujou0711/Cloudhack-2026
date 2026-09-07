@@ -36,18 +36,18 @@ of this ticket, so two accounts used in the same browser will still see each oth
 
 **Status:** ready-for-agent
 
-- [ ] Opening the app with no session shows a sign-in screen.
-- [ ] Sign-in and sign-up screens each link to the other.
-- [ ] Creating an account moves straight to onboarding; completing onboarding moves into the app.
-- [ ] Signing in with a profile already set lands directly in the app, skipping onboarding.
-- [ ] The session survives closing and reopening the browser.
-- [ ] Navigating directly to an in-app URL while signed out redirects to sign-in.
-- [ ] Signing out from the header ends the session and returns to sign-in; in-app URLs are then
+- [x] Opening the app with no session shows a sign-in screen.
+- [x] Sign-in and sign-up screens each link to the other.
+- [x] Creating an account moves straight to onboarding; completing onboarding moves into the app.
+- [x] Signing in with a profile already set lands directly in the app, skipping onboarding.
+- [x] The session survives closing and reopening the browser.
+- [x] Navigating directly to an in-app URL while signed out redirects to sign-in.
+- [x] Signing out from the header ends the session and returns to sign-in; in-app URLs are then
       unreachable.
-- [ ] Server-side validation failures — short password, duplicate email, bad credentials — are shown
+- [x] Server-side validation failures — short password, duplicate email, bad credentials — are shown
       on the relevant screen rather than swallowed.
-- [ ] A 401 from any endpoint returns the person to sign-in rather than printing an error inside a
+- [x] A 401 from any endpoint returns the person to sign-in rather than printing an error inside a
       feature panel.
-- [ ] While authentication is resolving, the app does not flash the sign-in screen at an already
+- [x] While authentication is resolving, the app does not flash the sign-in screen at an already
       signed-in person.
-- [ ] The architecture doc's routing section describes both gates.
+- [x] The architecture doc's routing section describes both gates.
