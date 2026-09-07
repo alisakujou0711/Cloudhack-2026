@@ -13,6 +13,7 @@ export default function AuthForm({
   passwordAutoComplete,
   onSubmit,
   footer,
+  notice,
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,6 +46,15 @@ export default function AuthForm({
           <p className="auth-wordmark">PortfolioPath</p>
           <h1 className="auth-headline">{headline}</h1>
           <p className="auth-deck">{subtitle}</p>
+
+          {/* Why the app sent somebody here, when it sent them rather than them arriving. Neutral
+              rather than an error: nothing has gone wrong, and it is stating a fact about the
+              account they no longer have. */}
+          {notice && (
+            <p className="auth-notice" role="status">
+              {notice}
+            </p>
+          )}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="auth-field">

@@ -166,3 +166,47 @@ test('a fresh database boots with the demo account, and the log says how to reac
     database.remove();
   }
 });
+
+// The one case where deletion is recoverable, and the reason a presenter can demonstrate it:
+// seeding is keyed on the demo account's absence, so a restart finds it missing and puts it back.
+test('a deleted demo account comes back on the next restart', async () => {
+  const database = temporaryDatabase();
+  const port = await freePort();
+  const baseUrl = `http://127.0.0.1:${port}/api`;
+  const boot = {
+    port,
+    databasePath: database.file,
+    readyWhen: (output) => output.includes('listening') && output.includes('Demo account'),
+  };
+  const signIn = () =>
+    createClient(baseUrl).post('/auth/login', { email: demo.DEMO_EMAIL, password: demo.DEMO_PASSWORD });
+
+  const first = startServerProcess(boot);
+  try {
+    await first.ready;
+    const client = createClient(baseUrl);
+    assert.equal(
+      (await client.post('/auth/login', { email: demo.DEMO_EMAIL, password: demo.DEMO_PASSWORD })).status,
+      200,
+    );
+
+    const deleted = await client.del('/account', { body: { currentPassword: demo.DEMO_PASSWORD } });
+    assert.equal(deleted.status, 200, 'the demo account is not special-cased — it deletes like any other');
+    assert.equal((await signIn()).status, 401, 'and it is gone while this server is up');
+  } finally {
+    await first.stop();
+  }
+
+  const second = startServerProcess(boot);
+  try {
+    await second.ready;
+    assert.equal((await signIn()).status, 200, 'the restart seeded it again');
+
+    const client = createClient(baseUrl);
+    await client.post('/auth/login', { email: demo.DEMO_EMAIL, password: demo.DEMO_PASSWORD });
+    assert.ok((await client.get('/state')).body.history.length > 0, 'with its fixtures, not empty');
+  } finally {
+    await second.stop();
+    database.remove();
+  }
+});

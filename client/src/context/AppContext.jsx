@@ -192,6 +192,20 @@ export function AppProvider({ children }) {
   const removeHistoryEntry = (id) =>
     mutate((s) => ({ ...s, history: s.history.filter((h) => h.id !== id) }));
 
+  // What every destructive call has to do before it fires. A queued write still holds the document
+  // being destroyed and would put it straight back; one already on the wire cannot be cancelled,
+  // only outlasted, or its PUT lands after the destructive call and silently restores everything.
+  // Returns the resume function to call if that call is refused — the cancelled write is unsaved
+  // work, and dropping it would cost the person an edit they never asked to lose.
+  const settlePendingWrites = useCallback(async () => {
+    const hadQueuedWrite = Boolean(saveTimer.current);
+    cancelPendingSave();
+    if (inFlightSave.current) await inFlightSave.current;
+    return () => {
+      if (hadQueuedWrite) scheduleSave();
+    };
+  }, [cancelPendingSave, scheduleSave]);
+
   // The document exactly as a save would send it, for "Download my data" on the settings page.
   // It is the state object itself rather than a rebuilt copy, so a key added to `defaultState`
   // is in the download without anything here being touched.
@@ -205,18 +219,13 @@ export function AppProvider({ children }) {
   const clearData = async () => {
     const forAccountId = savingFor.current;
     if (!forAccountId) return;
-    // A queued write still holds the document being cleared and would put it straight back.
-    const hadQueuedWrite = Boolean(saveTimer.current);
-    cancelPendingSave();
-    // One already on the wire cannot be cancelled, only outlasted: a PUT that reached the server
-    // after the DELETE would silently restore everything. Waiting orders the two.
-    if (inFlightSave.current) await inFlightSave.current;
+    const resumePendingSave = await settlePendingWrites();
     try {
       await api.clearState();
     } catch (err) {
-      // Nothing was cleared, so the document still stands: a dropped write is re-queued, and the
-      // History page reports the failure itself.
-      if (hadQueuedWrite) scheduleSave();
+      // Nothing was cleared, so the document still stands and the dropped write is put back. The
+      // settings page reports the failure itself, beside the control that made it.
+      resumePendingSave();
       throw err;
     }
     if (savingFor.current !== forAccountId) return;
@@ -246,6 +255,7 @@ export function AppProvider({ children }) {
     removeHistoryEntry,
     exportDocument,
     clearData,
+    settlePendingWrites,
     suggestedOptimizationType: state.profile ? suggestedOptimizationType(state.profile.educationLevel) : 'university',
   };
 

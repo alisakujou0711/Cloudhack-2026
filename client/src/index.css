@@ -104,7 +104,8 @@ label {
   background: var(--optional-bg);
 }
 
-/* Only for the irreversible one — clearing your data. Nothing else in the app is destructive. */
+/* Only for the two irreversible ones, both in the settings page's Account actions card: clearing
+   your data, and deleting the account. Nothing else in the app is destructive. */
 .btn-danger {
   background: var(--danger);
   color: white;
@@ -692,6 +693,20 @@ label {
   max-width: 44ch;
   font-size: 1rem;
   line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* Why the app sent somebody to this screen. Deliberately not the error colour: nothing failed,
+   and the sentence is the answer to a question the empty form would otherwise leave open. */
+.auth-notice {
+  margin: 1.15rem 0 0;
+  max-width: 44ch;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--optional-bg);
+  font-size: 0.9rem;
+  line-height: 1.5;
   color: var(--text-muted);
 }
 
@@ -4059,7 +4074,8 @@ label {
    first row opened. The rule separates the two so an open form reads as belonging to the row
    above it rather than to the one below. */
 .settings-row + .settings-row,
-.settings-fields + .settings-row {
+.settings-fields + .settings-row,
+.settings-confirm + .settings-row {
   border-top: 1px solid var(--border);
   padding-top: 1.15rem;
 }
@@ -4101,7 +4117,7 @@ label {
 }
 
 /* Everything below this rule is destructive. The heavier line is the card's one structural
-   division, so the ordinary rows above it are never mistaken for these — Clear my data today,
+   division, so the ordinary rows above it are never mistaken for these — Clear my data, and
    Delete account beneath it. */
 .settings-danger {
   margin-top: 2rem;
@@ -4115,23 +4131,33 @@ label {
   background: var(--danger-bg);
 }
 
-/* Red arrives with the irreversible step, not before it. */
-.clear-data-confirm {
+/* Red arrives with the irreversible step, not before it. Shared by both destructive rows: the
+   second step of Clear my data, and the same step of Delete account with a password field in it,
+   which is why this is a column rather than a paragraph and a button row. */
+.settings-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
   margin-top: 1rem;
   background: var(--danger-bg);
   border: 1px solid #fecaca;
   border-radius: 10px;
   padding: 0.85rem 1rem;
 }
-.clear-data-confirm p {
-  margin: 0 0 0.65rem;
+.settings-confirm p {
+  margin: 0;
   font-size: 0.88rem;
   color: #991b1b;
 }
-.clear-data-confirm-actions {
+/* Held to the width of what it takes rather than the card's: a password field spanning the whole
+   panel reads as the main event, and the sentence above it is. */
+.settings-confirm label {
+  max-width: 22rem;
+}
+.settings-confirm-actions {
   display: flex;
   gap: 0.6rem;
 }
-.clear-data-confirm .error-text {
-  margin-top: 0.65rem;
+.settings-confirm .error-text {
+  margin: 0;
 }

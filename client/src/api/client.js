@@ -66,6 +66,10 @@ export const api = {
   // `changeEmail` this one has no counterpart on AuthContext — but every *other* session on the
   // account is revoked server-side.
   changePassword: (payload) => request('/account/password', { method: 'PATCH', body: JSON.stringify(payload) }),
+  // The account and everything it owns, gone for good — the current password is what makes that
+  // safe to expose, and a wrong one is the same 400 as above. The session goes with the account,
+  // so nothing needs signing out afterwards.
+  deleteAccount: (payload) => request('/account', { method: 'DELETE', body: JSON.stringify(payload) }),
   // The state document travels as itself, not inside an envelope: what GET returns is what PUT
   // takes back.
   getState: () => request('/state'),

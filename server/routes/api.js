@@ -11,7 +11,14 @@ const { classifyDocument } = require('../services/documentClassifier');
 const { assessEssays } = require('../services/essayOptimization');
 const { assessCoverLetter } = require('../services/coverLetterOptimization');
 const { prepareInterview } = require('../services/interviewPrep');
-const { signUp, signIn, signOut, changeEmail, changePassword } = require('../services/auth');
+const {
+  signUp,
+  signIn,
+  signOut,
+  changeEmail,
+  changePassword,
+  deleteAccount,
+} = require('../services/auth');
 const { readState, replaceState, clearState } = require('../services/userState');
 const {
   setSessionCookie,
@@ -108,6 +115,25 @@ router.patch('/account/password', (req, res) => {
       newPassword,
       keepSessionToken: req.sessionToken,
     });
+    res.json({ ok: true });
+  } catch (err) {
+    sendAuthError(res, err);
+  }
+});
+
+// The account itself, and everything it owns. Irreversible on purpose
+// (docs/adr/0004-account-deletion-is-immediate.md), so it asks for the password like the two
+// changes above — and a wrong one is the same 400, beside the control rather than through the
+// client's session-expired path. The cookie is cleared last: the session row went with the row it
+// referenced, and leaving the cookie behind would only make the next request answer 401.
+router.delete('/account', (req, res) => {
+  try {
+    const { currentPassword } = req.body || {};
+    if (!currentPassword) {
+      return res.status(400).json({ error: 'currentPassword is required' });
+    }
+    deleteAccount({ userId: req.user.id, currentPassword });
+    clearSessionCookie(res);
     res.json({ ok: true });
   } catch (err) {
     sendAuthError(res, err);

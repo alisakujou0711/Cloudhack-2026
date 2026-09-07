@@ -36,6 +36,7 @@ methods are in `client/src/api/client.js`.
 | `GET /auth/me` | — | `{user}` or `401` | `auth.getSessionUser` |
 | `PATCH /account/email` | `{email, currentPassword}` — both required | `{user}` carrying the new address | `auth.changeEmail` |
 | `PATCH /account/password` | `{currentPassword, newPassword}` — both required, new one min 8 chars | `{ok: true}`, every other session revoked | `auth.changePassword` |
+| `DELETE /account` | `{currentPassword}` — required | `{ok: true}`, the account and everything it owns deleted, cookie cleared | `auth.deleteAccount` |
 | `GET /state` | — | the account's whole state document, `{}` when nothing is saved yet | `userState.readState` |
 | `PUT /state` | the whole state document as the body | `{ok: true}`, the stored document replaced | `userState.replaceState` |
 | `DELETE /state` | — | `{ok: true}`, the document reset to the empty one a new account holds | `userState.clearState` |
@@ -78,6 +79,18 @@ methods are in `client/src/api/client.js`.
   session alive would not protect anybody, and one that revoked all of them would sign the owner
   out of the tab they are standing in. Password *reset* is deliberately absent: there is no mail
   transport, so a forgotten password still means a new account.
+- **`DELETE /account`** — deletes the account itself. The current password is required for the
+  same reason the two changes above ask for it, and a wrong one is the same **`400`**. It is
+  immediate and irreversible by decision, not by omission — no emailed confirmation, no soft
+  delete, no grace period; see `docs/adr/0004-account-deletion-is-immediate.md`. Nothing is
+  enumerated: `sessions` and `user_state` both reference the account `ON DELETE CASCADE` and
+  foreign keys are on, so the single `DELETE` takes the session, the state document and the
+  password hash with the row — **a table added later must declare the same rule or deletion
+  quietly stops being complete**. The cookie is cleared on the way out, and the client clears its
+  auth context so the routing gate returns the person to sign-in. The seeded demo account is not
+  special-cased; boot-time seeding is keyed on its absence, so a restart brings it back
+  (`docs/features/demo-account.md`).
+
 - **`/state`** — one JSON document per account, mirroring `defaultState()` in `AppContext`,
   stored opaquely: nothing on the server reads inside it. The document travels as itself in both
   directions, not wrapped in an envelope. `PUT` replaces it **wholesale** — it does not merge —
@@ -87,8 +100,9 @@ methods are in `client/src/api/client.js`.
   last-write-wins with no conflict detection. See `docs/architecture.md` for the client half.
 - **`DELETE /state`** — what "Clear my data", in the settings page's Account actions, calls. It resets the document to
   the same `{}` a new account reads, and stops there: the account and its session are untouched,
-  so the person stays signed in and simply lands back in onboarding without a profile. It is **not** account deletion, which is deliberately not built. Clearing an
-  already-empty document is a no-op, not an error.
+  so the person stays signed in and simply lands back in onboarding without a profile. It is **not**
+  account deletion — that is `DELETE /account` above, which takes the document with everything else.
+  Clearing an already-empty document is a no-op, not an error.
 - **`/assess/university`** — `university` is the *code* (`NUS`), `major` the exact key from
   `server/data/universityRequirements.js`. Unknown values throw, surfacing as a 400.
 - **`/university/extract` vs `/university/extract-text`** — same parser, different input. The file

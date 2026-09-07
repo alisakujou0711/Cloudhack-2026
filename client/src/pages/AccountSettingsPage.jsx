@@ -562,9 +562,9 @@ function ClearMyData() {
       </div>
 
       {confirming && (
-        <div className="clear-data-confirm">
+        <div className="settings-confirm">
           <p>This cannot be undone. Everything on this account goes back to how it looked the day you signed up.</p>
-          <div className="clear-data-confirm-actions">
+          <div className="settings-confirm-actions">
             <button type="button" className="btn-danger" onClick={confirm} disabled={clearing}>
               {clearing ? 'Clearing...' : 'Yes, clear everything'}
             </button>
@@ -582,6 +582,114 @@ function ClearMyData() {
           </div>
           {error && <p className="error-text">{error}</p>}
         </div>
+      )}
+    </>
+  );
+}
+
+// The last thing anybody does on this page, and the only one nothing recovers from — see
+// docs/adr/0004-account-deletion-is-immediate.md for why there is no emailed confirmation and no
+// grace period. Guarded twice: the two-step inline confirmation its neighbour above uses, and the
+// account password. The password is the stronger of the two — it proves the person at the keyboard
+// owns the account and the server can actually verify it, where a typed confirmation word is only
+// a client-side speed bump.
+function DeleteAccount() {
+  const { deleteAccount } = useAuth();
+  const { settlePendingWrites } = useApp();
+  const [confirming, setConfirming] = useState(false);
+  const [password, setPassword] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState('');
+
+  // Backing out at either step has to leave the account exactly as it was found, password field
+  // included — a typed password left lying behind a collapsed panel is the one thing this control
+  // must not keep.
+  const cancel = () => {
+    setConfirming(false);
+    setPassword('');
+    setError('');
+  };
+
+  const confirm = async (e) => {
+    e.preventDefault();
+    if (!password) {
+      setError('Enter your password to delete your account.');
+      return;
+    }
+    setError('');
+    setDeleting(true);
+    // The same sequence "Clear my data" runs, and for a sharper version of the same reason: a
+    // debounced write still queued or already on the wire would arrive at a deleted row and trip
+    // the central session-expired handling in the middle of this. Editing the profile and
+    // immediately deleting the account is the path that finds it.
+    const resumePendingSave = await settlePendingWrites();
+    try {
+      await deleteAccount(password);
+      // Nothing to tidy up afterwards: the account is gone with its session, the auth context is
+      // cleared, and the routing gate takes this page off the screen on its way to sign-in.
+    } catch (err) {
+      // A wrong password comes back 400, so it lands here beside the field that asked for it and
+      // the account is untouched. The write cancelled a moment ago is unsaved work, so it goes
+      // back in the queue.
+      resumePendingSave();
+      setError(err.message);
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="settings-row">
+        <div>
+          <p className="settings-row-label">Delete account</p>
+          <p className="settings-row-value">
+            Deletes your account, the email and password you sign in with, and everything you have
+            saved. This cannot be undone.
+          </p>
+        </div>
+        <div className="settings-row-actions">
+          {!confirming && (
+            <button type="button" className="btn-ghost settings-danger-trigger" onClick={() => setConfirming(true)}>
+              Delete account
+            </button>
+          )}
+        </div>
+      </div>
+
+      {confirming && (
+        <form className="settings-confirm" onSubmit={confirm}>
+          <p>
+            This cannot be undone. Your account and everything on it are deleted immediately, and
+            nothing brings them back. You can sign up again with the same email address, and you
+            would start from an empty account.
+          </p>
+
+          <label htmlFor="settings-delete-password">
+            Your password
+            <input
+              id="settings-delete-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </label>
+
+          <div className="settings-confirm-actions">
+            <button type="submit" className="btn-danger" disabled={deleting}>
+              {deleting ? 'Deleting...' : 'Yes, delete my account'}
+            </button>
+            <button type="button" className="btn-ghost" onClick={cancel} disabled={deleting}>
+              Cancel
+            </button>
+          </div>
+
+          {error && (
+            <p className="error-text" role="alert">
+              {error}
+            </p>
+          )}
+        </form>
       )}
     </>
   );
@@ -605,6 +713,8 @@ function AccountActionsCard() {
 
       <div className="settings-danger">
         <ClearMyData />
+
+        <DeleteAccount />
       </div>
     </section>
   );

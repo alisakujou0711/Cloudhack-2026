@@ -144,4 +144,23 @@ function changePassword({ userId, currentPassword, newPassword, keepSessionToken
     .run(userId, keepSessionToken || '');
 }
 
-module.exports = { signUp, signIn, signOut, getSessionUser, changeEmail, changePassword };
+// Immediate and irreversible by decision, not by omission: there is no soft delete, no grace
+// period and no way back — see docs/adr/0004-account-deletion-is-immediate.md. The password check
+// is the same one the credential changes make, and for the stronger version of the same reason.
+// Nothing else is enumerated here: `sessions` and `user_state` both reference the account with
+// ON DELETE CASCADE and foreign keys are on (`db.js`), so one statement takes everything the
+// account owns. A table added later stays covered only if it declares the same rule.
+function deleteAccount({ userId, currentPassword }) {
+  verifyPassword(userId, currentPassword);
+  db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+}
+
+module.exports = {
+  signUp,
+  signIn,
+  signOut,
+  getSessionUser,
+  changeEmail,
+  changePassword,
+  deleteAccount,
+};

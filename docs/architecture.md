@@ -94,15 +94,20 @@ State keys (`defaultState()`): `profile`, `universityPortfolio`, `internshipPort
   appears before the debounced `PUT` is even scheduled and does not know whether it landed.
 - Signing out cancels any queued write and resets state to defaults, so a pending save can never
   land on the account that signs in next.
+- **Every destructive action settles the debounced write first.** `settlePendingWrites()` cancels
+  a queued write — it still holds the document being destroyed — and **awaits any write already on
+  the wire**, which cannot be cancelled and would otherwise land after the destructive call:
+  restoring the document it just wiped, or reaching a deleted row and tripping the central
+  session-expired handling mid-flow. It returns the function that re-queues the dropped write if
+  the destructive call is refused. Both settings-page destructive controls go through it.
 - **Clearing is a server call, not a local reset.** `clearData()` ("Clear my data", in the
-  settings page's Account actions card)
-  cancels any queued write — it still holds the document being wiped — and **awaits any write
-  already on the wire**, which cannot be cancelled and would silently restore the document if its
-  `PUT` reached the server after the `DELETE`. It then sends `DELETE /state` and moves state to
-  defaults *without* scheduling a save; going through `mutate` would write the defaults straight
-  back over the wipe. On failure it puts the header back where it was, re-queueing the dropped
-  write if there was one. Losing `profile` with the document is what walks the person back through
-  onboarding, via the routing gate below.
+  settings page's Account actions card) settles the pending write, sends `DELETE /state`, and moves
+  state to defaults *without* scheduling a save; going through `mutate` would write the defaults
+  straight back over the wipe. Losing `profile` with the document is what walks the person back
+  through onboarding, via the routing gate below. "Delete account" settles the same way and then
+  calls `deleteAccount` on the **auth** context — the account, not the document, so nothing here
+  resets; the cleared auth context is what sends the gate to sign-in.
+  See `docs/features/accounts-and-persistence.md`.
 - `client/src/context/ChatUIContext.jsx` is a **separate**, deliberately unpersisted context for
   chat panel open/draft state. See `docs/features/chatbot.md`.
 

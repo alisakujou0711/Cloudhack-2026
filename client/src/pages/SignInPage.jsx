@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthForm from '../components/AuthForm';
 
 export default function SignInPage() {
-  const { signIn } = useAuth();
+  const { signIn, notice } = useAuth();
 
   return (
     <AuthForm
@@ -13,6 +13,9 @@ export default function SignInPage() {
       pendingLabel="Signing in..."
       passwordAutoComplete="current-password"
       onSubmit={signIn}
+      // Set when the app sent the person here — today, only a deleted account. It lives in memory
+      // on the auth context, so a reload lands on the ordinary sign-in screen.
+      notice={notice}
       footer={<>New here? <Link to="/signup">Create an account</Link></>}
     />
   );

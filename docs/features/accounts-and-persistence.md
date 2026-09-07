@@ -9,7 +9,7 @@ session cookie, and one state document per Account read and written over `/api/s
 | Path | Role |
 | --- | --- |
 | `server/db.js` | Opens the SQLite file and applies the three-table schema on import |
-| `server/services/auth.js` | Hashing, sign-up / sign-in / sign-out, session tokens, `getSessionUser`, `changeEmail`, `changePassword` |
+| `server/services/auth.js` | Hashing, sign-up / sign-in / sign-out, session tokens, `getSessionUser`, `changeEmail`, `changePassword`, `deleteAccount` |
 | `server/services/userState.js` | Read, replace, and clear the one document an Account holds |
 | `server/middleware/auth.js` | The `pp_session` cookie helpers and the `requireAuth` guard |
 | `server/routes/api.js` | The auth and state endpoints, and the `router.use(requireAuth)` line |
@@ -47,6 +47,11 @@ session cookie, and one state document per Account read and written over `/api/s
    every Session row on the Account except the one making the request
    (`services/auth.js:changePassword`). Nothing the client holds changes, so the settings page
    calls `api.changePassword` directly rather than through `AuthContext`.
+10. `DELETE /account` verifies the password the same way and then deletes the `users` row. The
+    cascade takes the sessions and the state document with it, so nothing is enumerated by hand.
+    `deleteAccount` in `AuthContext` clears the held Account, and the routing gate carries the
+    person to sign-in, where a one-off in-memory `notice` says what happened. The settings page
+    settles the queued write first — see the invariant below.
 
 The client-side rules these steps lean on — the two gates, why auth and app state are separate
 contexts, and how a queued write stays scoped to its Account — are stated once in
@@ -75,6 +80,15 @@ the shape of `defaultState()`, never wrapped in an envelope. Request shapes: `do
   do the thing they came to do, and revoking all of them would eject the owner as well.
 - **Seeding is keyed on the demo Account existing, not on what it holds**, so a restart never
   overwrites a demo in progress. See `docs/features/demo-account.md`.
+- **Deletion is immediate, irreversible, and leans entirely on the schema's cascade.** There is no
+  soft delete and no emailed confirmation, for the reasons in
+  `docs/adr/0004-account-deletion-is-immediate.md`; a new table referencing an Account must declare
+  `ON DELETE CASCADE` or deletion silently stops being complete.
+- **A destructive call settles the debounced write before it fires.** `settlePendingWrites()` in
+  `AppContext` cancels a queued write and *awaits* one already on the wire — an in-flight `PUT`
+  cannot be recalled, and landing after the destructive call it would restore the document, or
+  reach a deleted row and trip the central session-expired handling mid-flow. Both "Clear my data"
+  and "Delete account" go through it. See `docs/architecture.md`.
 - **`DATABASE_PATH` exists so tests can redirect the file, and for nothing else.** It stays
   optional, like `SESSION_TTL_MS` and `CLIENT_ORIGIN`: clone-and-run means no new *required*
   environment variables, and it is the only testability hook the feature has.
@@ -84,7 +98,8 @@ the shape of `defaultState()`, never wrapped in an envelope. Request shapes: `do
 A new state key needs no server change — the document is stored opaquely, so add it to
 `defaultState()`, mutate through `mutate()`, and register it in `buildContext()`
 (`docs/features/chatbot.md`). A new endpoint goes below the guard (`docs/api.md`). A schema change
-is another create-if-not-exists in the `db.exec` block at `db.js:17`; there is no migration tool.
-Password reset, account deletion, rate limiting, and concurrent-session merging are all
-deliberately absent — writes are last-write-wins, and there is no mail transport to build a reset
-on.
+is another create-if-not-exists in the `db.exec` block at `db.js:17`; there is no migration tool —
+and a new table referencing `users` needs `ON DELETE CASCADE`, or account deletion stops taking it.
+Password reset, rate limiting, and concurrent-session merging are deliberately absent — writes are
+last-write-wins, and there is no mail transport to build a reset on, which is also why a deleted
+account is gone rather than recoverable.

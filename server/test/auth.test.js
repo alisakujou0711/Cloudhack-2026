@@ -367,6 +367,91 @@ test('changing the password requires a session', async () => {
   assert.match(res.body.error, /auth/i);
 });
 
+// Deleting the account. Irreversible by decision (docs/adr/0004-account-deletion-is-immediate.md),
+// and asserted through what a later request can see rather than by reading tables.
+
+test('deleting the account with the correct password ends the session and the account', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'leaving-for-good@example.com', password: PASSWORD });
+  const token = client.jar.get('pp_session');
+
+  const res = await client.del('/account', { body: { currentPassword: PASSWORD } });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.ok, true);
+  assert.equal(client.jar.get('pp_session'), undefined, 'the browser drops the cookie');
+
+  const afterDelete = await harness.client().get('/auth/me', { cookieHeader: `pp_session=${token}` });
+  assert.equal(afterDelete.status, 401, 'the session went with the account, not just the cookie');
+});
+
+test('after deleting the account neither the email nor the password signs in', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'gone@example.com', password: PASSWORD });
+  await client.del('/account', { body: { currentPassword: PASSWORD } });
+
+  const login = await harness.client().post('/auth/login', { email: 'gone@example.com', password: PASSWORD });
+  assert.equal(login.status, 401, '"deleted" means deleted');
+});
+
+test('every other session on a deleted account stops working too', async () => {
+  const owner = harness.client();
+  await owner.post('/auth/signup', { email: 'two-devices@example.com', password: PASSWORD });
+
+  const other = harness.client();
+  await other.post('/auth/login', { email: 'two-devices@example.com', password: PASSWORD });
+  assert.equal((await other.get('/auth/me')).status, 200, 'the second session works beforehand');
+
+  assert.equal((await owner.del('/account', { body: { currentPassword: PASSWORD } })).status, 200);
+  assert.equal((await other.get('/auth/me')).status, 401, 'the cascade took it with the account');
+});
+
+test('signing up again on a deleted address succeeds and starts from an empty document', async () => {
+  const first = harness.client();
+  await first.post('/auth/signup', { email: 'returning-empty@example.com', password: PASSWORD });
+  await first.put('/state', { profile: { name: 'Jane Tan', educationLevel: 'jc', location: 'Singapore' } });
+  await first.del('/account', { body: { currentPassword: PASSWORD } });
+
+  const second = harness.client();
+  const signup = await second.post('/auth/signup', { email: 'returning-empty@example.com', password: 'a-new-password' });
+  assert.equal(signup.status, 201, 'the address is free again');
+
+  const state = await second.get('/state');
+  assert.equal(state.status, 200);
+  assert.deepEqual(state.body, {}, 'the old document went with the old account');
+});
+
+test('deleting the account with a wrong password is refused and the account survives', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'staying@example.com', password: PASSWORD });
+
+  const res = await client.del('/account', { body: { currentPassword: 'not-the-password' } });
+  assert.equal(res.status, 400, 'a wrong password is not a dead session — it belongs beside the control');
+  assert.match(res.body.error, /password/i);
+
+  assert.equal((await client.get('/auth/me')).status, 200, 'the session is untouched');
+  const login = await harness.client().post('/auth/login', { email: 'staying@example.com', password: PASSWORD });
+  assert.equal(login.status, 200, 'and so are the credentials');
+});
+
+test('deleting the account without a password is rejected', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'unarmed@example.com', password: PASSWORD });
+
+  const res = await client.del('/account');
+  assert.equal(res.status, 400);
+
+  assert.equal((await client.get('/auth/me')).status, 200);
+});
+
+test('deleting the account requires a session', async () => {
+  const res = await harness.client().del('/account', {
+    body: { currentPassword: PASSWORD },
+    sendCookies: false,
+  });
+  assert.equal(res.status, 401);
+  assert.match(res.body.error, /auth/i);
+});
+
 test('the health check stays open — it is the one endpoint outside the gate', async () => {
   const res = await harness.client().get('/health', { sendCookies: false });
   assert.equal(res.status, 200);
