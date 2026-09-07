@@ -48,7 +48,9 @@ sections[], targetRole, source}` where
 
 Local state in `ResumeReviewEditor`: `decisions[sectionIdx-entryIdx-bulletIdx]` is `'accepted'`,
 `'rejected'`, or absent (pending). A footer bar offers prev/next navigation across suggestions
-plus "Keep all" and "Undo all".
+plus "Keep all" and "Undo all". Both bulk buttons are gated on the same derived state: "Keep all"
+is disabled once every suggestion is `'accepted'`, and "Undo all" is disabled while `decisions` is
+empty and rendered armed (`.is-armed`, red) exactly while "Keep all" is disabled.
 
 `resolvedSections()` maps each bullet to `suggestion` **only when explicitly accepted** —
 pending and rejected both resolve to `original`. Never treat a pending suggestion as applied.

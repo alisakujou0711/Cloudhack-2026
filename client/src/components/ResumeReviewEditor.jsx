@@ -48,6 +48,11 @@ export default function ResumeReviewEditor({ result }) {
   const keepAll = () => setDecisions(Object.fromEntries(reviewable.map((k) => [k, 'accepted'])));
   const undoAll = () => setDecisions({});
 
+  // Bulk-bar gating, derived rather than flagged: nothing left to keep once every suggestion is
+  // accepted, nothing to undo while no decision has been made.
+  const allKept = reviewable.length > 0 && reviewable.every((k) => decisions[k] === 'accepted');
+  const hasDecisions = Object.keys(decisions).length > 0;
+
   const goTo = (index) => {
     if (reviewable.length === 0) return;
     const clamped = Math.max(0, Math.min(reviewable.length - 1, index));
@@ -200,10 +205,19 @@ export default function ResumeReviewEditor({ result }) {
           <button className="review-nav-btn" onClick={() => goTo(currentIndex + 1)} aria-label="Next suggestion">
             ›
           </button>
-          <button className="btn-ghost review-nav-action" onClick={undoAll}>
+          <button
+            className={`btn-ghost review-nav-action bulk-undo${allKept ? ' is-armed' : ''}`}
+            onClick={undoAll}
+            disabled={!hasDecisions}
+          >
             Undo all
           </button>
-          <button className="btn-primary review-nav-action" onClick={keepAll}>
+          <button
+            className="btn-primary review-nav-action bulk-keep"
+            onClick={keepAll}
+            disabled={allKept}
+            title={allKept ? 'All suggestions accepted' : undefined}
+          >
             Keep all
           </button>
         </div>

@@ -1632,6 +1632,59 @@ label {
   font-size: 0.78rem;
 }
 
+/* Bulk keep/undo pair. Shared classes so any future pair behaves and reads the same: "Keep all"
+   greys out once there is nothing left to keep, and "Undo all" arms itself in red while it is. */
+.bulk-keep:disabled {
+  background: var(--optional-bg);
+  border-color: var(--border);
+  color: var(--text-muted);
+  opacity: 1;
+  cursor: not-allowed;
+}
+.bulk-undo:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.bulk-undo.is-armed {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+  animation: bulk-undo-pulse 1.8s ease-in-out infinite;
+}
+.bulk-undo.is-armed:hover {
+  background: var(--danger-dark);
+}
+@keyframes bulk-undo-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.08), 0 0 14px rgba(220, 38, 38, 0.55);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bulk-undo.is-armed {
+    animation: none;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.28);
+  }
+}
+/* The nav bar sits on a near-black pill, where the page-level greys read wrong. */
+.review-nav-action.bulk-keep:disabled {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.45);
+}
+.review-nav-action.bulk-undo.is-armed,
+.review-nav-action.bulk-undo.is-armed:hover {
+  color: #fff;
+}
+.review-nav-action.bulk-undo.is-armed {
+  background: var(--danger);
+}
+.review-nav-action.bulk-undo.is-armed:hover {
+  background: var(--danger-dark);
+}
+
 /* Chatbot */
 .chatbot-fab {
   position: fixed;
