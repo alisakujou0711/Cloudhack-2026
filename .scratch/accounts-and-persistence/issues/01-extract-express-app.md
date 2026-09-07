@@ -16,10 +16,10 @@ the split, with the configuration living alongside the app and only the listen c
 
 **Status:** ready-for-agent
 
-- [ ] The development and start scripts behave exactly as before; the server listens on the same
+- [x] The development and start scripts behave exactly as before; the server listens on the same
       port and serves the same routes.
-- [ ] The startup log still reports the LLM provider or the absence of a key, unchanged.
-- [ ] The configured application can be imported by another module without a port being bound as a
+- [x] The startup log still reports the LLM provider or the absence of a key, unchanged.
+- [x] The configured application can be imported by another module without a port being bound as a
       side effect.
-- [ ] Importing the application module does not start a listener.
-- [ ] No route handler, service, or client code is modified.
+- [x] Importing the application module does not start a listener.
+- [x] No route handler, service, or client code is modified.
