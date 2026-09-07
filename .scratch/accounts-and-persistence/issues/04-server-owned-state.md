@@ -31,6 +31,15 @@ The write endpoint validates only that the body is a JSON object within the exis
 limit. It does not check the shape of the thirteen keys — the client is the sole writer, and a shape
 check would need updating on every state change.
 
+**Naming note, deliberately not actioned.** The standing inputs for an optimization type are called
+a *portfolio* for university and internship but an *optimization* for essay and cover letter — one
+concept under two names, with "optimization" also naming the whole feature and the four types. The
+endpoint verbs disagree with the state keys in the same way. This ticket is the cheapest moment that
+rename will ever have, because it already touches every key; after it ships, the same rename needs a
+migration of every stored document. The call was to **leave it alone** — the risk of renaming across
+the state context, five panels, the chatbot's context builder, and four endpoints mid-build buys no
+user-visible value. Do not action it here; raise it as its own ticket if it starts to bite.
+
 **Blocked by:** 03 — Sign-in and sign-up screens with the routing gate.
 
 **Status:** ready-for-agent
