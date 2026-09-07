@@ -11,7 +11,9 @@ items. Each entry stores a full snapshot, so it can be reopened and re-rendered 
 | `client/src/pages/HistoryPage.jsx` | `TYPE_LABELS`, `renderSnapshot`, filters, the list |
 | `client/src/context/AppContext.jsx` | `addHistoryEntry`, `toggleBookmark`, `removeHistoryEntry` |
 
-No server involvement at all — History is entirely `localStorage`.
+History has no endpoint of its own: entries live in the `history` key of the account's state
+document, which `AppContext` reads once from `GET /state` and writes back on a debounce. Adding an
+entry is a state mutation like any other. See `docs/architecture.md`.
 
 ## Entry shape
 

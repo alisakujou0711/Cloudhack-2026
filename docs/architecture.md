@@ -14,7 +14,8 @@ no workspace config.
 | `server/` | 4000 | `server/index.js` | Express 5, CommonJS, `node --watch` in dev. `app.js` builds and exports the configured app; `index.js` only listens |
 
 `server/db.js` opens a SQLite file (`better-sqlite3`, synchronous) and applies the schema on
-import, with every statement create-if-not-exists so repeated boots are safe. The path defaults to
+import — `users`, `sessions`, and `user_state` (one state document per account) — with every
+statement create-if-not-exists so repeated boots are safe. The path defaults to
 `server/data/portfoliopath.db` and is overridable with `DATABASE_PATH`; the file is git-ignored.
 
 `client/vite.config.js` proxies `/api/*` to `http://localhost:4000`, so the client only ever
@@ -50,7 +51,8 @@ session creation; `server/middleware/auth.js` owns the cookie and the `requireAu
   it exists so the expiry test can observe a 401 over HTTP instead of editing the sessions table.
 - Sign-up may reveal that an email is taken; **sign-in must not** — a wrong password and an
   unknown email return the same 401 and the same message.
-- `requireAuth` guards `/auth/me` and `/auth/logout` today. See `docs/api.md`.
+- `requireAuth` guards `/auth/me`, `/auth/logout`, and both `/state` endpoints today. See
+  `docs/api.md`.
 - On the client, `client/src/context/AuthContext.jsx` owns the session — deliberately **separate**
   from `AppContext`, because auth resolves first and gates whether the app is reachable at all. It
   resolves `/auth/me` once on mount, exposes `signUp` / `signIn` / `signOut`, and registers the API
@@ -62,23 +64,38 @@ session creation; `server/middleware/auth.js` owns the cookie and the `requireAu
 
 ## Client state
 
-`client/src/context/AppContext.jsx` holds **one** state object for the whole app and persists it
-wholesale to `localStorage` under `portfoliopath_state` on every change (a `useEffect` on
-`[state]`). There is no reducer and no per-slice store — every setter shallow-merges into one key.
+`client/src/context/AppContext.jsx` holds **one** state object for the whole app — the state
+document — and **the server owns it**. There is no reducer and no per-slice store: every setter
+shallow-merges into one key, and every setter goes through `mutate()`, which moves React state
+immediately and schedules a save of the whole document.
 
 State keys (`defaultState()`): `profile`, `universityPortfolio`, `internshipPortfolio`,
 `essayOptimization`, `coverLetterOptimization`, `interviewPrep`, `universityAssessment`,
 `internshipAssessment`, `essayAssessment`, `coverLetterAssessment`, `interviewPlan`,
 `chatHistory`, `history`.
 
-- `loadInitialState()` spreads saved state over `defaultState()`, so adding a new key is
-  backwards-compatible for existing users. It also migrates a legacy per-page `chatHistory`
-  object into a single array — keep that migration.
+- **Read once per session.** `AppProvider` watches `account.id` from `AuthContext` and `GET`s
+  `/state` when it changes. `fromDocument()` spreads the document over `defaultState()`, so a key
+  added after an account's last save is present rather than undefined, and it migrates a legacy
+  per-page `chatHistory` object into a single array — keep that migration.
+- **Written on a debounce.** A mutation schedules one `PUT /state` of the entire document 800ms
+  later, so typing in a text field is one request rather than one per keystroke. Writes are
+  last-write-wins with no conflict detection: two browsers signed into one account clobber each
+  other, knowingly.
+- **Nothing is written to browser storage.** The `localStorage` copy was removed, not demoted to a
+  cache — a cached document is stale the moment a different account signs in. See
+  `docs/adr/0002-server-is-sole-source-of-truth.md` before reintroducing one.
+- Two statuses come out of the context: `loadStatus` (`idle | loading | ready | error`), which
+  gates routing, and `saveStatus` (`idle | pending | saving | saved | error`), which is what the
+  header's indicator in `Layout.jsx` reports.
+- Signing out cancels any queued write and resets state to defaults, so a pending save can never
+  land on the account that signs in next.
 - `client/src/context/ChatUIContext.jsx` is a **separate**, deliberately unpersisted context for
   chat panel open/draft state. See `docs/features/chatbot.md`.
 
-Adding persisted state means touching three places: `defaultState()`, a setter in `AppContext`,
-and `buildContext()` in `ChatbotWidget.jsx`.
+Adding persisted state still means touching three places: `defaultState()`, a setter in
+`AppContext` (going through `mutate`), and `buildContext()` in `ChatbotWidget.jsx`. The server
+stores the document opaquely, so no server change is needed.
 
 ## Routing
 
@@ -94,7 +111,10 @@ three conditions to three destinations:
 `/` is nothing but that three-way redirect. Every other route re-checks the gates it depends on,
 so typing an in-app URL while signed out lands on sign-in rather than rendering. While `/auth/me`
 is still in flight `AuthProvider`'s status is `'resolving'` and `AppRoutes` renders a loading
-screen — deciding earlier would flash the sign-in screen at someone who is already signed in.
+screen — deciding earlier would flash the sign-in screen at someone who is already signed in. The
+profile gate waits on a second condition for the same reason: until `AppContext`'s `loadStatus` is
+`'ready'` the profile has not arrived, and judging it early would push a returning student back
+through onboarding. A failed load renders a retry screen rather than an empty app.
 
 `/signin` · `/signup` · `/onboarding` are each their own route; the first two redirect to `/` once
 a session exists, and onboarding stays the only place `profile` is set. Everything else nests

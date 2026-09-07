@@ -12,6 +12,7 @@ const { assessEssays } = require('../services/essayOptimization');
 const { assessCoverLetter } = require('../services/coverLetterOptimization');
 const { prepareInterview } = require('../services/interviewPrep');
 const { signUp, signIn, signOut } = require('../services/auth');
+const { readState, replaceState } = require('../services/userState');
 const {
   setSessionCookie,
   clearSessionCookie,
@@ -71,6 +72,21 @@ router.post('/auth/logout', requireAuth, (req, res) => {
 
 router.get('/auth/me', requireAuth, (req, res) => {
   res.json({ user: req.user });
+});
+
+router.get('/state', requireAuth, (req, res) => {
+  res.json(readState(req.user.id));
+});
+
+// The only check is that the body is a JSON object. The thirteen keys are not validated: the
+// client is the sole writer, and a shape check here would need updating on every state change.
+router.put('/state', requireAuth, (req, res) => {
+  const state = req.body;
+  if (!state || typeof state !== 'object' || Array.isArray(state)) {
+    return res.status(400).json({ error: 'The state document must be a JSON object' });
+  }
+  replaceState(req.user.id, state);
+  res.json({ ok: true });
 });
 
 router.get('/university/options', (req, res) => {

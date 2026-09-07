@@ -13,7 +13,8 @@ cover letter), and get structured, itemized feedback. Plus interview prep, a cur
 gallery, a history log, and a context-aware chatbot. `README.md` is the product description.
 
 Accounts are email + password, backed by a SQLite file the server creates on first boot
-(`server/db.js`). Application state is still one object in `localStorage`.
+(`server/db.js`). Everything a student produces is one JSON state document per account, held in
+that database and read and written over `/api/state` — nothing is kept in browser storage.
 
 ## Commands
 
@@ -81,7 +82,7 @@ the code still runs.
 
 | Read this | When you're... |
 | --- | --- |
-| `docs/architecture.md` | Orienting; touching routing, `AppContext`, `localStorage`, styling, or the request path |
+| `docs/architecture.md` | Orienting; touching routing, `AppContext`, state loading and saving, styling, or the request path |
 | `docs/llm.md` | Adding or changing **any** LLM call, prompt, mock, or provider |
 | `docs/api.md` | Adding or changing an endpoint, or checking a request/response shape |
 | `docs/features/onboarding.md` | Touching the profile, education levels, or international-applicant behavior |

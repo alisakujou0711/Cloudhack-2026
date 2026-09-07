@@ -59,6 +59,10 @@ export const api = {
   signIn: (payload) => request('/auth/login', { method: 'POST', body: JSON.stringify(payload) }),
   signOut: () => request('/auth/logout', { method: 'POST' }),
   me: () => request('/auth/me'),
+  // The state document travels as itself, not inside an envelope: what GET returns is what PUT
+  // takes back.
+  getState: () => request('/state'),
+  saveState: (state) => request('/state', { method: 'PUT', body: JSON.stringify(state) }),
   universityOptions: () => request('/university/options'),
   assessUniversity: (payload) =>
     request('/assess/university', { method: 'POST', body: JSON.stringify(payload) }),

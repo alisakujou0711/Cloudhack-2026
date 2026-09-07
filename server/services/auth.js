@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { db } = require('../db');
+const { createEmptyState } = require('./userState');
 
 const PASSWORD_MIN_LENGTH = 8;
 const BCRYPT_COST = 10;
@@ -55,6 +56,9 @@ function signUp({ email, password }) {
     throw err;
   }
   const row = db.prepare('SELECT * FROM users WHERE id = ?').get(info.lastInsertRowid);
+  // Every account owns exactly one state document from the moment it exists, so the first read
+  // after sign-up answers with an empty document rather than a missing one.
+  createEmptyState(row.id);
   return { user: publicUser(row), session: createSession(row.id) };
 }
 

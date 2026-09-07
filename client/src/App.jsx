@@ -19,16 +19,43 @@ function gateRedirect(isAuthenticated, profile) {
   return null;
 }
 
+function LoadingScreen() {
+  return (
+    <div className="page-center">
+      <p className="subtitle">Loading...</p>
+    </div>
+  );
+}
+
 function AppRoutes() {
-  const { status, isAuthenticated } = useAuth();
-  const { profile } = useApp();
+  const { status, isAuthenticated, signOut } = useAuth();
+  const { profile, loadStatus, reloadState } = useApp();
 
   // Nothing may be decided while /auth/me is still in flight — rendering the sign-in screen
   // here would flash it at someone who is already signed in.
   if (status === 'resolving') {
+    return <LoadingScreen />;
+  }
+
+  // Nor while the state document is still arriving: the profile gate would read a profile that
+  // has not loaded yet and send a returning student back through onboarding.
+  if (isAuthenticated && loadStatus !== 'ready') {
+    if (loadStatus !== 'error') return <LoadingScreen />;
     return (
       <div className="page-center">
-        <p className="subtitle">Loading...</p>
+        <div className="card onboarding-card">
+          <h2>Couldn&apos;t load your work</h2>
+          <p className="subtitle">
+            Your saved work lives on the server, so the app needs it before it can open. Check that
+            the server is running and try again.
+          </p>
+          <button className="btn-primary" onClick={reloadState}>
+            Try again
+          </button>
+          <button className="link-btn" onClick={signOut}>
+            Sign out
+          </button>
+        </div>
       </div>
     );
   }

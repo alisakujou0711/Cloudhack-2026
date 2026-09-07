@@ -44,21 +44,21 @@ user-visible value. Do not action it here; raise it as its own ticket if it star
 
 **Status:** ready-for-agent
 
-- [ ] A newly created account has an empty state document rather than a missing one.
-- [ ] Work done in one browser appears after signing in from a different browser on the same
+- [x] A newly created account has an empty state document rather than a missing one.
+- [x] Work done in one browser appears after signing in from a different browser on the same
       machine.
-- [ ] Clearing browser site data loses nothing; signing back in restores everything.
-- [ ] Signing out and signing in as a second account shows none of the first account's data.
-- [ ] One account cannot read another's state through the API.
-- [ ] All thirteen keys persist, including in-progress drafts — essay answers, cover letter prompts,
+- [x] Clearing browser site data loses nothing; signing back in restores everything.
+- [x] Signing out and signing in as a second account shows none of the first account's data.
+- [x] One account cannot read another's state through the API.
+- [x] All thirteen keys persist, including in-progress drafts — essay answers, cover letter prompts,
       resume text, target role, and portfolio fields.
-- [ ] Typing continuously in a text field produces debounced writes, not one per keystroke.
-- [ ] The header shows when a save is pending and when it has settled.
-- [ ] No write to browser local storage remains in the application state context.
-- [ ] The legacy chat-history migration still runs against documents read from the server.
-- [ ] History entries re-render fully after a round trip, with snapshots intact.
-- [ ] The architecture doc's client-state section is rewritten, and its claims that there is no
+- [x] Typing continuously in a text field produces debounced writes, not one per keystroke.
+- [x] The header shows when a save is pending and when it has settled.
+- [x] No write to browser local storage remains in the application state context.
+- [x] The legacy chat-history migration still runs against documents read from the server.
+- [x] History entries re-render fully after a round trip, with snapshots intact.
+- [x] The architecture doc's client-state section is rewritten, and its claims that there is no
       database and no server-side persistence are corrected — along with the matching line in the
       root agent guide.
-- [ ] The history feature doc no longer claims history has no server involvement.
-- [ ] The API doc gains the state endpoints.
+- [x] The history feature doc no longer claims history has no server involvement.
+- [x] The API doc gains the state endpoints.

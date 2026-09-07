@@ -71,6 +71,7 @@ function createClient(baseUrl) {
     request,
     get: (endpoint, options) => request('GET', endpoint, options),
     post: (endpoint, body, options) => request('POST', endpoint, { ...options, body }),
+    put: (endpoint, body, options) => request('PUT', endpoint, { ...options, body }),
   };
 }
 
