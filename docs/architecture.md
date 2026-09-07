@@ -128,7 +128,8 @@ through onboarding. A failed load renders a retry screen rather than an empty ap
 
 `/signin` · `/signup` · `/onboarding` are each their own route; the first two redirect to `/` once
 a session exists, and onboarding stays the only place `profile` is set. Everything else nests
-under `/app` in `client/src/components/Layout.jsx` (header nav + the floating `ChatbotWidget`),
+under `/app` in `client/src/components/Layout.jsx` (header nav, the `AccountMenu` avatar, and the
+floating `ChatbotWidget`),
 guarded by both a session and `profile`.
 
 `/app/optimize` · `/app/history` · `/app/interviews` · `/app/inspirations`

@@ -79,8 +79,9 @@ the desk is scoped under `.optimize`.
 - **"Clear my data"** sits directly below that, because clearing wipes exactly what the shelf
   reports: an inline two-step confirmation (never `window.confirm`) that calls `clearData` and
   wipes the whole state document. The trigger is a ghost button and only the confirm step is red.
-  It lives here, not in the header, because the header's neighbouring control is Sign out — the
-  action people press constantly — and pairing the two invites the wrong click.
+  It lives here, not in the header, because the header's only control is the account menu, whose
+  neighbouring entry is Sign out — the action people press constantly — and pairing the two
+  invites the wrong click.
 
 ## Invariants
 

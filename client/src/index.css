@@ -12,6 +12,16 @@
   --danger-dark: #b91c1c;
   --danger-bg: #fef2f2;
   --optional-bg: #f4f4f6;
+  /* The header avatar's colour is derived from the profile name rather than stored, so it needs a
+     palette to choose from rather than a single token. All eight take white text. */
+  --avatar-tone-0: #4f46e5;
+  --avatar-tone-1: #0f766e;
+  --avatar-tone-2: #b45309;
+  --avatar-tone-3: #be123c;
+  --avatar-tone-4: #7c3aed;
+  --avatar-tone-5: #0369a1;
+  --avatar-tone-6: #15803d;
+  --avatar-tone-7: #c2410c;
   font-family:
     "Segoe UI",
     system-ui,
@@ -1129,16 +1139,105 @@ label {
   background: var(--optional-bg);
 }
 
-.header-right {
+.account-menu {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
 }
 
-.user-chip {
+.avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-weight: 700;
   font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.15s ease;
+}
+.avatar:hover,
+.avatar[aria-expanded='true'] {
+  box-shadow: 0 0 0 3px var(--border);
+}
+
+/* One rule per --avatar-tone-* token. AccountMenu.jsx picks the index; keep the two counts equal. */
+.avatar-tone-0 {
+  background: var(--avatar-tone-0);
+}
+.avatar-tone-1 {
+  background: var(--avatar-tone-1);
+}
+.avatar-tone-2 {
+  background: var(--avatar-tone-2);
+}
+.avatar-tone-3 {
+  background: var(--avatar-tone-3);
+}
+.avatar-tone-4 {
+  background: var(--avatar-tone-4);
+}
+.avatar-tone-5 {
+  background: var(--avatar-tone-5);
+}
+.avatar-tone-6 {
+  background: var(--avatar-tone-6);
+}
+.avatar-tone-7 {
+  background: var(--avatar-tone-7);
+}
+
+.account-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(28, 33, 48, 0.12);
+  padding: 0.4rem;
+  z-index: 10;
+}
+
+.account-menu-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.4rem;
+}
+
+.account-menu-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.account-menu-email {
+  font-size: 0.8rem;
   color: var(--text-muted);
+  word-break: break-all;
+}
+
+.account-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.88rem;
   font-weight: 600;
+  color: var(--text);
+}
+.account-menu-item:hover {
+  background: var(--optional-bg);
 }
 
 .app-main {

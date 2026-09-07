@@ -12,14 +12,14 @@ behavior throughout the product.
 | `client/src/pages/OnboardingPage.jsx` | The form; all three fields required, inline error otherwise |
 | `client/src/context/AppContext.jsx` | `EDUCATION_LEVELS`, `suggestedOptimizationType`, `setProfile` |
 | `client/src/App.jsx` | Route guard — with a session but no profile, every `/app/*` route redirects to `/onboarding` |
-| `client/src/components/Layout.jsx` | Shows `profile.name`; "Sign out" ends the session |
+| `client/src/components/AccountMenu.jsx` | The header avatar — initials and colour from `profile.name` — and the menu holding the name, the account email and "Sign out" |
 
 ## Flow
 
 1. User fills name / education level / location, then `setProfile({name, educationLevel, location})`.
 2. Navigate to `/app/optimize`. From then on `profile` is truthy, so `Layout` renders.
 3. Every panel pulls `profile` from `useApp()` and passes it in its API payload.
-4. "Sign out" in the header ends the session and returns to `/signin`.
+4. "Sign out", in the header's avatar menu, ends the session and returns to `/signin`.
 
 ## Shape
 

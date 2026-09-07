@@ -1,12 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
-import { useAuth } from '../context/AuthContext';
+import AccountMenu from './AccountMenu';
 import ChatbotWidget from './ChatbotWidget';
 
 export default function Layout() {
-  const { profile } = useApp();
-  const { signOut } = useAuth();
   const { pathname } = useLocation();
   const mainRef = useRef(null);
 
@@ -34,12 +31,7 @@ export default function Layout() {
             Inspirations
           </NavLink>
         </nav>
-        <div className="header-right">
-          <span className="user-chip">{profile.name}</span>
-          <button className="btn-ghost" onClick={signOut}>
-            Sign out
-          </button>
-        </div>
+        <AccountMenu />
       </header>
       <main className="app-main" ref={mainRef}>
         <div className="app-main-inner">
