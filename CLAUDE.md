@@ -16,7 +16,7 @@ Accounts are email + password, backed by a SQLite file the server creates on fir
 (`server/db.js`). Everything a student produces is one JSON state document per account, held in
 that database and read and written over `/api/state` — nothing is kept in browser storage. A
 fresh database is seeded with one worked-in demo account (`demo@portify.app` /
-`portify`) — the credentials the startup log prints.
+`portify-demo`) — the credentials the startup log prints.
 
 ## Commands
 

@@ -983,7 +983,6 @@ export default function LandingPage() {
           Works with no API key — feedback falls back to rule-based output, and every report says
           so when it does.
         </p>
-        <Link className="lp-quiet-link" to="/signin">Sign in</Link>
       </footer>
     </div>
   );

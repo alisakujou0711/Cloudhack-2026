@@ -31,7 +31,7 @@ The server seeds one account on its first boot against a new database, already c
 profile and several finished optimization runs in History:
 
     Email:    demo@portify.app
-    Password: portify
+    Password: portify-demo
 
 Sign in with those on the normal sign-in screen — there is no demo button. The same credentials
 are printed in the server's startup log. Or create your own account with **Sign up** and start

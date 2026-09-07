@@ -1,6 +1,6 @@
 # Demo account
 
-**What it does** — Seeds one ordinary account, `demo@portify.app` / `portify`, on
+**What it does** — Seeds one ordinary account, `demo@portify.app` / `portify-demo`, on
 boot against a database that doesn't have it. It arrives with a complete profile and five
 finished runs in History, so someone evaluating the app sees a used product instead of an empty
 state they have to fill in first.

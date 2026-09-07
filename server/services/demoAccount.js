@@ -8,7 +8,7 @@ const { replaceState } = require('./userState');
 // the sign-in screen, so these are how someone evaluating the app gets in. They appear in the
 // README and in the startup log. See docs/features/demo-account.md.
 const DEMO_EMAIL = 'demo@portify.app';
-const DEMO_PASSWORD = 'portify';
+const DEMO_PASSWORD = 'portify-demo';
 
 // The state document the account is seeded with, recorded from real runs of the samples by
 // `scripts/generate-demo-state.js` — never hand-edited, because report components read fields no
