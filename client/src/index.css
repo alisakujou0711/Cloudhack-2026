@@ -3099,57 +3099,6 @@ label {
   stroke-linejoin: round;
 }
 
-.shelf-clear {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  margin-top: 1.5rem;
-  padding-top: 1.35rem;
-  border-top: 1px solid var(--h-rule);
-}
-.shelf-clear-copy h3 {
-  margin: 0;
-  font-size: 0.92rem;
-  color: var(--h-ink);
-}
-.shelf-clear-copy p {
-  margin: 0.3rem 0 0;
-  max-width: 62ch;
-  font-size: 0.84rem;
-  line-height: 1.55;
-  color: var(--h-mute);
-}
-.shelf-clear-trigger {
-  flex-shrink: 0;
-}
-.shelf-clear-trigger:hover {
-  color: var(--danger);
-  border-color: #fecaca;
-  background: var(--danger-bg);
-}
-/* Red arrives with the irreversible step, not before it. */
-.clear-data-confirm {
-  flex-basis: 100%;
-  background: var(--danger-bg);
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  padding: 0.85rem 1rem;
-}
-.clear-data-confirm p {
-  margin: 0 0 0.65rem;
-  font-size: 0.88rem;
-  color: #991b1b;
-}
-.clear-data-confirm-actions {
-  display: flex;
-  gap: 0.6rem;
-}
-.clear-data-confirm .error-text {
-  margin-top: 0.65rem;
-}
-
 /* Narrow: the date stands above its entries instead of beside them, and the spine pulls in to the
    edge. The rail stays, because it is what tells you this is one record. */
 @media (max-width: 720px) {
@@ -3178,9 +3127,6 @@ label {
   }
   .log-entry-actions {
     padding-top: 0.9rem;
-  }
-  .shelf-clear-trigger {
-    width: 100%;
   }
 }
 
@@ -4129,10 +4075,13 @@ label {
   font-size: 0.95rem;
 }
 
+/* Never squeezed by the explanation beside it: the control keeps its label on one line and the
+   text wraps instead. */
 .settings-row-actions {
   display: flex;
   align-items: center;
   gap: 0.85rem;
+  flex-shrink: 0;
 }
 
 /* The rule a field has to satisfy, stated under it rather than left to be discovered by being
@@ -4149,4 +4098,40 @@ label {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--success);
+}
+
+/* Everything below this rule is destructive. The heavier line is the card's one structural
+   division, so the ordinary rows above it are never mistaken for these — Clear my data today,
+   Delete account beneath it. */
+.settings-danger {
+  margin-top: 2rem;
+  border-top: 2px solid var(--text-muted);
+}
+/* The trigger stays a ghost button until it is hovered: the row is one of several, and red on all
+   of them at rest would make the card read as a warning rather than as a list of actions. */
+.settings-danger-trigger:hover {
+  color: var(--danger);
+  border-color: #fecaca;
+  background: var(--danger-bg);
+}
+
+/* Red arrives with the irreversible step, not before it. */
+.clear-data-confirm {
+  margin-top: 1rem;
+  background: var(--danger-bg);
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+.clear-data-confirm p {
+  margin: 0 0 0.65rem;
+  font-size: 0.88rem;
+  color: #991b1b;
+}
+.clear-data-confirm-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+.clear-data-confirm .error-text {
+  margin-top: 0.65rem;
 }

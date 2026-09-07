@@ -37,7 +37,8 @@ session cookie, and one state document per Account read and written over `/api/s
    both to `/app`. See `docs/architecture.md`.
 6. Sign-out deletes the session row and clears the cookie; a 401 from any other endpoint clears
    the auth context centrally, so the same gate carries the person back to sign-in.
-7. "Clear my data" `DELETE`s the document and leaves the Account. See `docs/features/history.md`.
+7. "Clear my data" `DELETE`s the document and leaves the Account, from the settings page's Account
+   actions card. Losing `profile` with the document is what routes the student back to onboarding.
 8. `PATCH /account/email` changes the address the Account signs in with, after `verifyPassword`
    checks the current one (`services/auth.js:103`). Sessions key on the Account id, so the Session
    survives; `changeEmail` in `AuthContext` replaces the held Account from the response

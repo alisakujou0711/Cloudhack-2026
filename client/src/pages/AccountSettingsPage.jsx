@@ -425,6 +425,191 @@ function AccountSecurityCard() {
   );
 }
 
+// The three things a student does to their account that are not credentials, above the rule, and
+// the destructive one below it.
+function ContactSupport() {
+  return (
+    <div className="settings-row">
+      <div>
+        <p className="settings-row-label">Contact support</p>
+        <p className="settings-row-value">Ask a question about your account or report something wrong.</p>
+      </div>
+      <div className="settings-row-actions">
+        {/* Deliberately inert: the surface is here so the shape of the card is the finished one,
+            and the tooltip is what keeps a button that answers a press with nothing legible as
+            planned rather than broken. */}
+        <button type="button" className="btn-ghost" title="Support is planned — this button doesn't do anything yet.">
+          Contact support
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// The whole state document, written out as JSON the student can keep somewhere the product cannot
+// reach. No endpoint: the client already holds the document the server would send back, so this is
+// the resume export's anchor-and-object-URL pattern over a blob built here.
+function DownloadMyData() {
+  const { exportDocument } = useApp();
+  const [downloaded, setDownloaded] = useConfirmation();
+
+  const handleDownload = () => {
+    // Indented, because the point of the file is that it can be read — a student opening it should
+    // find their essays and history, not one line of JSON.
+    const blob = new Blob([JSON.stringify(exportDocument(), null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'portfoliopath-data.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    setDownloaded(true);
+  };
+
+  return (
+    <div className="settings-row">
+      <div>
+        <p className="settings-row-label">Download my data</p>
+        <p className="settings-row-value">
+          Everything on this account — your profile, drafts, reviews, history and chat — as one JSON file.
+        </p>
+      </div>
+      <div className="settings-row-actions">
+        {downloaded && (
+          <span className="settings-saved" role="status">
+            Downloaded
+          </span>
+        )}
+        <button type="button" className="btn-ghost" onClick={handleDownload}>
+          Download
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// The same action the avatar menu offers, in the other place someone looks for it. Signing out
+// drops any queued write and resets state, so nothing here has to tidy up after it.
+function SignOutRow() {
+  const { signOut } = useAuth();
+  const [pending, setPending] = useState(false);
+
+  const handleSignOut = async () => {
+    setPending(true);
+    // `signOut` clears the session whether or not the request succeeded, so the routing gate takes
+    // this page off the screen either way and there is no failure to report.
+    await signOut();
+  };
+
+  return (
+    <div className="settings-row">
+      <div>
+        <p className="settings-row-label">Sign out</p>
+        <p className="settings-row-value">Ends this session on this device. Everything you have saved stays.</p>
+      </div>
+      <div className="settings-row-actions">
+        <button type="button" className="btn-ghost" onClick={handleSignOut} disabled={pending}>
+          {pending ? 'Signing out…' : 'Sign out'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Moved here from the History page, unchanged: a two-step inline confirmation (never
+// `window.confirm`), no password, and the wipe happening on the server rather than only here. It
+// was kept off the header because Sign out is its neighbour there; settings is where it belongs
+// now that settings exists, and two near-identical destructive confirmations on two pages would be
+// worse than either placement.
+function ClearMyData() {
+  const { clearData } = useApp();
+  const [confirming, setConfirming] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [error, setError] = useState('');
+
+  const confirm = async () => {
+    setClearing(true);
+    setError('');
+    try {
+      await clearData();
+      // Nothing to tidy up afterwards: the profile goes with the document, so the routing gate
+      // takes this page off the screen and lands the person back in onboarding.
+    } catch (err) {
+      setError(err.message);
+      setClearing(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="settings-row">
+        <div>
+          <p className="settings-row-label">Clear my data</p>
+          <p className="settings-row-value">
+            Wipes your profile, history, drafts and saved assessments from this account and takes you
+            back to onboarding. Your account itself stays — you will still be signed in.
+          </p>
+        </div>
+        <div className="settings-row-actions">
+          {!confirming && (
+            <button type="button" className="btn-ghost settings-danger-trigger" onClick={() => setConfirming(true)}>
+              Clear my data
+            </button>
+          )}
+        </div>
+      </div>
+
+      {confirming && (
+        <div className="clear-data-confirm">
+          <p>This cannot be undone. Everything on this account goes back to how it looked the day you signed up.</p>
+          <div className="clear-data-confirm-actions">
+            <button type="button" className="btn-danger" onClick={confirm} disabled={clearing}>
+              {clearing ? 'Clearing...' : 'Yes, clear everything'}
+            </button>
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => {
+                setConfirming(false);
+                setError('');
+              }}
+              disabled={clearing}
+            >
+              Cancel
+            </button>
+          </div>
+          {error && <p className="error-text">{error}</p>}
+        </div>
+      )}
+    </>
+  );
+}
+
+// What a student does to their account rather than to their work. The rule below the ordinary rows
+// is the card's one structural rule: everything under it is destructive.
+function AccountActionsCard() {
+  return (
+    <section className="card settings-card">
+      <div className="settings-card-head">
+        <h2>Account actions</h2>
+        <p className="subtitle">Your account itself, rather than the work on it.</p>
+      </div>
+
+      <ContactSupport />
+
+      <DownloadMyData />
+
+      <SignOutRow />
+
+      <div className="settings-danger">
+        <ClearMyData />
+      </div>
+    </section>
+  );
+}
+
 export default function AccountSettingsPage() {
   return (
     <div className="settings">
@@ -437,12 +622,7 @@ export default function AccountSettingsPage() {
 
       <AccountSecurityCard />
 
-      {/* Filled in by the account actions, including the ones that move here from History. */}
-      <section className="card settings-card">
-        <div className="settings-card-head">
-          <h2>Account actions</h2>
-        </div>
-      </section>
+      <AccountActionsCard />
     </div>
   );
 }

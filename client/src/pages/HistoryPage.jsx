@@ -183,65 +183,6 @@ function ShelfDoc({ title, text, context }) {
   );
 }
 
-// The destructive half of the header's old "Start over", which became Sign out in ticket 03. It
-// sits here, next to the documents on file, rather than beside the control people press every day.
-function ClearMyDataCard() {
-  const { clearData } = useApp();
-  const [confirming, setConfirming] = useState(false);
-  const [clearing, setClearing] = useState(false);
-  const [error, setError] = useState('');
-
-  const confirm = async () => {
-    setClearing(true);
-    setError('');
-    try {
-      await clearData();
-      // Nothing to tidy up afterwards: the profile goes with the document, so the routing gate
-      // takes this page off the screen and lands the person back in onboarding.
-    } catch (err) {
-      setError(err.message);
-      setClearing(false);
-    }
-  };
-
-  return (
-    <div className="shelf-clear">
-      <div className="shelf-clear-copy">
-        <h3>Clear my data</h3>
-        <p>
-          Wipes your profile, history, drafts, and saved assessments from this account and takes you back to
-          onboarding. Your account itself stays — you will still be signed in.
-        </p>
-      </div>
-      {confirming ? (
-        <div className="clear-data-confirm">
-          <p>This cannot be undone. Everything on this account goes back to how it looked the day you signed up.</p>
-          <div className="clear-data-confirm-actions">
-            <button className="btn-danger" onClick={confirm} disabled={clearing}>
-              {clearing ? 'Clearing...' : 'Yes, clear everything'}
-            </button>
-            <button
-              className="btn-ghost"
-              onClick={() => {
-                setConfirming(false);
-                setError('');
-              }}
-              disabled={clearing}
-            >
-              Cancel
-            </button>
-          </div>
-          {error && <p className="error-text">{error}</p>}
-        </div>
-      ) : (
-        <button className="btn-ghost shelf-clear-trigger" onClick={() => setConfirming(true)}>
-          Clear my data
-        </button>
-      )}
-    </div>
-  );
-}
-
 /* Page -------------------------------------------------------------------- */
 
 export default function HistoryPage() {
@@ -378,7 +319,6 @@ export default function HistoryPage() {
           />
           <ShelfDoc title="Resume" text={internshipPortfolio.resumeText} context={internshipPortfolio.targetRole} />
         </div>
-        <ClearMyDataCard />
       </section>
     </div>
   );

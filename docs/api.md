@@ -85,7 +85,7 @@ methods are in `client/src/api/client.js`.
   sole writer and a shape check would need updating on every state change. A row is created empty
   at sign-up, so a new account reads `{}` rather than a `404`. Concurrent writes are
   last-write-wins with no conflict detection. See `docs/architecture.md` for the client half.
-- **`DELETE /state`** — what "Clear my data" on the History page calls. It resets the document to
+- **`DELETE /state`** — what "Clear my data", in the settings page's Account actions, calls. It resets the document to
   the same `{}` a new account reads, and stops there: the account and its session are untouched,
   so the person stays signed in and simply lands back in onboarding without a profile. It is **not** account deletion, which is deliberately not built. Clearing an
   already-empty document is a no-op, not an error.

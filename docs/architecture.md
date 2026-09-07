@@ -94,7 +94,8 @@ State keys (`defaultState()`): `profile`, `universityPortfolio`, `internshipPort
   appears before the debounced `PUT` is even scheduled and does not know whether it landed.
 - Signing out cancels any queued write and resets state to defaults, so a pending save can never
   land on the account that signs in next.
-- **Clearing is a server call, not a local reset.** `clearData()` (History page, "Clear my data")
+- **Clearing is a server call, not a local reset.** `clearData()` ("Clear my data", in the
+  settings page's Account actions card)
   cancels any queued write — it still holds the document being wiped — and **awaits any write
   already on the wire**, which cannot be cancelled and would silently restore the document if its
   `PUT` reached the server after the `DELETE`. It then sends `DELETE /state` and moves state to

@@ -192,10 +192,16 @@ export function AppProvider({ children }) {
   const removeHistoryEntry = (id) =>
     mutate((s) => ({ ...s, history: s.history.filter((h) => h.id !== id) }));
 
-  // "Clear my data" on the History page — the destructive half of the header's old "Start over",
-  // which became Sign out. The account survives; only the document goes, and it goes on the
-  // server rather than just here, so signing back in shows the same empty account. Losing the
-  // profile with it is what walks the person back to onboarding through the routing gate.
+  // The document exactly as a save would send it, for "Download my data" on the settings page.
+  // It is the state object itself rather than a rebuilt copy, so a key added to `defaultState`
+  // is in the download without anything here being touched.
+  const exportDocument = () => state;
+
+  // "Clear my data" in the settings page's Account actions — the destructive half of the header's
+  // old "Start over", which became Sign out. The account survives; only the document goes, and it
+  // goes on the server rather than just here, so signing back in shows the same empty account.
+  // Losing the profile with it is what walks the person back to onboarding through the routing
+  // gate.
   const clearData = async () => {
     const forAccountId = savingFor.current;
     if (!forAccountId) return;
@@ -238,6 +244,7 @@ export function AppProvider({ children }) {
     addHistoryEntry,
     toggleBookmark,
     removeHistoryEntry,
+    exportDocument,
     clearData,
     suggestedOptimizationType: state.profile ? suggestedOptimizationType(state.profile.educationLevel) : 'university',
   };

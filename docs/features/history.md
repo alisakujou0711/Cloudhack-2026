@@ -8,8 +8,8 @@ items. Each entry stores a full snapshot, so it can be reopened and re-rendered 
 
 | Path | Role |
 | --- | --- |
-| `client/src/pages/HistoryPage.jsx` | `TYPE_LABELS`, `renderSnapshot`, filters, the list, `ClearMyDataCard` |
-| `client/src/context/AppContext.jsx` | `addHistoryEntry`, `toggleBookmark`, `removeHistoryEntry`, `clearData` |
+| `client/src/pages/HistoryPage.jsx` | `TYPE_LABELS`, `renderSnapshot`, filters, the list |
+| `client/src/context/AppContext.jsx` | `addHistoryEntry`, `toggleBookmark`, `removeHistoryEntry` |
 
 History has no endpoint of its own: entries live in the `history` key of the account's state
 document, which `AppContext` reads once from `GET /state` and writes back on a debounce. Adding an
@@ -76,12 +76,9 @@ the desk is scoped under `.optimize`.
   whether a university document (`universityPortfolio.rawText`) and a resume
   (`internshipPortfolio.resumeText`) are on file, with word counts. It reads current portfolio
   state, not history.
-- **"Clear my data"** sits directly below that, because clearing wipes exactly what the shelf
-  reports: an inline two-step confirmation (never `window.confirm`) that calls `clearData` and
-  wipes the whole state document. The trigger is a ghost button and only the confirm step is red.
-  It lives here, not in the header, because the header's only control is the account menu, whose
-  neighbouring entry is Sign out — the action people press constantly — and pairing the two
-  invites the wrong click.
+- **"Clear my data" is not on this page.** It sat below the shelf while there was nowhere else to
+  put it that was not the header, beside Sign out; it now lives in the Account actions card on
+  `/app/settings`, with the other things done to the account rather than to the work on it.
 
 ## Invariants
 
@@ -90,9 +87,8 @@ the desk is scoped under `.optimize`.
 - Bookmarking an Inspirations item **creates** a history entry and un-bookmarking **deletes** it,
   matched on `snapshot.id`. Nothing else in the app treats removal as an un-bookmark; see
   `docs/features/inspirations.md`.
-- Clearing goes through `DELETE /state` and only then resets local state, so it survives signing
-  out and back in. A local-only reset would be undone by the next `GET /state`. The account is
-  never touched: clearing data is not deleting an account. See `docs/api.md`.
+- Clearing wipes `history` with the rest of the state document, from the settings page rather
+  than from here. See `docs/architecture.md` for `clearData` and `docs/api.md` for the endpoint.
 - `ResumeReviewEditor` rendered from History is fully interactive (accept/reject, PDF download)
   and gets no `key`, so its decisions persist only while the row stays expanded — and a filter
   change remounts the log, which counts as closing it. See `docs/features/internship-resume.md`.
