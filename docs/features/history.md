@@ -42,26 +42,46 @@ The first four are written automatically through the `onComplete` contract in
 
 Two places, both in `HistoryPage.jsx`, and missing either one is the classic bug:
 
-1. **`TYPE_LABELS`** — or the filter dropdown has no option and the badge shows the raw key.
+1. **`TYPE_LABELS`** — or the type has no filter chip and the row shows the raw key.
 2. **`renderSnapshot`** — or expanding the entry silently renders nothing.
 
 Then have the feature call `onComplete({type, title, summary, snapshot})` with the full result as
 `snapshot`. Reuse an existing report component rather than writing a read-only variant; all four
-renderers already work with no callbacks.
+renderers already work with no callbacks. `TYPE_LABELS` stays the only place a type is named:
+`chipLabel` trims the label for the chip and `entryTitle` strips it off the front of the title, so
+neither needs a second map.
 
 ## UI notes
 
-- Filters: a type dropdown built from `TYPE_LABELS` plus a "Bookmarked only" checkbox; both are
-  local state.
-- Clicking a row expands it inline and renders the snapshot. Only one is open at a time.
-- Bookmark and Remove sit inside a `stopPropagation` wrapper so they don't toggle the expansion.
-- A "Your Documents" card at the top reports whether a university document
-  (`universityPortfolio.rawText`) and a resume (`internshipPortfolio.resumeText`) are on file.
-  It reads current portfolio state, not history.
-- **"Clear my data"** sits directly below it: an inline two-step confirmation (never
-  `window.confirm`) that calls `clearData` and wipes the whole state document. It lives here, not
-  in the header, because the header's neighbouring control is Sign out — the action people press
-  constantly — and pairing the two invites the wrong click.
+The page is a dated log, styled under a `.history` scope (`--h-ink`, `--h-mark`, `--rail`) the way
+the desk is scoped under `.optimize`.
+
+- Filters are chips built from `TYPE_LABELS`, carrying counts, and shown only for types the
+  account actually has — plus the selected one, so removing the last entry of a type can't take
+  its own chip away. A star chip toggles bookmarked-only. Both are local state.
+- Entries are grouped by calendar day (`groupByDay`) under a date that sticks in the rail while
+  its own entries scroll. History is prepended newest-first, so one pass produces the days in
+  order too; no sorting step.
+- `entryTitle` drops the type label off the front of the title (five of the seven types write it
+  there) so the row prints the category once, above the subject.
+- The row header is a `<button>` with `aria-expanded`; Bookmark and Remove are siblings of it, not
+  children, so neither needs `stopPropagation`. Only one row is open at a time.
+- The star saves quietly (`mutate`'s `{quiet: true}`, see `docs/architecture.md`): the bookmark
+  persists like any other mutation, but the header's save indicator stays put rather than
+  flickering for a one-tap toggle. Remove and every other write stay loud.
+- **Arrival:** everything carries `.rise` and a `--rise-step` set from `HistoryPage`, so the page
+  assembles once in reading order on the mount that clicking the tab causes. The log is keyed on
+  `filter`/`bookmarkedOnly`, which replays the cascade when a chip is pressed. Under
+  `prefers-reduced-motion` nothing animates.
+- An **"On this account"** shelf sits below the log — the log is what the tab is for — reporting
+  whether a university document (`universityPortfolio.rawText`) and a resume
+  (`internshipPortfolio.resumeText`) are on file, with word counts. It reads current portfolio
+  state, not history.
+- **"Clear my data"** sits directly below that, because clearing wipes exactly what the shelf
+  reports: an inline two-step confirmation (never `window.confirm`) that calls `clearData` and
+  wipes the whole state document. The trigger is a ghost button and only the confirm step is red.
+  It lives here, not in the header, because the header's neighbouring control is Sign out — the
+  action people press constantly — and pairing the two invites the wrong click.
 
 ## Invariants
 
@@ -74,5 +94,5 @@ renderers already work with no callbacks.
   out and back in. A local-only reset would be undone by the next `GET /state`. The account is
   never touched: clearing data is not deleting an account. See `docs/api.md`.
 - `ResumeReviewEditor` rendered from History is fully interactive (accept/reject, PDF download)
-  and gets no `key`, so its decisions persist only while the row stays expanded. See
-  `docs/features/internship-resume.md`.
+  and gets no `key`, so its decisions persist only while the row stays expanded — and a filter
+  change remounts the log, which counts as closing it. See `docs/features/internship-resume.md`.

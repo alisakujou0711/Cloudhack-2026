@@ -31,7 +31,8 @@ session cookie, and one state document per Account read and written over `/api/s
 3. Given an `account.id`, `AppProvider` `GET`s `/state` once (`AppContext.jsx:146`), and
    `fromDocument` (`:46`) spreads it over `defaultState()`, migrating a legacy `chatHistory`.
 4. Every mutation goes through `mutate()`: React state moves immediately and one `PUT /state` of
-   the whole document follows 800ms later (`:7`). The header renders `saveStatus`.
+   the whole document follows 800ms later (`:7`). The header renders `saveStatus`, unless the
+   mutation passed `{quiet: true}` — see `docs/architecture.md`.
 5. `gateRedirect` sends no session to `/signin`, a session without a profile to `/onboarding`, and
    both to `/app`. See `docs/architecture.md`.
 6. Sign-out deletes the session row and clears the cookie; a 401 from any other endpoint clears

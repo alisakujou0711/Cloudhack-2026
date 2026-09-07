@@ -90,6 +90,11 @@ State keys (`defaultState()`): `profile`, `universityPortfolio`, `internshipPort
 - Two statuses come out of the context: `loadStatus` (`idle | loading | ready | error`), which
   gates routing, and `saveStatus` (`idle | pending | saving | saved | error`), which is what the
   header's indicator in `Layout.jsx` reports.
+- **`mutate(updater, {quiet: true})` writes without moving `saveStatus`** — for incidental
+  one-tap toggles (History's bookmark star) where a flicker beside the account name outweighs the
+  thing being toggled. It is only the indicator that is skipped: the write is the same debounced
+  `PUT`, a failure still shows `error`, and one loud mutation in a coalesced batch makes the whole
+  write loud, since a single request covers them all.
 - Signing out cancels any queued write and resets state to defaults, so a pending save can never
   land on the account that signs in next.
 - **Clearing is a server call, not a local reset.** `clearData()` (History page, "Clear my data")
@@ -154,7 +159,14 @@ why they were merged.
 
 ## Styling
 
-One global stylesheet, `client/src/index.css` (~1230 lines), with CSS custom properties on
+The window itself does not scroll. `.app-shell` is `100dvh` with `overflow: hidden`, and
+`.app-main` is the scroll container — its scrollbar hidden, its `.app-main-inner` holding the
+centred column. A native scrollbar appearing only on the long pages used to move that column and
+every fixed control sideways as you crossed between tabs. Two consequences: scroll a page with
+`.app-main`, not `window` (`Layout.jsx` resets it to the top on every route change), and a page
+cannot rely on the document growing past the viewport.
+
+One global stylesheet, `client/src/index.css` (~2780 lines), with CSS custom properties on
 `:root` (`--bg`, `--surface`, `--border`, `--text`, `--text-muted`, `--primary`, `--success`,
 `--danger`, …) and `color-scheme: light`. Semantic class names (`.card`, `.btn-primary`,
 `.link-btn`, `.subtitle`, `.error-text`, `.badge`), no CSS modules, no utility framework, no dark
