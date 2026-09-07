@@ -1,0 +1,39 @@
+University: National University of Singapore
+Major: Computer Science
+Number of essay questions: 2
+
+--------------------------------------------------
+Essay Question 1: Why do you want to study Computer Science at NUS?
+--------------------------------------------------
+The first time I felt the specific thrill of computer science was at 2am, staring at a
+segmentation fault in a pathfinding algorithm I had written for a school robotics competition.
+I had modeled our warehouse-navigation robot's map as a grid, but a single off-by-one error in
+my boundary check meant the robot occasionally tried to plan a path through a wall. Fixing that
+one line taught me more about how computers actually "think" than a semester of lectures could
+have. Since then I have built a Discord bot that automated attendance-tracking for my CCA of 80
+members, cutting our weekly admin time from 45 minutes to under 5, and a small Android app that
+helps my grandmother's neighborhood watch group log incidents in her first language. Both
+projects left me wanting to understand the systems layer underneath the tools I was using —
+how a database keeps data consistent under concurrent writes, how a compiler decides what code
+is even valid. NUS's School of Computing draws me specifically because of the depth of its
+systems and AI tracks and its proximity to Singapore's tech industry, which means the research
+happening in its labs is often only a short bus ride from the companies applying it. I want to
+spend the next four years moving from someone who patches bugs at 2am to someone who designs
+the systems so those bugs are easier to catch in the first place.
+
+--------------------------------------------------
+Essay Question 2: Describe a challenge you have overcome.
+--------------------------------------------------
+Halfway through building the attendance bot I mentioned above, our CCA's exco unanimously voted
+to scrap the project. They were worried that an unfamiliar tool would confuse the 60% of members
+who barely used Discord beyond reading announcements, and a failed rollout right before our
+annual showcase would embarrass the club. Rather than argue in the meeting, I asked for two
+weeks to run a small pilot with just my own section of 15 members, and I promised to revert to
+the old paper sign-in sheet immediately if it caused problems. During the pilot I sat with the
+three members who were least comfortable with the tool and rebuilt onboarding around their
+confusion points — mainly, they didn't know they needed to react to a message rather than type
+a command. I rewrote the bot's welcome message around that single insight. When I brought the
+pilot's 100% adoption rate and zero complaints back to the exco, they approved a full rollout.
+The experience reshaped how I handle disagreement: instead of trying to win an argument with a
+better pitch, I try to shrink the risk of being wrong down to something small enough that people
+are willing to let me test it.

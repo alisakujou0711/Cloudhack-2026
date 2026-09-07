@@ -1,0 +1,28 @@
+Name: Wei Ling Tan
+Education Level: Junior College / Pre-University
+GPA: 3.85
+
+Subjects:
+Mathematics
+Additional Mathematics
+Physics
+Computing
+
+Extracurriculars:
+- President of school's Computing & Robotics Club (2 years)
+- Placed 3rd nationally in the Singapore National Olympiad in Informatics (NOI)
+- Built and open-sourced a study-scheduling web app used by 300+ students across 3 junior colleges
+- Volunteer coding instructor for a weekend program teaching Scratch to primary school students
+- Represented school at the National STEM competition, won Merit award for a water-quality sensor project
+
+Essay:
+When I was fourteen, I taught myself Python by rewriting a broken attendance spreadsheet macro that our
+CCA teacher-in-charge had given up on. That small fix turned into a habit: I now look for the clumsy,
+manual processes around me and ask whether code could do it better. Leading my school's Computing Club
+taught me that the hardest part of a project is rarely the algorithm — it's convincing five other people
+to agree on a data model at 9pm before a deadline. Competing in NOI pushed me to think about efficiency
+not as an afterthought but as a design constraint from the very first line of code. I want to study
+Computer Science at NUS because I am drawn to the intersection of systems programming and applied AI,
+and because Singapore's tech ecosystem gives me a direct path from classroom ideas to real deployed
+products. Beyond the degree, I want to keep building tools that quietly remove friction from students'
+lives, the same way that first spreadsheet fix did for my CCA.

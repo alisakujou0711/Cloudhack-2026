@@ -1,0 +1,26 @@
+Company: Stripe
+Role: Software Engineering Intern
+
+--------------------------------------------------
+Prompt: Cover letter
+--------------------------------------------------
+Dear Hiring Manager,
+
+I'm writing to apply for the Software Engineering Intern role on the Payments Infrastructure
+team at Stripe. I'm currently a third-year Computer Science student, and over the past year I've
+worked on a few backend-focused projects, including a booking platform that automated
+scheduling for a local business and reduced their manual admin work noticeably. I'm comfortable
+with Python and JavaScript, and I've recently been learning Go because I'm interested in the
+kind of distributed systems work Stripe is known for.
+
+What draws me to Stripe specifically is the emphasis on developer experience — I've used the
+Stripe API in a side project and was impressed by how clear the documentation and error messages
+were compared to other payment providers I've tried. I'd like to contribute to that same quality
+bar as an intern, whether that's on the API surface itself or the internal tooling that supports
+it.
+
+I've attached my resume, which goes into more detail on my projects and coursework. I'd welcome
+the chance to talk more about how I could contribute to the team.
+
+Sincerely,
+Alex Chen

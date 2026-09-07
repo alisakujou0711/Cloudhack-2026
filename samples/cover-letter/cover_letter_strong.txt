@@ -1,0 +1,32 @@
+Company: Stripe
+Role: Software Engineering Intern
+
+--------------------------------------------------
+Prompt: Cover letter
+--------------------------------------------------
+Dear Hiring Manager,
+
+Last semester I rebuilt my university coding club's event registration flow after it silently
+double-charged three students during a ticket sale — the culprit was a missing idempotency check
+on a retried POST request. Tracing that bug is what got me genuinely interested in payments
+infrastructure rather than just backend development in general, and it's why I'm applying for
+the Software Engineering Intern role on Stripe's Payments Infrastructure team.
+
+Since then I've leaned into that interest deliberately. I built a small idempotent job queue in
+Go as a personal project to understand the pattern properly, and I've been reading through
+Stripe's engineering blog posts on API design — your writeup on how idempotency keys are scoped
+per API key directly shaped how I redesigned my club's system. In parallel, I led a team of four
+to build a full-stack booking platform for a local tuition centre that now handles 200+ bookings
+a month; my main contribution was the payment integration layer, where I had to reason carefully
+about what happens when a webhook arrives before the client-side confirmation does.
+
+I'm comfortable in Python, TypeScript, and Go, and I'm most excited by the parts of engineering
+that involve reasoning about correctness under concurrency and failure — which is exactly the
+kind of problem I understand Stripe's infrastructure teams work on daily. I'd welcome the chance
+to bring that same care to a team whose API documentation I've personally relied on and admired.
+
+My resume is attached with more detail on these projects. Thank you for considering my
+application — I'd be glad to discuss further.
+
+Sincerely,
+Alex Chen

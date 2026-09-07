@@ -1,0 +1,32 @@
+Rachel Ong
+rachel.ong99@example.com | Singapore | +65 8234 5678
+
+Objective: Seeking a Data Analyst internship where I can apply my skills.
+
+Education
+Nanyang Technological University, Bachelor of Business (Analytics), Year 3
+Current GPA: 3.6/5.0
+
+Experience
+Retail Assistant, FairPrice (Part-time, Jun 2024 – Present)
+- Responsible for restocking shelves and helping customers.
+- Handled cash register during peak hours.
+- Trained 3 new part-time staff on store procedures.
+
+Marketing Intern, Local Bubble Tea Startup (Internship, May 2025 – Aug 2025)
+- Helped run the company's Instagram account and posted content regularly.
+- Analyzed sales data in Excel to see which drinks were popular.
+- Assisted with a promotion campaign that increased weekend sales.
+
+Projects
+NTU Business Analytics Capstone — Customer Churn Analysis
+- Used Python and pandas to clean a dataset of telecom customers.
+- Built a logistic regression model to predict churn.
+- Presented results to class.
+
+Skills
+Excel, Python (pandas, matplotlib), SQL (basic), PowerPoint, Canva
+
+Activities
+- Member, NTU Business Analytics Club
+- Volunteer, school open house (2 years)

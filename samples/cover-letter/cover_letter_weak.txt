@@ -1,0 +1,18 @@
+Company: Stripe
+Role: Software Engineering Intern
+
+--------------------------------------------------
+Prompt: Cover letter
+--------------------------------------------------
+Dear Hiring Manager,
+
+I am writing to apply for the Software Engineering Intern position at Stripe. I am a computer
+science student and I am very interested in this opportunity. I have taken several programming
+classes and I know Python and Java. I am a hard worker and a fast learner. I think Stripe is a
+great company and I would like to work there.
+
+I am available to start immediately and can work full time during the internship period. Please
+let me know if you need any more information.
+
+Sincerely,
+Alex Chen
