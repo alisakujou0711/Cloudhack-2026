@@ -16,6 +16,7 @@ session cookie, and one state document per Account read and written over `/api/s
 | `client/src/context/AuthContext.jsx` | The session — deliberately separate from `AppContext` |
 | `client/src/context/AppContext.jsx` | Loads the document once per Account, writes it back debounced |
 | `client/src/pages/SignInPage.jsx` · `SignUpPage.jsx` | The two screens over one `AuthForm` |
+| `client/src/components/AuthForm.jsx` · `AuthShowcase.jsx` | The shared form shell, and the marked-up-draft panel beside it |
 | `client/src/App.jsx` | `gateRedirect` (`:16`) — session, then profile |
 | `client/src/api/client.js` | `credentials: 'include'` on all three transports; central 401 (`:18`) |
 | `server/test/` | Auth, state, gated endpoints, expiry and reboot, over real HTTP |
@@ -30,7 +31,8 @@ session cookie, and one state document per Account read and written over `/api/s
 3. Given an `account.id`, `AppProvider` `GET`s `/state` once (`AppContext.jsx:146`), and
    `fromDocument` (`:46`) spreads it over `defaultState()`, migrating a legacy `chatHistory`.
 4. Every mutation goes through `mutate()`: React state moves immediately and one `PUT /state` of
-   the whole document follows 800ms later (`:7`). The header renders `saveStatus`.
+   the whole document follows 800ms later (`:7`). Nothing in the UI reports the write — see
+   `docs/architecture.md`.
 5. `gateRedirect` sends no session to `/signin`, a session without a profile to `/onboarding`, and
    both to `/app`. See `docs/architecture.md`.
 6. Sign-out deletes the session row and clears the cookie; a 401 from any other endpoint clears

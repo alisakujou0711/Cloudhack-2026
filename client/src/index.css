@@ -12,7 +12,11 @@
   --danger-dark: #b91c1c;
   --danger-bg: #fef2f2;
   --optional-bg: #f4f4f6;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
   color-scheme: light;
 }
 
@@ -142,7 +146,7 @@ label {
   gap: 0.6rem;
   flex-wrap: wrap;
 }
-.file-upload-row input[type='file'] {
+.file-upload-row input[type="file"] {
   width: auto;
   padding: 0.4rem;
   font-size: 0.85rem;
@@ -230,44 +234,850 @@ label {
   width: 100%;
 }
 
-.onboarding-card h1 {
-  margin: 0 0 0.4rem;
-  font-size: 1.8rem;
-  background: linear-gradient(90deg, var(--primary), #7c3aed);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* Onboarding — the file
+   The screen someone lands on straight out of sign-in, so it keeps that screen's geometry: the
+   form on paper at the left, the ink desk at the right. What is lying on the desk has changed —
+   the stranger's draft is gone and a blank student file is in its place, filling in as the three
+   answers arrive. It is worth showing because the answers are load-bearing: the education level
+   decides which document the picker suggests first, and the location flips international
+   behaviour across seven modules. The palette is declared on .onboard, the way .auth-screen and
+   .optimize declare theirs, so the ink cannot leak into the signed-in app. */
+.onboard {
+  --on-ink: #14172b;
+  --on-paper: #fdfcf9;
+  --on-rule: rgba(20, 23, 43, 0.18);
+  --on-written: #14532d;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
-/* Sign-in / sign-up */
+/* Arriving at the page
+   One orchestrated sequence rather than an effect per element: everything rises into place once,
+   in reading order, on the mount that arriving here causes. The step comes in from
+   OnboardingPage — see the note there for why it is not set in this file. */
+.onboard-rise {
+  animation: rise-in 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 55ms);
+}
+
+.onboard-panel {
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem clamp(1.5rem, 5vw, 4rem);
+}
+
+.onboard-inner {
+  width: 100%;
+  max-width: 27rem;
+}
+
+.onboard-wordmark {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.onboard-headline {
+  margin: 1.75rem 0 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: clamp(2.05rem, 3.4vw, 2.9rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.onboard-deck {
+  margin: 0.9rem 0 0;
+  max-width: 44ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.onboard-form {
+  display: grid;
+  gap: 1.2rem;
+  margin-top: 1.9rem;
+}
+
+.onboard-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+/* The global `label` rule is a column flex box for the in-app forms; here the label is one line
+   above its own field, and the legend has to be told the same thing. */
+.onboard-label {
+  display: block;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.onboard input[type="text"],
+.onboard input:not([type]) {
+  padding: 0.72rem 0.85rem;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border-color: #d8dbe6;
+  background: #fbfbfd;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.onboard input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+}
+
+/* Education level: three options, laid out so all three are readable at once. A select would
+   hide the answer that decides which document the desk opens with. */
+.onboard-choice {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.onboard-levels {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* The global `label` rule is a column flex box; this one is a row. */
+.onboard-level {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #d8dbe6;
+  border-radius: 10px;
+  background: #fbfbfd;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+.onboard-level:hover {
+  border-color: #c3c7d6;
+  background: var(--surface);
+}
+.onboard-level.is-picked {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+/* The native control stays in the accessibility tree and keeps the keyboard behaviour; the dot
+   beside it is what is actually drawn. */
+.onboard-level input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.onboard-level-dot {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #c3c7d6;
+  border-radius: 50%;
+  background: var(--surface);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.onboard-level.is-picked .onboard-level-dot {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 3.5px var(--primary);
+}
+.onboard-level:focus-within {
+  border-color: var(--primary);
+}
+.onboard-level:focus-within .onboard-level-dot {
+  box-shadow:
+    inset 0 0 0 3.5px var(--primary),
+    0 0 0 3px rgba(79, 70, 229, 0.16);
+}
+
+/* The error answers a press, so it arrives the same way everything else on the page did. */
+.onboard .error-text {
+  animation: rise-in 300ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.onboard-submit {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 10px;
+}
+
+.onboard-footnote {
+  margin: 1.35rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* The desk */
+.onboard-desk {
+  position: relative;
+  overflow: hidden;
+  background: var(--on-ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3.5rem);
+}
+
+/* One light source, so the card reads as an object lying on a surface, not a second panel. */
+.onboard-desk::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    105% 80% at 62% 6%,
+    rgba(122, 130, 255, 0.13),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.onboard-card {
+  position: relative;
+  width: 100%;
+  max-width: 34rem;
+  margin-inline: auto;
+  padding: 2rem 2.4rem 2.3rem;
+  border-radius: 4px;
+  background: var(--on-paper);
+  color: var(--text);
+  box-shadow: 0 26px 60px -22px rgba(0, 0, 0, 0.6);
+  animation: onboard-card-in 620ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 55ms);
+}
+
+@keyframes onboard-card-in {
+  from {
+    opacity: 0;
+    transform: rotate(-3.2deg) translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-1.2deg) translateY(0);
+  }
+}
+
+.onboard-card-head {
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--on-rule);
+}
+.onboard-card-head h2 {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* Unanswered, the card shows the shape of the answer rather than a blank — so nothing on it
+   moves when the answer arrives, only its weight and colour change. */
+.onboard-card-name {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--on-rule);
+  transition: color 0.3s ease;
+}
+.onboard-card-name.is-set {
+  color: var(--on-ink);
+}
+
+.onboard-card-meta {
+  margin: 0.4rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--on-rule);
+  transition: color 0.3s ease;
+}
+.onboard-card-meta.is-set {
+  color: var(--text-muted);
+}
+
+.onboard-card-rule {
+  height: 1px;
+  margin: 1.35rem 0;
+  background: var(--on-rule);
+}
+
+.onboard-card-rows {
+  display: grid;
+  gap: 1.1rem;
+  margin: 0;
+}
+
+.onboard-card-row {
+  margin: 0;
+}
+.onboard-card-row dt {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.onboard-card-val {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--on-rule);
+}
+
+/* The consequence of an answer, written in the ink the app uses for the changes it accepts. It
+   rises on the mount its own answer causes. */
+.onboard-card-val.is-resolved {
+  color: var(--on-written);
+  font-weight: 500;
+  animation: rise-in 380ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.onboard-card-intl {
+  animation: rise-in 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.onboard-card-intl .onboard-card-val {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--text);
+}
+
+@media (max-width: 1000px) {
+  .onboard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .onboard-panel {
+    padding: 3rem 1.5rem 2.5rem;
+  }
+  .onboard-inner {
+    max-width: 30rem;
+  }
+  .onboard-desk {
+    padding: 2.5rem 1.5rem 3rem;
+  }
+  .onboard-card {
+    max-width: none;
+    animation-name: rise-in;
+  }
+}
+
+@media (max-width: 560px) {
+  .onboard-card {
+    padding: 1.5rem 1.35rem 1.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The arrival is the whole point of landing here, so under reduce the page is simply already
+     there — and the card states its consequences without announcing them. */
+  .onboard-rise,
+  .onboard .error-text,
+  .onboard-card,
+  .onboard-card-val.is-resolved,
+  .onboard-card-intl {
+    animation: none;
+  }
+  .onboard-card-name,
+  .onboard-card-meta,
+  .onboard-level,
+  .onboard-level-dot,
+  .onboard input {
+    transition: none;
+  }
+}
+
+/* Sign-in / sign-up
+   Two panels: the form on paper, and the product's own mechanic — a draft being marked up —
+   running on the ink side. The ink palette is declared on .auth-screen rather than :root so it
+   cannot leak into the signed-in app, which stays light. */
+.auth-screen {
+  --auth-ink: #14172b;
+  --auth-paper: #fdfcf9;
+  --auth-accent: #a3a8ff;
+  --auth-rule: rgba(20, 23, 43, 0.18);
+  --auth-strike: #9b3232;
+  --auth-written: #14532d;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.auth-panel {
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem clamp(1.5rem, 5vw, 4rem);
+}
+
+.auth-panel-inner {
+  width: 100%;
+  max-width: 27rem;
+}
+
+.auth-wordmark {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.auth-headline {
+  margin: 2rem 0 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: clamp(2.05rem, 3.4vw, 2.9rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.auth-deck {
+  margin: 0.9rem 0 0;
+  max-width: 44ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.auth-form {
+  display: grid;
+  gap: 1.15rem;
+  margin-top: 2.25rem;
+}
+
+.auth-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+/* The global `label` rule is a column flex box for the in-app forms; here the label is one
+   line above its own field. */
+.auth-field-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.auth-screen input[type="email"],
+.auth-screen input[type="password"],
+.auth-screen input[type="text"] {
+  padding: 0.72rem 0.85rem;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border-color: #d8dbe6;
+  background: #fbfbfd;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.auth-screen input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+}
+
+.auth-password {
+  position: relative;
+}
+.auth-password input {
+  padding-right: 4rem;
+}
+
+.auth-reveal {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.45rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.auth-reveal:hover {
+  color: var(--primary);
+  background: var(--optional-bg);
+}
+.auth-reveal:focus-visible,
+.auth-alt a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.auth-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 10px;
+}
+
 .auth-alt {
-  margin: 1.25rem 0 0;
+  margin: 1.6rem 0 0;
   font-size: 0.85rem;
   color: var(--text-muted);
-  text-align: center;
 }
 
 .auth-alt a {
   color: var(--primary);
   font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+/* The desk */
+.auth-desk {
+  position: relative;
+  overflow: hidden;
+  background: var(--auth-ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.75rem;
+  padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(2.5rem, 5vw, 4rem)
+    clamp(1.5rem, 4vw, 3.5rem);
+}
+
+/* One light source, so the page reads as an object lying on a surface, not a second panel. */
+.auth-desk::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    105% 80% at 62% 6%,
+    rgba(122, 130, 255, 0.13),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.auth-desk-lede {
+  position: relative;
+  margin: 0;
+  max-width: 42ch;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--auth-accent);
+}
+
+.auth-page {
+  position: relative;
+  width: calc(100% + 5rem);
+  padding: 1.75rem 2.25rem 3.25rem;
+  border-radius: 4px;
+  background: var(--auth-paper);
+  color: var(--text);
+  box-shadow: 0 26px 60px -22px rgba(0, 0, 0, 0.6);
+  transform: rotate(-1.3deg);
+  animation: auth-page-in 620ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+/* The page carries on past what fits — the fade says so without inventing more text. */
+.auth-page::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4.25rem;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(
+    to bottom,
+    rgba(253, 252, 249, 0),
+    var(--auth-paper) 78%
+  );
+  pointer-events: none;
+}
+
+@keyframes auth-page-in {
+  from {
+    opacity: 0;
+    transform: rotate(-3.4deg) translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-1.3deg) translateY(0);
+  }
+}
+
+.auth-page-head {
+  margin-bottom: 1.4rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--auth-rule);
+}
+.auth-page-head h2 {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.auth-page-head p {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.auth-page-body {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  transition: opacity 0.4s ease;
+}
+.auth-page-body.is-resetting {
+  opacity: 0;
+}
+
+/* The margin rule the annotations hang against, drawn once down the whole page. */
+.auth-page-body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 8.5rem;
+  width: 1px;
+  background: var(--auth-rule);
+}
+
+.auth-para {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 0 1.4rem;
+  align-items: start;
+}
+
+.auth-note {
+  margin: 0;
+  padding-right: 0.9rem;
+  text-align: right;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.45s ease 0.1s;
+}
+.auth-para.is-striking .auth-note,
+.auth-para.is-typing .auth-note,
+.auth-para.is-applied .auth-note {
+  opacity: 1;
+}
+
+.auth-lines {
+  max-width: 27rem;
+}
+
+.auth-line {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 0.98rem;
+  line-height: 1.62;
+}
+
+/* The tint rides on the span, not the paragraph, so it hugs the words as they are written and
+   still follows the shape of a line that wraps. */
+.auth-line > span:first-child {
+  padding: 0.1rem 0.3rem;
+  margin-left: -0.3rem;
+  border-radius: 4px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.auth-line-original span {
+  color: var(--text);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: transparent;
+  transition:
+    color 0.35s ease,
+    background 0.35s ease,
+    text-decoration-color 0.45s ease;
+}
+.auth-para.is-striking .auth-line-original span,
+.auth-para.is-typing .auth-line-original span,
+.auth-para.is-applied .auth-line-original span {
+  color: var(--auth-strike);
+  background: var(--danger-bg);
+  text-decoration-color: rgba(220, 38, 38, 0.55);
+}
+
+.auth-line-revised {
+  margin-top: 0.35rem;
+}
+.auth-ink {
+  color: var(--auth-written);
+  background: var(--success-bg);
+}
+.auth-ink:empty {
+  padding: 0;
+  background: none;
+}
+.auth-ghost {
+  visibility: hidden;
+}
+
+.auth-caret {
+  display: inline-block;
+  width: 2px;
+  height: 0.95em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: var(--auth-written);
+  animation: auth-caret 1s linear infinite;
+}
+
+@keyframes auth-caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1000px) {
+  .auth-screen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .auth-panel {
+    padding: 3rem 1.5rem 2.75rem;
+  }
+  .auth-panel-inner {
+    max-width: 30rem;
+  }
+  .auth-desk {
+    padding: 2.75rem 1.5rem 3rem;
+  }
+  .auth-page {
+    width: 100%;
+    transform: none;
+    padding: 1.75rem 1.5rem 3rem;
+    animation-name: auth-page-in-flat;
+  }
+  .auth-page-body::before {
+    display: none;
+  }
+  .auth-para {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+  }
+  .auth-lines {
+    order: 1;
+  }
+  .auth-note {
+    order: 2;
+    padding: 0 0 0 0.75rem;
+    text-align: left;
+    border-left: 2px solid var(--auth-rule);
+  }
+  .auth-note:empty {
+    display: none;
+  }
+}
+
+@keyframes auth-page-in-flat {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-page {
+    animation: none;
+  }
+  .auth-caret {
+    display: none;
+  }
+  .auth-line-original span,
+  .auth-note,
+  .auth-screen input {
+    transition: none;
+  }
 }
 
 /* Layout */
+/* The shell owns the height and .app-main does the scrolling, not the window. A native scrollbar
+   appearing only on the long pages moved the centred column and every fixed control sideways as
+   you crossed between tabs; keeping the scroll inside a container whose scrollbar is hidden means
+   nothing shifts and the chatbot button sits in the same place everywhere. */
 .app-shell {
-  min-height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .app-header {
   display: flex;
   align-items: center;
   gap: 2rem;
+  flex-wrap: wrap;
   padding: 1rem 2rem;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   z-index: 5;
 }
 
@@ -281,6 +1091,26 @@ label {
   display: flex;
   gap: 0.5rem;
   flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+.tab {
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .app-header {
+    gap: 0.75rem 1rem;
+    padding: 0.85rem 1rem;
+  }
+  .tabs {
+    order: 3;
+    flex-basis: 100%;
+  }
 }
 
 .tab {
@@ -311,18 +1141,23 @@ label {
   font-weight: 600;
 }
 
-.save-status {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.save-status.is-error {
-  color: var(--danger);
-}
-
 .app-main {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Hidden, not absent: the region still scrolls by wheel, trackpad, keyboard and touch. */
+  scrollbar-width: none;
+}
+.app-main::-webkit-scrollbar {
+  display: none;
+}
+
+/* The scroller is full width so the wheel works anywhere on the page; the column inside it is
+   what stays centred and capped. */
+.app-main-inner {
   padding: 2rem;
+  min-width: 0;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -338,6 +1173,12 @@ label {
 @media (max-width: 900px) {
   .page-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .app-main-inner {
+    padding: 1.5rem 1rem 2rem;
   }
 }
 
@@ -523,7 +1364,7 @@ label {
   position: relative;
 }
 .plain-bullet::before {
-  content: '•';
+  content: "•";
   position: absolute;
   left: 0;
   color: var(--text-muted);
@@ -803,17 +1644,7 @@ label {
   flex: 1;
 }
 
-/* Application Optimization: upload + type picker */
-.optimize-upload-card {
-  margin-bottom: 1.25rem;
-}
-.optimize-type-card {
-  margin-bottom: 1.25rem;
-}
-.optimize-type-card h3 {
-  margin-top: 0;
-}
-
+/* Inspirations mode switcher (these tiles used to serve the optimization type picker too) */
 .type-option-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -880,25 +1711,779 @@ label {
   gap: 0.6rem;
 }
 
-.optimize-panel {
-  margin-top: 0.5rem;
+/* Application Optimization — the desk
+   The signed-in app is cool grey and indigo everywhere else. This one page carries the manuscript
+   palette inward from the sign-in screen, because it is the only place a student's own document
+   is the subject rather than the input. Declared on .optimize, the way .auth-screen declares its
+   own, so it cannot leak into History or Interviews. */
+.optimize {
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  --o-ink: #14172b;
+  --o-paper: #fcfaf4;
+  --o-rule: rgba(20, 23, 43, 0.14);
+  --o-graphite: #a8a294;
+  --o-strike: #9b3232;
+  --o-written: #14532d;
 }
-.change-type-link {
-  display: inline-block;
+
+.desk {
+  max-width: 70rem;
+}
+
+.desk-headline {
+  margin: 0.25rem 0 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.95rem, 3.2vw, 2.7rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--o-ink);
+  text-wrap: balance;
+}
+
+.desk-deck {
+  margin: 0.85rem 0 0;
+  max-width: 54ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.specimen-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 2.75rem;
+}
+
+/* The four documents, as paper */
+.specimen-option {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0;
+  background: none;
+  border: none;
+  text-align: left;
+  color: inherit;
+  border-radius: 6px;
+}
+.specimen-option:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 6px;
+}
+
+.specimen-frame {
+  position: relative;
+  display: block;
   margin-bottom: 0.75rem;
-  font-size: 0.85rem;
+  background: var(--o-paper);
+  border: 1px solid var(--o-rule);
+  /* Paper has corners. The rest of the app rounds to 14px; this deliberately does not. */
+  border-radius: 2px;
+  box-shadow:
+    0 1px 1px rgba(20, 23, 43, 0.05),
+    0 10px 20px -14px rgba(20, 23, 43, 0.45);
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1),
+    box-shadow 0.22s ease;
+}
+.specimen-option:hover .specimen-frame,
+.specimen-option:focus-visible .specimen-frame {
+  transform: translateY(-4px);
+  box-shadow:
+    0 2px 2px rgba(20, 23, 43, 0.05),
+    0 20px 32px -18px rgba(20, 23, 43, 0.5);
 }
 
-.doc-uploader-prompt {
-  font-weight: 700;
+/* A ribbon hung over the top edge of the one we would open first. */
+.specimen-option.is-suggested .specimen-frame::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: 1.15rem;
+  width: 1.35rem;
+  height: 1.9rem;
+  background: var(--primary);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%);
+}
+
+/* Always present, only sometimes filled, so all four document names share one baseline. */
+.specimen-suggested {
+  min-height: 1.05rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.specimen-name {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--o-ink);
+  letter-spacing: -0.005em;
+}
+
+.specimen-promise {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  max-width: 32ch;
+}
+
+.specimen {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.spec-paper {
+  fill: var(--o-paper);
+}
+.spec-head {
+  fill: rgba(20, 23, 43, 0.68);
+}
+.spec-body {
+  fill: rgba(20, 23, 43, 0.24);
+}
+.spec-dot {
+  fill: rgba(20, 23, 43, 0.34);
+}
+.spec-grade {
+  fill: rgba(20, 23, 43, 0.42);
+}
+.spec-rule {
+  stroke: var(--o-rule);
+  stroke-width: 1;
+}
+/* Ruled paper's margin is drawn in red, and so is this one. */
+.spec-margin {
+  stroke: rgba(155, 50, 50, 0.3);
+}
+.spec-cut {
+  fill: rgba(155, 50, 50, 0.28);
+}
+.spec-strike {
+  stroke: var(--o-strike);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.spec-written {
+  fill: rgba(20, 83, 45, 0.5);
+}
+.spec-tick-field {
+  fill: rgba(20, 83, 45, 0.1);
+}
+.spec-tick {
+  fill: none;
+  stroke: var(--o-written);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.spec-leader {
+  fill: none;
+  stroke: rgba(155, 50, 50, 0.45);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.spec-signature {
+  fill: none;
+  stroke: rgba(20, 23, 43, 0.45);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.spec-note-dot {
+  fill: rgba(155, 50, 50, 0.25);
+}
+.spec-note-field {
+  fill: rgba(155, 50, 50, 0.07);
+}
+
+/* Hovering a specimen replays the mark being made on it — the product's own mechanic, previewed
+   on the document it belongs to. */
+.spec-mark > * {
+  transform-box: fill-box;
+}
+.specimen-option:hover .spec-strike,
+.specimen-option:focus-visible .spec-strike,
+.specimen-option:hover .spec-cut,
+.specimen-option:focus-visible .spec-cut,
+.specimen-option:hover .spec-written,
+.specimen-option:focus-visible .spec-written,
+.specimen-option:hover .spec-note-field,
+.specimen-option:focus-visible .spec-note-field {
+  transform-origin: left center;
+  animation: spec-sweep 480ms cubic-bezier(0.3, 0.8, 0.4, 1) both;
+}
+.specimen-option:hover .spec-written,
+.specimen-option:focus-visible .spec-written {
+  animation-delay: 260ms;
+}
+.specimen-option:hover .spec-tick,
+.specimen-option:focus-visible .spec-tick,
+.specimen-option:hover .spec-signature,
+.specimen-option:focus-visible .spec-signature {
+  stroke-dasharray: 44;
+  animation: spec-draw 620ms ease-out both;
+}
+
+@keyframes spec-sweep {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes spec-draw {
+  from {
+    stroke-dashoffset: 44;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (max-width: 1080px) {
+  .specimen-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
+  }
+}
+@media (max-width: 560px) {
+  .specimen-grid {
+    grid-template-columns: 1fr;
+  }
+  .specimen-frame {
+    max-width: 11rem;
+  }
+}
+
+/* The rail: once a document is open, the picker becomes a way back and a way across. */
+.optimize-panel {
+  margin-top: 0;
+}
+
+.doc-rail {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.7rem;
+  margin-bottom: 1.6rem;
+}
+
+.rail-back {
+  background: none;
+  border: none;
+  padding: 0.35rem 0;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: 4px;
+}
+.rail-back::before {
+  content: "\2190\00a0";
+}
+.rail-back:hover {
+  color: var(--o-ink);
+}
+
+.rail-tabs {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  border-left: 1px solid var(--border);
+  padding-left: 1rem;
+}
+
+.rail-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.34rem 0.75rem;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  font-family: inherit;
   font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+.rail-tab:hover:not(.is-active) {
+  background: var(--optional-bg);
+  color: var(--o-ink);
+}
+.rail-tab.is-active {
+  background: var(--o-ink);
+  color: #ffffff;
+}
+/* The form side */
+.work-card {
+  border-radius: 4px;
+  padding: 1.6rem 1.6rem 1.75rem;
+}
+
+.panel-title {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.7rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--o-ink);
+}
+
+.panel-deck {
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* Only the two-step flows get numbers, because only they are a sequence. */
+.panel-steps {
+  display: flex;
+  gap: 1.4rem;
+  list-style: none;
+  counter-reset: step;
+  margin: 1.25rem 0 0;
+  padding: 0 0 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.panel-steps li {
+  counter-increment: step;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--o-graphite);
+}
+.panel-steps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.7rem;
+}
+.panel-steps li.is-current {
+  color: var(--o-ink);
+}
+.panel-steps li.is-current::before {
+  background: var(--o-ink);
+  border-color: var(--o-ink);
+  color: #ffffff;
+}
+.panel-steps li.is-done {
+  color: var(--text-muted);
+}
+.panel-steps li.is-done::before {
+  content: "\2713";
+  background: var(--o-written);
+  border-color: var(--o-written);
+  color: #ffffff;
+}
+
+/* The native file control is the least considered thing on every one of these forms. */
+.optimize .file-upload-row input[type="file"] {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: #fbfaf6;
+  border: 1px dashed #d3d7e0;
+  border-radius: 8px;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.optimize .file-upload-row input[type="file"]:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: #fbfbff;
+}
+.optimize .file-upload-row input[type="file"]::file-selector-button {
+  margin-right: 0.7rem;
+  padding: 0.4rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--text);
-  margin: 0 0 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.placeholder-card {
-  text-align: center;
-  padding: 3rem 2rem;
+/* The markup side: paper, with the margin rule the marks hang against. */
+.markup {
+  position: relative;
+  min-height: 27rem;
+  padding: 1.5rem 1.75rem 1.9rem 2.25rem;
+  background: var(--o-paper);
+  border: 1px solid var(--o-rule);
+  border-radius: 4px;
+  box-shadow:
+    0 1px 1px rgba(20, 23, 43, 0.04),
+    0 16px 34px -26px rgba(20, 23, 43, 0.45);
+}
+.markup::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1.1rem;
+  width: 1px;
+  background: rgba(155, 50, 50, 0.16);
+}
+
+.markup-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--o-rule);
+}
+.markup-head h2 {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--o-ink);
+}
+.markup-status {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.markup-status.is-done {
+  color: var(--o-written);
+}
+
+.markup-body {
+  margin-top: 1.35rem;
+}
+
+.markup-invitation {
+  margin: 0 0 2rem;
+  max-width: 56ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* What is coming, before anything has been sent. */
+.markup-ghost {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.ghost-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.ghost-heading {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.05rem;
+  color: var(--o-graphite);
+}
+.ghost-line {
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(20, 23, 43, 0.055);
+}
+
+/* The wait, which is the one thing on this page that moves on its own: a pass being made over
+   the page, lines cut and rewritten, until the real markup arrives. */
+.pen-pass {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.pen-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.pen-line {
+  position: relative;
+  display: block;
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(20, 23, 43, 0.1);
+}
+.pen-row.is-revised .pen-line::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: var(--o-strike);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: pen-strike 4s var(--row-delay) infinite;
+}
+.pen-written {
+  display: block;
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(20, 83, 45, 0.32);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: pen-write 4s var(--row-delay) infinite;
+}
+
+@keyframes pen-strike {
+  0% {
+    transform: scaleX(0);
+  }
+  14%,
+  78% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+@keyframes pen-write {
+  0%,
+  14% {
+    transform: scaleX(0);
+  }
+  40%,
+  78% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+/* The one reveal: the markup arriving. */
+.markup-report {
+  animation: markup-in 340ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 60ms);
+}
+@keyframes markup-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.markup-report h3 {
+  margin: 1.75rem 0 0.5rem;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--o-ink);
+}
+.markup-report > div > h3:first-child {
+  margin-top: 0;
+}
+.markup-report h4 {
+  margin: 1.2rem 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.markup-report p,
+.markup-report li {
+  line-height: 1.6;
+}
+
+/* Report components, on paper: the tints they carry on a white card read as UI panels stuck onto
+   the page, so inside .markup they become the page's own annotations. */
+.markup .reviewer-note {
+  background: rgba(20, 23, 43, 0.035);
+  border-color: var(--o-rule);
+  border-radius: 4px;
+  color: var(--o-ink);
+}
+.markup .qa-item,
+.markup .checklist li {
+  background: rgba(20, 23, 43, 0.025);
+  border-color: var(--o-rule);
+  border-radius: 4px;
+}
+.markup .checklist li.met {
+  background: rgba(20, 83, 45, 0.06);
+  border-color: rgba(20, 83, 45, 0.22);
+}
+.markup .checklist li.unmet {
+  background: rgba(155, 50, 50, 0.055);
+  border-color: rgba(155, 50, 50, 0.22);
+}
+.markup .met .check-icon {
+  color: var(--o-written);
+}
+.markup .unmet .check-icon {
+  color: var(--o-strike);
+}
+/* The course being measured against is the thing the whole panel is about, so it gets the
+   page's own voice rather than sitting below the badge as body copy. */
+.markup .report-summary > p:first-of-type {
+  margin: 0.5rem 0 0.35rem;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  color: var(--o-ink);
+}
+.markup .score-line {
+  margin: 0;
+}
+
+.markup .badge {
+  background: rgba(20, 23, 43, 0.06);
+  color: var(--o-ink);
+  border-radius: 3px;
+  letter-spacing: 0;
+}
+.markup .diff-bullet {
+  background: rgba(20, 23, 43, 0.03);
+  border-radius: 4px;
+}
+.markup .qa-sample-answer {
+  background: rgba(20, 23, 43, 0.03);
+  border-radius: 4px;
+}
+
+/* Arriving at the tab
+   One orchestrated sequence per arrival rather than an effect per element: everything on screen
+   rises into place once, in reading order, and nothing repeats it on re-render. The four
+   specimens go left to right so the eye is walked across the desk; the ribbon on the suggested
+   one is placed after they have all settled, and is the only thing here that moves in order to
+   point at something.
+
+   The order is set here rather than passed down as props, so the four panels stay unaware of it.
+   `--rise-step` inherits, which is how nested content (the report inside .markup) shares its
+   container's beat instead of running ahead of it. */
+.desk-headline,
+.desk-deck,
+.specimen-option,
+.optimize-panel > .doc-rail,
+.optimize-panel .work-card,
+.optimize-panel .markup {
+  animation: rise-in 480ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 60ms);
+}
+
+.desk-deck {
+  --rise-step: 1;
+}
+.specimen-option {
+  --rise-step: 2;
+}
+.specimen-option:nth-child(2) {
+  --rise-step: 3;
+}
+.specimen-option:nth-child(3) {
+  --rise-step: 4;
+}
+.specimen-option:nth-child(4) {
+  --rise-step: 5;
+}
+
+/* Selecting a document is a change the person made, so the work answers with the same rise. The
+   rail is not remounted when they switch lanes — it stays put while the document swaps under it. */
+.optimize-panel .work-card {
+  --rise-step: 1;
+}
+.optimize-panel .markup {
+  --rise-step: 2;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.specimen-option.is-suggested .specimen-frame::before {
+  animation: ribbon-drop 420ms cubic-bezier(0.2, 0.7, 0.3, 1) 560ms both;
+}
+
+@keyframes ribbon-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-9px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .specimen-frame,
+  .rail-tab {
+    transition: none;
+  }
+  .specimen-option:hover .specimen-frame,
+  .specimen-option:focus-visible .specimen-frame {
+    transform: none;
+  }
+  .spec-mark > *,
+  .markup-report {
+    animation: none !important;
+  }
+  /* The arrival sequence is the whole point of the page load, so under reduce it does not play
+     at all — the page is simply already there. */
+  .desk-headline,
+  .desk-deck,
+  .specimen-option,
+  .optimize-panel > .doc-rail,
+  .optimize-panel .work-card,
+  .optimize-panel .markup,
+  .specimen-option.is-suggested .specimen-frame::before {
+    animation: none;
+  }
+  /* The pass still has to say that work is happening — it holds its finished state instead of
+     running. */
+  .pen-row.is-revised .pen-line::after,
+  .pen-written {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 900px) {
+  .markup {
+    min-height: 0;
+  }
 }
 
 /* Essay / cover-letter Q&A */
@@ -948,147 +2533,500 @@ label {
   border-radius: 8px;
   font-style: italic;
 }
-.interview-question strong {
-  font-style: normal;
-  color: var(--text);
+/* History — the log
+   A record, not a feed: one continuous sheet with a dated rail down its left edge and entries
+   hanging off it. Scoped on .history the way the desk is scoped on .optimize, so the ledger
+   palette cannot leak into the rest of the app. The one loud thing here is the brass marker a
+   bookmarked entry hangs on the rail; everything else is hairlines and ink. */
+.history {
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  --h-ink: #171b2e;
+  --h-mute: #6a7085;
+  --h-rule: rgba(23, 27, 46, 0.11);
+  --h-leaf: #ffffff;
+  --h-mark: #a8681c;
+  /* The desk's paper, carried over: an opened entry is the same document it was on the Optimize
+     tab, so it comes back on the same stock. */
+  --h-paper: #fcfaf4;
+  --rail: 7.5rem;
+  max-width: 58rem;
 }
 
-.save-history-btn {
-  margin-bottom: 1rem;
+/* Arriving at the tab
+   One orchestrated sequence rather than an effect per element: everything rises into place once,
+   in reading order, on the mount that clicking the tab causes. The step comes in as a variable
+   from HistoryPage, which is the only place that knows how many entries the cascade covers. */
+.history .rise {
+  animation: rise-in 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 45ms);
 }
 
-/* History */
-.history-filters {
+.log-masthead {
+  margin-bottom: 1.5rem;
+}
+.log-title {
+  margin: 0.25rem 0 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 3.2vw, 2.6rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.018em;
+  color: var(--h-ink);
+}
+.log-deck {
+  margin: 0.85rem 0 0;
+  max-width: 48ch;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--h-mute);
+}
+
+/* Filters: what you have, counted, in the order types are declared. */
+.log-filters {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 1rem 0;
   flex-wrap: wrap;
-}
-.history-bookmark-toggle {
-  display: flex;
-  align-items: center;
   gap: 0.4rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--h-rule);
 }
-.history-bookmark-toggle input {
-  width: auto;
+.log-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: transparent;
+  border: 1px solid var(--h-rule);
+  border-radius: 999px;
+  padding: 0.35rem 0.5rem 0.35rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--h-mute);
+  transition:
+    color 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease;
+}
+.log-chip:hover {
+  color: var(--h-ink);
+  border-color: rgba(23, 27, 46, 0.24);
+}
+.log-chip.is-on {
+  background: var(--h-ink);
+  border-color: var(--h-ink);
+  color: #ffffff;
+}
+.log-chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.log-chip-count {
+  min-width: 1.4rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(23, 27, 46, 0.06);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+}
+.log-chip.is-on .log-chip-count {
+  background: rgba(255, 255, 255, 0.18);
+}
+.log-chip-star {
+  color: var(--h-mark);
+}
+.log-chip-mark.is-on {
+  background: var(--h-mark);
+  border-color: var(--h-mark);
+}
+.log-chip-mark.is-on .log-chip-star {
+  color: #ffffff;
 }
 
-.history-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* The rail. The date is the structure, so it gets its own column and stays put while its own
+   entries scroll past it. */
+/* One unbroken spine down the whole log rather than a line per day, so the days read as leaves of
+   the same record. The rail width is a variable because the spine, the date column and the
+   markers all have to agree on where it is. */
+.log {
+  position: relative;
+}
+.log::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--rail);
+  width: 1px;
+  background: var(--h-rule);
+}
+.log-day {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  align-items: start;
+}
+.log-date {
+  position: sticky;
+  top: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.05rem;
+  padding: 1.1rem 1.35rem 0 0;
+  text-align: right;
 }
-.history-item-wrap {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
+.log-date-stamp {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--h-ink);
 }
-.history-item-wrap.expanded {
+.log-date-weekday {
+  font-size: 0.72rem;
+  color: var(--h-mute);
+}
+
+.log-entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.log-entry {
+  position: relative;
+}
+/* Where the entry meets the rail. */
+.log-entry::before {
+  content: "";
+  position: absolute;
+  left: -4.5px;
+  top: 1.5rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid rgba(23, 27, 46, 0.3);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+.log-entry:hover::before,
+.log-entry.is-open::before {
+  background: var(--primary);
   border-color: var(--primary);
 }
-.history-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 0.85rem 1rem;
-  flex-wrap: wrap;
-  cursor: pointer;
+.log-entry.is-open::before {
+  transform: scale(1.25);
 }
-.history-item:hover {
-  background: var(--optional-bg);
+/* A bookmark is a ribbon left in the ledger, so it shows in the margin and not only in the row. */
+.log-entry.is-marked::before {
+  display: none;
 }
-.history-item-main {
-  min-width: 0;
-}
-.history-type-badge {
-  margin-bottom: 0.35rem;
-}
-.history-item-title {
-  font-weight: 700;
-  font-size: 0.92rem;
-}
-.history-item-summary {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 0.2rem;
-}
-.history-item-date {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.35rem;
-}
-.history-item-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  align-items: flex-end;
-  flex-shrink: 0;
-}
-.history-expand-hint {
-  font-size: 0.75rem;
-  color: var(--primary);
-  font-weight: 600;
-}
-.history-item-detail {
-  border-top: 1px solid var(--border);
-  padding: 1.25rem 1.5rem;
-  background: var(--bg);
+.log-entry.is-marked::after {
+  content: "";
+  position: absolute;
+  left: -2.5px;
+  top: 1.15rem;
+  width: 5px;
+  height: 1.6rem;
+  border-radius: 1px;
+  background: var(--h-mark);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
 }
 
-/* Account documents summary */
-.account-docs-card {
-  margin-bottom: 1.25rem;
-}
-.account-docs-grid {
+.log-entry-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 1rem;
+  padding-left: 1.35rem;
+  border-radius: 10px;
+  transition: background 0.18s ease;
 }
-.account-doc {
+.log-entry + .log-entry .log-entry-row {
+  border-top: 1px solid var(--h-rule);
+}
+.log-entry-row:hover,
+.log-entry.is-open .log-entry-row {
+  background: rgba(23, 27, 46, 0.03);
+}
+
+.log-entry-open {
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 1.05rem 0 1.1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  color: inherit;
+}
+.log-entry-open:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+.log-entry-type {
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: var(--h-mute);
+}
+.log-entry-title {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  color: var(--h-ink);
+}
+.log-entry-summary {
+  margin-top: 0.2rem;
+  max-width: 68ch;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--h-mute);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+/* Open, the summary is no longer a preview of something you cannot see. */
+.log-entry.is-open .log-entry-summary {
+  -webkit-line-clamp: unset;
+}
+.log-entry-foot {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin-top: 0.45rem;
+  font-size: 0.75rem;
+  color: var(--h-mute);
+}
+.log-entry-cue {
+  font-weight: 600;
+  transition: color 0.16s ease;
+}
+.log-entry-row:hover .log-entry-cue,
+.log-entry.is-open .log-entry-cue {
+  color: var(--primary);
+}
+
+.log-entry-actions {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.75rem 0.9rem;
-  background: var(--optional-bg);
+  gap: 0.1rem;
+  padding: 1.05rem 0.4rem 0 0;
 }
-.account-doc.on-file {
-  background: var(--success-bg);
-  border-color: #bbf7d0;
+.log-mark {
+  padding: 0.3rem 0.4rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: rgba(23, 27, 46, 0.28);
+  transition:
+    color 0.16s ease,
+    background 0.16s ease,
+    transform 0.16s ease;
 }
-.account-doc-icon {
-  font-size: 1.3rem;
+.log-mark:hover {
+  color: var(--h-mark);
+  background: rgba(168, 104, 28, 0.1);
 }
-.account-doc-title {
-  font-weight: 700;
-  font-size: 0.85rem;
+.log-mark:active {
+  transform: scale(0.88);
 }
-.account-doc-status {
-  font-size: 0.78rem;
-  color: var(--text-muted);
+.log-entry.is-marked .log-mark {
+  color: var(--h-mark);
 }
-.account-doc.on-file .account-doc-status {
-  color: #15803d;
+.log-remove {
+  padding: 0.3rem 0.45rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.76rem;
   font-weight: 600;
+  color: var(--h-mute);
+}
+.log-remove:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+/* Removing is rare and permanent, so it stays out of the way until the row is under the pointer.
+   Where there is no pointer to hover with, it is simply always there. */
+@media (hover: hover) {
+  .log-remove {
+    opacity: 0;
+    transition: opacity 0.16s ease;
+  }
+  .log-entry-row:hover .log-remove,
+  .log-remove:focus-visible {
+    opacity: 1;
+  }
 }
 
-.clear-data-card {
-  margin-bottom: 1.25rem;
+/* Flush with the row it opened from, on both edges — the header and the report are one block. */
+.log-entry-detail {
+  margin: 0 0 1.25rem;
+  padding: 1.35rem 1.5rem;
+  background: var(--h-paper);
+  border: 1px solid var(--h-rule);
+  border-radius: 12px;
+  box-shadow: 0 12px 26px -22px rgba(23, 27, 46, 0.6);
+  animation: rise-in 360ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
-.clear-data-card .subtitle {
-  margin-bottom: 1rem;
+
+.log-empty {
+  max-width: 46rem;
+  padding: 2.25rem 2rem 2.5rem;
+  border: 1px dashed var(--h-rule);
+  border-radius: 14px;
 }
+.log-empty h2 {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--h-ink);
+}
+.log-empty p {
+  margin: 0.5rem 0 1.35rem;
+  max-width: 48ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--h-mute);
+}
+.log-empty .btn-primary {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* The shelf — what the account is holding, and the one way to empty it. Below the log because the
+   log is what the tab is for; the two stay adjacent because clearing wipes exactly what the
+   documents line reports. */
+.shelf {
+  margin-top: 3.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--h-rule);
+}
+.shelf-title {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--h-ink);
+}
+.shelf-deck {
+  margin: 0.35rem 0 1.25rem;
+  max-width: 56ch;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--h-mute);
+}
+.shelf-docs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.9rem;
+}
+.shelf-doc {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  background: var(--h-leaf);
+  border: 1px solid var(--h-rule);
+  border-radius: 12px;
+}
+.shelf-doc-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--h-ink);
+}
+.shelf-doc-status {
+  margin-top: 0.1rem;
+  font-size: 0.79rem;
+  color: var(--h-mute);
+}
+.shelf-doc.on-file .shelf-doc-status {
+  color: var(--h-ink);
+}
+.shelf-doc-context {
+  margin-top: 0.1rem;
+  font-size: 0.76rem;
+  color: var(--h-mute);
+}
+
+/* Uploaded or not is the whole message, so the sheet is drawn solid or dashed and sealed or not. */
+.doc-mark {
+  flex-shrink: 0;
+  width: 27px;
+  height: 35px;
+}
+.doc-mark-sheet {
+  fill: #ffffff;
+  stroke: rgba(23, 27, 46, 0.24);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+.shelf-doc.on-file .doc-mark-sheet {
+  stroke-dasharray: none;
+  stroke: rgba(23, 27, 46, 0.32);
+}
+.doc-mark-lines line {
+  stroke: rgba(23, 27, 46, 0.15);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.shelf-doc.on-file .doc-mark-lines line {
+  stroke: rgba(23, 27, 46, 0.24);
+}
+.doc-mark-seal circle {
+  fill: var(--success);
+}
+.doc-mark-seal path {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.shelf-clear {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid var(--h-rule);
+}
+.shelf-clear-copy h3 {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--h-ink);
+}
+.shelf-clear-copy p {
+  margin: 0.3rem 0 0;
+  max-width: 62ch;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--h-mute);
+}
+.shelf-clear-trigger {
+  flex-shrink: 0;
+}
+.shelf-clear-trigger:hover {
+  color: var(--danger);
+  border-color: #fecaca;
+  background: var(--danger-bg);
+}
+/* Red arrives with the irreversible step, not before it. */
 .clear-data-confirm {
+  flex-basis: 100%;
   background: var(--danger-bg);
   border: 1px solid #fecaca;
   border-radius: 10px;
@@ -1107,53 +3045,820 @@ label {
   margin-top: 0.65rem;
 }
 
-/* Inspirations */
-.inspirations-mode-grid {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+/* Narrow: the date stands above its entries instead of beside them, and the spine pulls in to the
+   edge. The rail stays, because it is what tells you this is one record. */
+@media (max-width: 720px) {
+  .history {
+    --rail: 0.55rem;
+  }
+  .log-day {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .log-date {
+    position: static;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 1.4rem 0 0.4rem calc(var(--rail) + 0.9rem);
+    text-align: left;
+  }
+  .log-entries {
+    margin-left: var(--rail);
+  }
+  .log-entry-row {
+    padding-left: 0.9rem;
+  }
+  .log-entry-detail {
+    padding: 1.1rem 1rem;
+  }
+  .log-entry-actions {
+    padding-top: 0.9rem;
+  }
+  .shelf-clear-trigger {
+    width: 100%;
+  }
 }
 
-.inspiration-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+@media (prefers-reduced-motion: reduce) {
+  /* The arrival is the whole point of opening the tab, so under reduce the page is simply
+     already there. */
+  .history .rise,
+  .log-entry-detail {
+    animation: none;
+  }
+  .log-entry-row,
+  .log-entry::before,
+  .log-entry-cue,
+  .log-chip,
+  .log-mark,
+  .log-remove {
+    transition: none;
+  }
 }
-.inspiration-card {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1rem;
+/* Interviews — the green room
+   Every other tab here is about paper: the desk marks documents up, the log files them away. This
+   is the one place where nothing is written down — you speak, at a fixed time in the future. So
+   two things carry the page: how long is left, and the lines to rehearse. Spruce is the room;
+   amber is time and nothing else; speech is set in the serif while the apparatus around it stays
+   in the sans. Scoped on .interviews and .prep-plan so none of it leaks into the rest of the app.
+   .prep-plan carries its own scope because HistoryPage renders it far from this tab. */
+.interviews,
+.prep-plan {
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  --iv-ink: #12281f;
+  --iv-ink-soft: rgba(18, 40, 31, 0.62);
+  --iv-mute: #5d6f66;
+  --iv-rule: rgba(18, 40, 31, 0.14);
+  --iv-cue: #b3701c;
+}
+
+.interviews {
+  max-width: 68rem;
+}
+
+.iv-headline {
+  margin: 0.25rem 0 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.95rem, 3.2vw, 2.7rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--iv-ink);
+  text-wrap: balance;
+}
+
+.iv-deck {
+  margin: 0.85rem 0 0;
+  max-width: 54ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--iv-mute);
+}
+
+/* Booking, and the plan it produces. No cards: hairlines and a rule between the two columns, so
+   every filled shape on the page is something you can act on. */
+.iv-body {
+  display: grid;
+  grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+  margin-top: 2.25rem;
+  padding-top: 2.25rem;
+  border-top: 1px solid var(--iv-rule);
+}
+
+.iv-form {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  background: var(--surface);
+  gap: 1.05rem;
 }
-.inspiration-card-title {
-  font-weight: 700;
-  font-size: 0.92rem;
-  line-height: 1.35;
+.interviews label {
+  color: var(--iv-mute);
 }
-.inspiration-card-theme {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  line-height: 1.45;
-  margin: 0;
-  flex: 1;
+.interviews input,
+.interviews select,
+.interviews textarea {
+  border-radius: 6px;
+  border-color: var(--iv-rule);
+  color: var(--iv-ink);
 }
-.inspiration-card-actions {
+.interviews input:focus-visible,
+.interviews select:focus-visible,
+.interviews textarea:focus-visible {
+  outline: 2px solid var(--iv-ink);
+  outline-offset: 1px;
+  border-color: var(--iv-ink);
+}
+.interviews textarea {
+  resize: vertical;
+}
+
+/* The days field carries a note under it, so it is grouped rather than left to the form's gap.
+   The note holds one line's height whatever it says, which is what keeps the button below it
+   from moving as the number is typed. */
+.iv-days-field {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.4rem;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.3rem;
 }
-.resume-card.expanded {
+.iv-days-note {
+  margin: 0;
+  min-height: 1.15rem;
+  font-size: 0.78rem;
+  line-height: 1.15rem;
+  color: var(--iv-mute);
+}
+.iv-days-note.is-short {
+  color: var(--iv-cue);
+  font-weight: 600;
+}
+
+/* The one filled control on the tab. It takes the room's shape — full width under the fields —
+   but the app's primary colour, so the button that submits a form looks the same here as it does
+   on every other tab. */
+.iv-submit {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.8rem 1.1rem;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition:
+    background 0.18s ease,
+    transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.iv-submit:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+.iv-submit:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+.iv-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.iv-plan-slot {
+  min-width: 0;
+  padding-left: 2.25rem;
+  border-left: 1px solid var(--iv-rule);
+}
+
+.plan-empty h2 {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  color: var(--iv-mute);
+}
+.plan-empty p {
+  margin: 0.55rem 0 0;
+  max-width: 44ch;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--iv-mute);
+}
+
+/* The plan */
+.plan-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--iv-rule);
+}
+.plan-target {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  color: var(--iv-ink);
+}
+
+.plan-save {
+  background: none;
+  border: 1px solid var(--iv-rule);
+  border-radius: 999px;
+  padding: 0.38rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--iv-mute);
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.plan-save:hover:not(:disabled) {
+  color: var(--iv-ink);
+  border-color: var(--iv-ink);
+}
+.plan-save:disabled {
+  color: var(--iv-ink);
+  border-color: var(--iv-ink);
+  cursor: default;
+}
+.plan-save:disabled::before {
+  content: "\2713\00a0";
+}
+
+.plan-overview {
+  margin: 1.1rem 0 0;
+  max-width: 66ch;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--iv-ink);
+}
+.prep-plan .international-note {
+  margin: 1rem 0 0;
+}
+
+.plan-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem;
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--iv-rule);
+}
+.plan-lists h3,
+.plan-timeline h3 {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--iv-ink);
+}
+
+.plan-checks {
+  list-style: none;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.plan-checks li {
+  position: relative;
+  padding-left: 1.35rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--iv-mute);
+}
+/* An empty box rather than a tick: these are things still to do, not things done. */
+.plan-checks li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1px solid var(--iv-ink-soft);
+  border-radius: 2px;
+}
+
+/* The one place on the page that is about time, and so the one place amber appears. */
+.plan-timeline {
+  margin-top: 1.75rem;
+  padding: 0.1rem 0 0.1rem 1.1rem;
+  border-left: 2px solid var(--iv-cue);
+}
+.plan-timeline p {
+  margin: 0.6rem 0 0;
+  max-width: 62ch;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--iv-mute);
+}
+
+.plan-questions {
+  margin-top: 2.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--iv-rule);
+}
+.plan-questions-title {
+  margin: 0 0 1rem;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: var(--iv-ink);
+}
+
+/* A question and its answer are spoken, so they are the two things on the page set in the serif.
+   The sample is folded away: trying the question first is the whole exercise. */
+.rehearsal {
+  padding: 1rem 1.15rem 1.1rem;
+  border: 1px solid var(--iv-rule);
+  border-radius: 8px;
+  background: var(--surface);
+  transition: border-color 0.18s ease;
+}
+.rehearsal + .rehearsal {
+  margin-top: 0.7rem;
+}
+.rehearsal.is-open {
+  border-color: var(--iv-ink-soft);
+}
+
+.rehearsal-question {
+  margin: 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--iv-ink);
+}
+.rehearsal-how {
+  margin: 0.5rem 0 0;
+  max-width: 68ch;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--iv-mute);
+}
+
+.rehearsal-toggle {
+  margin-top: 0.75rem;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--iv-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(18, 40, 31, 0.35);
+  transition: text-decoration-color 0.15s ease;
+}
+.rehearsal-toggle:hover {
+  text-decoration-color: var(--iv-ink);
+}
+.rehearsal-toggle:focus-visible {
+  outline: 2px solid var(--iv-ink);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.rehearsal-sample {
+  margin: 0.85rem 0 0;
+  padding-left: 1rem;
+  max-width: 62ch;
+  border-left: 2px solid var(--iv-ink-soft);
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--iv-ink);
+  animation: rehearsal-sample-in 240ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes rehearsal-sample-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Arriving at the tab
+   One orchestrated sequence per arrival, in reading order, on the mount that clicking the tab
+   causes. Nothing animated here is a container: the headline, every field, every button and
+   every block of the plan rises on its own, so no fade ever runs inside another fade. The steps
+   come in from InterviewsPage, which is the only place that knows what order the form ends up in
+   once a type is chosen. */
+.iv-headline,
+.iv-deck,
+.iv-form > label,
+.iv-form > .iv-days-field,
+.iv-submit,
+.plan-empty > *,
+.prep-plan > * {
+  animation: rise-in 480ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 55ms);
+}
+
+/* Once the cascade has played, the form is done animating. Changing interview type remounts only
+   the fields that have no counterpart in the other branch, and a single field fading in by itself
+   reads as a glitch rather than an arrival. The plan side is deliberately left out: it mounts in
+   answer to pressing the button, which is a change worth showing. */
+.interviews.is-arrived .iv-form > label,
+.interviews.is-arrived .iv-form > .iv-days-field,
+.interviews.is-arrived .iv-submit {
+  animation: none;
+}
+
+/* Inside History the saved plan already arrives with the row that opened it — one fade, not two. */
+.log-entry-detail .prep-plan > * {
+  animation: none;
+}
+
+@media (max-width: 900px) {
+  .iv-body {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+  }
+  .iv-plan-slot {
+    padding-left: 0;
+    padding-top: 2rem;
+    border-left: none;
+    border-top: 1px solid var(--iv-rule);
+  }
+}
+
+@media (max-width: 620px) {
+  .plan-lists {
+    grid-template-columns: 1fr;
+    gap: 1.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The arrival is the whole point of opening the tab, so under reduce the page is simply
+     already there. */
+  .iv-headline,
+  .iv-deck,
+  .iv-form > label,
+  .iv-form > .iv-days-field,
+  .iv-submit,
+  .plan-empty > *,
+  .prep-plan > *,
+  .rehearsal-sample {
+    animation: none;
+  }
+  .iv-submit,
+  .plan-save,
+  .rehearsal,
+  .rehearsal-toggle {
+    transition: none;
+  }
+  .iv-submit:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Inspirations — the anthology
+   The one tab where the work on screen is not yours. It is shelved rather than filed: two lanes
+   of pieces separated by hairlines, each led by its own opening line, with the reading itself
+   opening onto paper. Scoped on .inspirations the way the log is scoped on .history, so this
+   room's ink cannot leak into the rest of the app.
+
+   The loud thing here is the brass star. It is the same brass the History log hangs on a
+   bookmarked entry, because it is the same act — bookmarking here writes that entry. */
+.inspirations {
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  --in-ink: #221d2b;
+  --in-mute: #6f6879;
+  --in-rule: rgba(34, 29, 43, 0.13);
+  --in-mark: #a8681c;
+  /* The desk's paper, carried over: an opened piece is a document, so it arrives on the same
+     stock the Optimize tab and the History log use. */
+  --in-paper: #fcfaf4;
+  max-width: 64rem;
+  color: var(--in-ink);
+}
+
+.anth-title {
+  margin: 0.25rem 0 0;
+  max-width: 21ch;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 3.4vw, 2.85rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--in-ink);
+  white-space: nowrap;
+}
+
+.anth-deck {
+  margin: 0.85rem 0 0;
+  max-width: 56ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--in-mute);
+}
+
+/* Which lane you are reading. A rule under the pair, and the on lane draws its own segment of
+   that rule — so the switch is the page's structure rather than a control sat on top of it. */
+.anth-lanes {
+  display: flex;
+  gap: 1.75rem;
+  margin-top: 2.1rem;
+  border-bottom: 1px solid var(--in-rule);
+}
+.anth-lane {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0 0 0.7rem;
+  background: none;
+  border: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--in-mute);
+  transition: color 0.18s ease;
+}
+.anth-lane::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--in-ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.26s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.anth-lane:hover {
+  color: var(--in-ink);
+}
+.anth-lane.is-on {
+  color: var(--in-ink);
+}
+.anth-lane.is-on::after {
+  transform: scaleX(1);
+}
+.anth-lane:focus-visible {
+  outline: 2px solid var(--in-ink);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+.anth-lane-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--in-mute);
+}
+
+/* The shelf. No fills and no shadows — a piece is marked out by the rule under it and the space
+   around it, which is what keeps the quotation the only thing with weight. */
+.anth-shelf {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 2.75rem;
+}
+
+.anth-piece {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.6rem 0 1.5rem;
+  border-bottom: 1px solid var(--in-rule);
+}
+/* Reading takes the width of the spread. The pieces after it resume in the first column, which
+   is why nothing in here can depend on a piece's parity. */
+.anth-piece.is-open {
   grid-column: 1 / -1;
 }
-.inspiration-card-detail {
-  border-top: 1px solid var(--border);
-  margin-top: 0.5rem;
-  padding-top: 0.75rem;
+
+.anth-piece-open {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.55rem;
+  /* Clear of the star in the corner. */
+  padding: 0 2.4rem 0 0;
+  background: none;
+  border: none;
+  text-align: left;
+  color: inherit;
+}
+.anth-piece-open:focus-visible {
+  outline: 2px solid var(--in-ink);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.anth-head {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.32rem;
+  line-height: 1.33;
+  letter-spacing: -0.011em;
+  color: var(--in-ink);
+  text-wrap: pretty;
+}
+/* An essay is quoted, so it gets its quotation marks — and the opening one hangs into the margin
+   rather than pushing the first line in, which is the whole reason to set them in CSS. */
+.anth-head-quoted {
+  text-indent: -0.42em;
+}
+.anth-head-quoted::before {
+  content: "\201C";
+}
+.anth-head-quoted::after {
+  content: "\201D";
+}
+
+.anth-blurb {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--in-mute);
+}
+
+/* Credit and the way in, on one baseline at the foot of the piece — pushed there by the margin
+   so neighbouring pieces of different lengths still line their feet up. */
+.anth-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.95rem;
+}
+.anth-credit {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--in-mute);
+}
+.anth-cue {
+  flex: none;
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--in-rule);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--in-ink);
+  transition: border-color 0.18s ease;
+}
+.anth-piece-open:hover .anth-cue,
+.anth-piece-open:focus-visible .anth-cue {
+  border-bottom-color: var(--in-ink);
+}
+
+.anth-mark {
+  position: absolute;
+  top: 1.4rem;
+  right: 0;
+  padding: 0.25rem 0.35rem;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: rgba(34, 29, 43, 0.34);
+  transition:
+    color 0.16s ease,
+    background 0.16s ease,
+    transform 0.16s ease;
+}
+.anth-mark:hover {
+  color: var(--in-mark);
+  background: rgba(168, 104, 28, 0.1);
+}
+.anth-mark:active {
+  transform: scale(0.88);
+}
+.anth-mark:focus-visible {
+  outline: 2px solid var(--in-mark);
+  outline-offset: 2px;
+}
+.anth-piece.is-marked .anth-mark {
+  color: var(--in-mark);
+}
+
+/* Opening a piece is a change the person made, so the paper answers with the same rise. The
+   sheet is sized to its measure rather than to the spread — a page laid on the shelf, not a
+   column of prose stranded on the left of a wide one. */
+.anth-pane {
+  max-width: 41rem;
+  margin-top: 1.5rem;
+  padding: 1.85rem 2rem;
+  background: var(--in-paper);
+  border: 1px solid var(--in-rule);
+  border-radius: 3px;
+  animation: rise-in 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+/* EssayView and SampleResumeView are shared with the History log, so they stay pure renderers and
+   the room corrects them from outside: the app's grey rules become this room's, and the essay is
+   set to be read rather than scanned. */
+.inspirations .sample-resume-header {
+  border-bottom-color: var(--in-rule);
+}
+/* The essay's own header restates the title, university and theme that the piece it opened from
+   is already showing an inch above it. History opens the same entry cold and still needs that
+   header, so it is hidden here rather than dropped from the shared renderer. A resume's header
+   carries the applicant's name, which nothing above it does, so that one stays. */
+.inspirations .sample-essay-header {
+  display: none;
+}
+.inspirations .sample-resume-tagline,
+.inspirations .sample-resume-skills-line,
+.inspirations .sample-resume-entry-date,
+.inspirations .sample-resume-entry-org,
+.inspirations .sample-resume-note {
+  color: var(--in-mute);
+}
+.inspirations .sample-essay-body p {
+  max-width: 66ch;
+  margin: 0 0 1.05rem;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.04rem;
+  line-height: 1.72;
+}
+.inspirations .sample-resume-name {
+  font-size: 1.15rem;
+}
+.inspirations .anth-pane h4 {
+  margin: 1.35rem 0 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--in-mute);
+}
+.inspirations .anth-pane li,
+.inspirations .anth-pane p {
+  line-height: 1.6;
+}
+
+/* Arriving at the tab
+   One orchestrated sequence rather than an effect per element: the masthead, the switch, then
+   every piece in reading order, on the mount that clicking the tab causes. A piece rises whole —
+   its quotation, credit, cue and star travel together, because a fade running inside a fade reads
+   as two things arriving instead of one. */
+.inspirations .anth-title,
+.inspirations .anth-deck,
+.inspirations .anth-lanes,
+.inspirations .anth-piece {
+  animation: rise-in 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 45ms);
+}
+
+@media (max-width: 820px) {
+  .anth-shelf {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .anth-lanes {
+    gap: 1.25rem;
+  }
+  .anth-pane {
+    padding: 1.3rem 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The arrival is the whole point of opening the tab, so under reduce the page is simply
+     already there. */
+  .inspirations .anth-title,
+  .inspirations .anth-deck,
+  .inspirations .anth-lanes,
+  .inspirations .anth-piece,
+  .anth-pane {
+    animation: none;
+  }
+  .anth-lane,
+  .anth-lane::after,
+  .anth-cue,
+  .anth-mark {
+    transition: none;
+  }
+  .anth-mark:active {
+    transform: none;
+  }
 }
 
 .sample-essay-header {

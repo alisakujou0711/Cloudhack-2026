@@ -7,7 +7,8 @@ export default function SignInPage() {
 
   return (
     <AuthForm
-      subtitle="Sign in to pick up your applications where you left off."
+      headline="Your drafts are where you left them."
+      subtitle="Sign in to pick up your applications, your feedback, and everything already in your history."
       submitLabel="Sign in"
       pendingLabel="Signing in..."
       passwordAutoComplete="current-password"

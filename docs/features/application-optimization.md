@@ -9,6 +9,8 @@ upload widget they share; each panel has its own doc.
 | Path | Role |
 | --- | --- |
 | `client/src/pages/ApplicationOptimizationPage.jsx` | Type picker, panel mount, `onComplete` into History |
+| `client/src/components/optimize/DocumentSpecimen.jsx` | The four drawn paper miniatures the picker and nothing else uses |
+| `client/src/components/optimize/MarkupPanel.jsx` | Shared report column: empty / working / marked |
 | `client/src/components/optimize/DocumentUploader.jsx` | Shared upload + classify + mismatch confirm |
 | `client/src/components/optimize/UniversityPanel.jsx` | see `docs/features/university-application.md` |
 | `client/src/components/optimize/InternshipPanel.jsx` | see `docs/features/internship-resume.md` |
@@ -17,14 +19,32 @@ upload widget they share; each panel has its own doc.
 
 ## Flow
 
-1. `TYPE_OPTIONS` renders four tiles (university / internship / essay / coverLetter). The tile
-   matching `suggestedOptimizationType` is badged "Suggested for you" until a choice is made.
-2. Selecting a type mounts that panel plus a "Change type" link. `selectedType` is **local
-   component state** and resets on navigation, deliberately — the panels' form data is what
-   persists, in `AppContext`.
-3. The panel does its own upload, form, API call, and renders its own report into a second card
-   beside the form (`.page-grid` is the two-column layout).
+1. With nothing selected the page is the **desk**: a headline addressed to the student by name and
+   `TYPE_OPTIONS` as four `DocumentSpecimen` miniatures (university / internship / essay /
+   coverLetter). The one matching `suggestedOptimizationType` carries a ribbon and the line
+   "Suggested for you"; that line's slot is rendered on all four so the names share a baseline.
+2. Selecting a type replaces the desk with `.doc-rail` — "All documents" back to the desk, plus a
+   tab per type, so lanes are switched directly rather than deselected first. `selectedType` is
+   **local component state** and resets on navigation, deliberately; the panels' form data is what
+   persists, in `AppContext`, so switching lanes loses nothing.
+3. The panel does its own upload, form and API call, and passes its result to `MarkupPanel` beside
+   the form (`.page-grid` is the two-column layout).
 4. On success the panel calls `onComplete(entry)`, which is `addHistoryEntry`.
+
+## MarkupPanel
+
+The right-hand column of all four panels. Props: `title`, `loading`, `loadingLabel`,
+`invitation`, `sections` (the headings the report will arrive under), `result`, `children`. It
+derives one of three states from `loading` and `result`:
+
+- **empty** — the `invitation` plus a ghost of `sections`, so the column describes the work that
+  is coming instead of reading "Report / Submit your … to see feedback".
+- **working** — `PenPass`, ruled lines being struck and rewritten, only while a request is in
+  flight.
+- **marked** — `children`, revealed once.
+
+Pass `result` as **null** whenever the report cannot render (`InternshipPanel` passes null unless
+`sections` is present), or the panel shows an empty markup state instead of the invitation.
 
 ## onComplete contract
 
@@ -63,5 +83,17 @@ a different file" link. Accepted: `.pdf`, `.docx`, `.txt`, `.md`. See
 - Each panel owns its own upload — there is no single shared up-front upload, and the panels
   differ in what they do with the extracted text.
 - Extracted text always lands in an **editable** field; nothing is submitted straight from a file.
-- A new optimization type needs: a tile in `TYPE_OPTIONS`, a panel, an `expectedType` the
-  classifier can actually predict, and its `type` registered in `HistoryPage`.
+- A new optimization type needs: an entry in `TYPE_OPTIONS`, a case in `DocumentSpecimen`'s
+  `SPECIMENS` map, a panel, an `expectedType` the classifier can actually predict, and its `type`
+  registered in `HistoryPage`.
+- **Arriving at the tab plays one sequence, not an effect per element.** `rise-in` staggers the
+  desk (headline, deck, then the four specimens left to right) off `--rise-step`, set in CSS so
+  the panels never pass ordering as props; `--rise-step` inherits, which is how `.markup-report`
+  shares `.markup`'s beat instead of running ahead of it. Selecting a lane replays it for the work
+  card and markup only — `.doc-rail` is not remounted, so it stays put while the document swaps
+  under it. `prefers-reduced-motion` drops the whole sequence rather than shortening it.
+- The page carries the sign-in screen's manuscript palette (ink / paper / strike / written),
+  declared on `.optimize` rather than `:root` so it cannot leak into the other tabs. `.markup`
+  retints the shared report components — `.reviewer-note`, `.checklist`, `.badge`, `.qa-item` —
+  because their cool tints read as UI panels stuck onto paper.
+- `.type-option*` in `index.css` now serves only the Inspirations mode switcher.

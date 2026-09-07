@@ -69,8 +69,6 @@ export function AppProvider({ children }) {
   // 'idle' with no session, then 'loading' -> 'ready' | 'error'. Nothing may judge the profile
   // gate before this reaches 'ready'.
   const [loadStatus, setLoadStatus] = useState('idle');
-  // What the header reports: 'idle' | 'pending' | 'saving' | 'saved' | 'error'.
-  const [saveStatus, setSaveStatus] = useState('idle');
   const [loadAttempt, setLoadAttempt] = useState(0);
 
   // The whole document goes up on every save, so the write reads the newest state at flush time
@@ -88,17 +86,12 @@ export function AppProvider({ children }) {
 
   const runSave = useCallback((forAccountId) => {
     if (!forAccountId || savingFor.current !== forAccountId) return;
-    setSaveStatus('saving');
     const request = api
       .saveState(latestState.current)
-      .then(() => {
-        if (savingFor.current === forAccountId) setSaveStatus('saved');
-      })
       .catch((err) => {
-        // A 401 is already handled centrally by the API client; anything else stays on screen as
-        // an unsettled save rather than interrupting whatever the person is doing.
+        // A 401 is already handled centrally by the API client; anything else is logged and left
+        // alone rather than interrupting whatever the person is doing.
         console.warn('Failed to save your work', err);
-        if (savingFor.current === forAccountId) setSaveStatus('error');
       })
       .finally(() => {
         if (inFlightSave.current === request) inFlightSave.current = null;
@@ -117,7 +110,6 @@ export function AppProvider({ children }) {
   const scheduleSave = useCallback(() => {
     const forAccountId = savingFor.current;
     if (!forAccountId) return;
-    setSaveStatus('pending');
     cancelPendingSave();
     saveTimer.current = setTimeout(() => {
       saveTimer.current = null;
@@ -136,13 +128,11 @@ export function AppProvider({ children }) {
     if (!accountId) {
       setState(defaultState());
       setLoadStatus('idle');
-      setSaveStatus('idle');
       return undefined;
     }
 
     let cancelled = false;
     setLoadStatus('loading');
-    setSaveStatus('idle');
     api
       .getState()
       .then((document) => {
@@ -211,33 +201,27 @@ export function AppProvider({ children }) {
     if (!forAccountId) return;
     // A queued write still holds the document being cleared and would put it straight back.
     const hadQueuedWrite = Boolean(saveTimer.current);
-    const statusBeforeClearing = saveStatus;
     cancelPendingSave();
-    setSaveStatus('saving');
     // One already on the wire cannot be cancelled, only outlasted: a PUT that reached the server
     // after the DELETE would silently restore everything. Waiting orders the two.
     if (inFlightSave.current) await inFlightSave.current;
     try {
       await api.clearState();
     } catch (err) {
-      // Nothing was cleared, so the document still stands. The header goes back to what it was
-      // saying — a dropped write is re-queued, and with none queued there was nothing
-      // outstanding — and the History page reports the failure itself.
+      // Nothing was cleared, so the document still stands: a dropped write is re-queued, and the
+      // History page reports the failure itself.
       if (hadQueuedWrite) scheduleSave();
-      else setSaveStatus(statusBeforeClearing);
       throw err;
     }
     if (savingFor.current !== forAccountId) return;
     // The server is already at the empty document, so this moves state without scheduling a
     // write of it — `mutate` here would save the defaults straight back over the wipe.
     setState(defaultState());
-    setSaveStatus('saved');
   };
 
   const value = {
     ...state,
     loadStatus,
-    saveStatus,
     reloadState,
     setProfile,
     setUniversityPortfolio,

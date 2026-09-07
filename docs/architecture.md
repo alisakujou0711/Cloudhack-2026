@@ -87,9 +87,9 @@ State keys (`defaultState()`): `profile`, `universityPortfolio`, `internshipPort
 - **Nothing is written to browser storage.** The `localStorage` copy was removed, not demoted to a
   cache — a cached document is stale the moment a different account signs in. See
   `docs/adr/0002-server-is-sole-source-of-truth.md` before reintroducing one.
-- Two statuses come out of the context: `loadStatus` (`idle | loading | ready | error`), which
-  gates routing, and `saveStatus` (`idle | pending | saving | saved | error`), which is what the
-  header's indicator in `Layout.jsx` reports.
+- One status comes out of the context: `loadStatus` (`idle | loading | ready | error`), which
+  gates routing. Saving is deliberately invisible — the header reports nothing, and a failed write
+  is logged to the console only.
 - Signing out cancels any queued write and resets state to defaults, so a pending save can never
   land on the account that signs in next.
 - **Clearing is a server call, not a local reset.** `clearData()` (History page, "Clear my data")
@@ -154,7 +154,14 @@ why they were merged.
 
 ## Styling
 
-One global stylesheet, `client/src/index.css` (~1230 lines), with CSS custom properties on
+The window itself does not scroll. `.app-shell` is `100dvh` with `overflow: hidden`, and
+`.app-main` is the scroll container — its scrollbar hidden, its `.app-main-inner` holding the
+centred column. A native scrollbar appearing only on the long pages used to move that column and
+every fixed control sideways as you crossed between tabs. Two consequences: scroll a page with
+`.app-main`, not `window` (`Layout.jsx` resets it to the top on every route change), and a page
+cannot rely on the document growing past the viewport.
+
+One global stylesheet, `client/src/index.css` (~2780 lines), with CSS custom properties on
 `:root` (`--bg`, `--surface`, `--border`, `--text`, `--text-muted`, `--primary`, `--success`,
 `--danger`, …) and `color-scheme: light`. Semantic class names (`.card`, `.btn-primary`,
 `.link-btn`, `.subtitle`, `.error-text`, `.badge`), no CSS modules, no utility framework, no dark

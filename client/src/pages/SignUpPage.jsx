@@ -7,6 +7,7 @@ export default function SignUpPage() {
 
   return (
     <AuthForm
+      headline="Get a second read on every draft."
       subtitle="Create an account and your profile, history, and drafts follow you rather than this browser."
       submitLabel="Create account"
       pendingLabel="Creating account..."
