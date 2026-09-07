@@ -4099,6 +4099,33 @@ label {
   margin-top: 0.25rem;
 }
 
+/* One fact and the control that changes it, on a line. The form it opens follows underneath in
+   .settings-fields, so the row keeps its position while the fields appear below it. */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.15rem;
+}
+
+.settings-row-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.settings-row-value {
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+}
+
+.settings-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
 /* Transient: it is gone again a couple of seconds later, so it sits beside the button rather
    than taking a line of its own and moving everything under it. */
 .settings-saved {

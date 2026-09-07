@@ -14,6 +14,10 @@ const SESSION_TTL_MS = Number(process.env.SESSION_TTL_MS) || THIRTY_DAYS_MS;
 // used to discover who has an account.
 const INVALID_CREDENTIALS = 'Email or password is incorrect';
 
+// Sign-up necessarily reveals that an address is taken, and so does changing to one. Only
+// sign-in has to stay silent about it.
+const EMAIL_TAKEN = 'An account with this email already exists';
+
 function httpError(status, message) {
   const err = new Error(message);
   err.status = status;
@@ -22,6 +26,13 @@ function httpError(status, message) {
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
+}
+
+// The unique index is the authority on "already taken" — a SELECT first would leave a race
+// between the check and the write. Both writers of the email column translate it the same way.
+function asEmailConflict(err) {
+  if (String(err.code).startsWith('SQLITE_CONSTRAINT')) return httpError(400, EMAIL_TAKEN);
+  return err;
 }
 
 function publicUser(row) {
@@ -48,12 +59,7 @@ function signUp({ email, password }) {
       .prepare('INSERT INTO users (email, password_hash, created_at) VALUES (?, ?, ?)')
       .run(normalized, passwordHash, new Date().toISOString());
   } catch (err) {
-    // The unique index is the authority on "already taken" — a SELECT first would leave a race
-    // between the check and the insert.
-    if (String(err.code).startsWith('SQLITE_CONSTRAINT')) {
-      throw httpError(400, 'An account with this email already exists');
-    }
-    throw err;
+    throw asEmailConflict(err);
   }
   const row = db.prepare('SELECT * FROM users WHERE id = ?').get(info.lastInsertRowid);
   // Every account owns exactly one state document from the moment it exists, so the first read
@@ -90,4 +96,33 @@ function getSessionUser(token) {
   return row ? publicUser(row) : null;
 }
 
-module.exports = { signUp, signIn, signOut, getSessionUser };
+// The account's own password, checked before a credential change. The session proves the browser
+// and nothing more: without this, an unlocked machine would be enough to take an account away
+// from its owner permanently. A 400 rather than a 401 — the session is fine, the field is wrong,
+// and the client's central "your session has ended" handling must not fire on it.
+function verifyPassword(userId, password) {
+  const row = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+  if (!row || !bcrypt.compareSync(String(password), row.password_hash)) {
+    throw httpError(400, 'Current password is incorrect');
+  }
+  return row;
+}
+
+function changeEmail({ userId, email, currentPassword }) {
+  const row = verifyPassword(userId, currentPassword);
+  const normalized = normalizeEmail(email);
+  // Sign-up can leave a blank address behind on an account nobody can reach; here it would lock
+  // the owner out of one they are already using.
+  if (!normalized) throw httpError(400, 'Enter a new email address');
+  try {
+    db.prepare('UPDATE users SET email = ? WHERE id = ?').run(normalized, userId);
+  } catch (err) {
+    throw asEmailConflict(err);
+  }
+  // Sessions key on the account, not the address, so every one of them survives this — including
+  // the one making the request, which is what keeps the student where they were. The row the
+  // password check already read differs from the stored one by exactly this address.
+  return publicUser({ ...row, email: normalized });
+}
+
+module.exports = { signUp, signIn, signOut, getSessionUser, changeEmail };

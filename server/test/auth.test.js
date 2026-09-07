@@ -158,6 +158,108 @@ test('signing back in after signing out issues a working session', async () => {
   assert.equal(me.body.user.email, 'again@example.com');
 });
 
+// Changing the address the account signs in with. The current password is required: a session
+// alone is not authority enough to take an account away from its owner.
+
+test('changing the email with the correct password updates the address and keeps the session', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'old@example.com', password: PASSWORD });
+
+  const res = await client.patch('/account/email', { email: 'new@school.edu', currentPassword: PASSWORD });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.user.email, 'new@school.edu');
+
+  const me = await client.get('/auth/me');
+  assert.equal(me.status, 200, 'the session survives the change');
+  assert.equal(me.body.user.email, 'new@school.edu');
+});
+
+test('after changing the email the new address signs in and the old one does not', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'moving@example.com', password: PASSWORD });
+  await client.patch('/account/email', { email: 'moved@example.com', currentPassword: PASSWORD });
+
+  const withNew = await harness.client().post('/auth/login', { email: 'moved@example.com', password: PASSWORD });
+  assert.equal(withNew.status, 200);
+
+  const withOld = await harness.client().post('/auth/login', { email: 'moving@example.com', password: PASSWORD });
+  assert.equal(withOld.status, 401);
+});
+
+test('changing the email with a wrong password is refused and leaves the address alone', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'guarded@example.com', password: PASSWORD });
+
+  const res = await client.patch('/account/email', {
+    email: 'stolen@example.com',
+    currentPassword: 'not-the-password',
+  });
+  assert.equal(res.status, 400, 'a wrong password is not a dead session — it belongs beside the control');
+  assert.match(res.body.error, /password/i);
+
+  const me = await client.get('/auth/me');
+  assert.equal(me.body.user.email, 'guarded@example.com');
+
+  const stolen = await harness.client().post('/auth/login', { email: 'stolen@example.com', password: PASSWORD });
+  assert.equal(stolen.status, 401, 'the address was never taken');
+});
+
+test('changing to an address another account already holds is refused with a clear message', async () => {
+  await harness.client().post('/auth/signup', { email: 'occupied@example.com', password: PASSWORD });
+
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'hopeful@example.com', password: PASSWORD });
+
+  const res = await client.patch('/account/email', {
+    email: 'occupied@example.com',
+    currentPassword: PASSWORD,
+  });
+  assert.equal(res.status, 400);
+  assert.match(res.body.error, /already exists/i);
+
+  const me = await client.get('/auth/me');
+  assert.equal(me.body.user.email, 'hopeful@example.com');
+});
+
+test('a changed email is normalised and matched case-insensitively, as sign-up is', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'plain@example.com', password: PASSWORD });
+
+  const res = await client.patch('/account/email', { email: '  Shouty@Example.COM ', currentPassword: PASSWORD });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.user.email, 'shouty@example.com');
+
+  const login = await harness.client().post('/auth/login', { email: 'SHOUTY@EXAMPLE.COM', password: PASSWORD });
+  assert.equal(login.status, 200);
+
+  const duplicate = await harness.client().post('/auth/signup', { email: 'shouty@example.com', password: PASSWORD });
+  assert.equal(duplicate.status, 400, 'the changed address is registered like any other');
+});
+
+test('changing the email without a field is rejected', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'partial@example.com', password: PASSWORD });
+
+  assert.equal((await client.patch('/account/email', { email: 'somewhere@example.com' })).status, 400);
+  assert.equal((await client.patch('/account/email', { currentPassword: PASSWORD })).status, 400);
+  // Blank once normalised: sign-up can leave an unreachable account behind, this would lock the
+  // owner out of one they are using.
+  assert.equal((await client.patch('/account/email', { email: '   ', currentPassword: PASSWORD })).status, 400);
+
+  const me = await client.get('/auth/me');
+  assert.equal(me.body.user.email, 'partial@example.com');
+});
+
+test('changing the email requires a session', async () => {
+  const res = await harness.client().patch(
+    '/account/email',
+    { email: 'stranger@example.com', currentPassword: PASSWORD },
+    { sendCookies: false },
+  );
+  assert.equal(res.status, 401);
+  assert.match(res.body.error, /auth/i);
+});
+
 test('the health check stays open — it is the one endpoint outside the gate', async () => {
   const res = await harness.client().get('/health', { sendCookies: false });
   assert.equal(res.status, 200);

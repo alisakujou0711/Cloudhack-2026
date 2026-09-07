@@ -9,7 +9,7 @@ session cookie, and one state document per Account read and written over `/api/s
 | Path | Role |
 | --- | --- |
 | `server/db.js` | Opens the SQLite file and applies the three-table schema on import |
-| `server/services/auth.js` | Hashing, sign-up / sign-in / sign-out, session tokens, `getSessionUser` |
+| `server/services/auth.js` | Hashing, sign-up / sign-in / sign-out, session tokens, `getSessionUser`, `changeEmail` |
 | `server/services/userState.js` | Read, replace, and clear the one document an Account holds |
 | `server/middleware/auth.js` | The `pp_session` cookie helpers and the `requireAuth` guard |
 | `server/routes/api.js` | The auth and state endpoints, and the `router.use(requireAuth)` line |
@@ -38,6 +38,10 @@ session cookie, and one state document per Account read and written over `/api/s
 6. Sign-out deletes the session row and clears the cookie; a 401 from any other endpoint clears
    the auth context centrally, so the same gate carries the person back to sign-in.
 7. "Clear my data" `DELETE`s the document and leaves the Account. See `docs/features/history.md`.
+8. `PATCH /account/email` changes the address the Account signs in with, after `verifyPassword`
+   checks the current one (`services/auth.js:103`). Sessions key on the Account id, so the Session
+   survives; `changeEmail` in `AuthContext` replaces the held Account from the response
+   (`AuthContext.jsx:64`).
 
 The client-side rules these steps lean on — the two gates, why auth and app state are separate
 contexts, and how a queued write stays scoped to its Account — are stated once in

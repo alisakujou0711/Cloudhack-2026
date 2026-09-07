@@ -58,6 +58,14 @@ export function AuthProvider({ children }) {
     setStatus('authenticated');
   };
 
+  // The session keys on the account rather than on the address, so it survives the change and the
+  // person stays where they were. The account object held here does not: without replacing it
+  // from the response, the avatar menu keeps offering an address that no longer signs in.
+  const changeEmail = async (email, currentPassword) => {
+    const { user } = await api.changeEmail({ email, currentPassword });
+    setAccount(user);
+  };
+
   const signOut = async () => {
     // A failed revoke must not strand someone inside the app — the local session is dropped
     // either way, and the server token expires on its own.
@@ -70,7 +78,15 @@ export function AuthProvider({ children }) {
     setStatus('anonymous');
   };
 
-  const value = { account, status, isAuthenticated: status === 'authenticated', signUp, signIn, signOut };
+  const value = {
+    account,
+    status,
+    isAuthenticated: status === 'authenticated',
+    signUp,
+    signIn,
+    signOut,
+    changeEmail,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

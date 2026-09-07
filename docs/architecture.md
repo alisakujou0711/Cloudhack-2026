@@ -168,7 +168,7 @@ every fixed control sideways as you crossed between tabs. Two consequences: scro
 `.app-main`, not `window` (`Layout.jsx` resets it to the top on every route change), and a page
 cannot rely on the document growing past the viewport.
 
-One global stylesheet, `client/src/index.css` (~2780 lines), with CSS custom properties on
+One global stylesheet, `client/src/index.css` (~4100 lines), with CSS custom properties on
 `:root` (`--bg`, `--surface`, `--border`, `--text`, `--text-muted`, `--primary`, `--success`,
 `--danger`, …) and `color-scheme: light`. Semantic class names (`.card`, `.btn-primary`,
 `.link-btn`, `.subtitle`, `.error-text`, `.badge`), no CSS modules, no utility framework, no dark

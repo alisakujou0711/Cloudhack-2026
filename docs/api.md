@@ -34,6 +34,7 @@ methods are in `client/src/api/client.js`.
 | `POST /auth/login` | `{email, password}` | `{user}` + session cookie | `auth.signIn` |
 | `POST /auth/logout` | — | `{ok: true}`, session deleted, cookie cleared | `auth.signOut` |
 | `GET /auth/me` | — | `{user}` or `401` | `auth.getSessionUser` |
+| `PATCH /account/email` | `{email, currentPassword}` — both required | `{user}` carrying the new address | `auth.changeEmail` |
 | `GET /state` | — | the account's whole state document, `{}` when nothing is saved yet | `userState.readState` |
 | `PUT /state` | the whole state document as the body | `{ok: true}`, the stored document replaced | `userState.replaceState` |
 | `DELETE /state` | — | `{ok: true}`, the document reset to the empty one a new account holds | `userState.clearState` |
@@ -59,6 +60,16 @@ methods are in `client/src/api/client.js`.
   same message, so the form can't be used to discover who has an account. Don't split them.
 - **`/auth/logout`** — deletes the session row before clearing the cookie; a captured token stops
   working immediately. It requires a session, so a signed-out client gets `401`.
+- **`/account/email`** — changes the address the account signs in with. The current password is
+  required: a session proves the browser and nothing more, and without the check an unlocked
+  machine would be enough to take an account away from its owner. A wrong one is a **`400`**, not
+  a `401` — the session is fine, the field is wrong, and the client's central session-expired
+  handling must not fire on it. The new address is normalised exactly as sign-up's is, and the
+  unique index stays the authority on "already registered": the constraint violation is caught and
+  translated, never pre-checked with a select. Revealing that an address is taken is fine here,
+  as it is at sign-up; only sign-in has to stay silent. Sessions key on the account rather than the
+  address, so all of them survive, including the one making the request — but the client must
+  replace its held account from the response or it keeps showing the old address.
 - **`/state`** — one JSON document per account, mirroring `defaultState()` in `AppContext`,
   stored opaquely: nothing on the server reads inside it. The document travels as itself in both
   directions, not wrapped in an envelope. `PUT` replaces it **wholesale** — it does not merge —

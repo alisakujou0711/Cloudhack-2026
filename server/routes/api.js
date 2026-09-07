@@ -11,7 +11,7 @@ const { classifyDocument } = require('../services/documentClassifier');
 const { assessEssays } = require('../services/essayOptimization');
 const { assessCoverLetter } = require('../services/coverLetterOptimization');
 const { prepareInterview } = require('../services/interviewPrep');
-const { signUp, signIn, signOut } = require('../services/auth');
+const { signUp, signIn, signOut, changeEmail } = require('../services/auth');
 const { readState, replaceState, clearState } = require('../services/userState');
 const {
   setSessionCookie,
@@ -77,6 +77,21 @@ router.post('/auth/logout', (req, res) => {
 
 router.get('/auth/me', (req, res) => {
   res.json({ user: req.user });
+});
+
+// The address the account signs in with. It lives in the account rather than the state document,
+// hence an endpoint of its own; why it asks for the current password is at
+// `services/auth.js:99`.
+router.patch('/account/email', (req, res) => {
+  try {
+    const { email, currentPassword } = req.body || {};
+    if (!email || !currentPassword) {
+      return res.status(400).json({ error: 'email and currentPassword are required' });
+    }
+    res.json({ user: changeEmail({ userId: req.user.id, email, currentPassword }) });
+  } catch (err) {
+    sendAuthError(res, err);
+  }
 });
 
 router.get('/state', (req, res) => {

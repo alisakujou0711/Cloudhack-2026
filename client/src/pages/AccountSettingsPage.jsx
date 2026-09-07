@@ -1,9 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useApp, EDUCATION_LEVELS } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 
 // How long the "Saved" line stays up. Long enough to be read on the way to the next thing, short
 // enough that it is gone before it becomes part of the page.
 const CONFIRMATION_MS = 2500;
+
+// A confirmation that retires itself, and can be retired early — one left standing beside a
+// control that is ready to be pressed again reads as though the next change had been saved too.
+function useConfirmation() {
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    if (!shown) return undefined;
+    const timer = setTimeout(() => setShown(false), CONFIRMATION_MS);
+    return () => clearTimeout(timer);
+  }, [shown]);
+
+  return [shown, setShown];
+}
 
 // The three profile facts, edited together and saved with one button. Saving goes through the
 // ordinary profile setter and therefore the ordinary debounced whole-document write — the button
@@ -14,13 +29,7 @@ function ProfileCard() {
   const [educationLevel, setEducationLevel] = useState(profile.educationLevel);
   const [location, setLocation] = useState(profile.location);
   const [error, setError] = useState('');
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    if (!saved) return undefined;
-    const timer = setTimeout(() => setSaved(false), CONFIRMATION_MS);
-    return () => clearTimeout(timer);
-  }, [saved]);
+  const [saved, setSaved] = useConfirmation();
 
   // Every field edit retires the confirmation: "Saved" left standing beside a freshly re-enabled
   // Save button reads as though the new edit had been saved too.
@@ -133,6 +142,130 @@ function ProfileCard() {
   );
 }
 
+// The email address is part of the account, not the profile: it is what sign-in matches, so it
+// takes an endpoint of its own rather than riding the state document's whole-document write, and
+// the form asks for the current password (`server/services/auth.js:99`).
+function AccountSecurityCard() {
+  const { account, changeEmail } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [error, setError] = useState('');
+  const [pending, setPending] = useState(false);
+  const [changed, setChanged] = useConfirmation();
+
+  const close = () => {
+    setOpen(false);
+    setEmail('');
+    setCurrentPassword('');
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const next = email.trim();
+    if (!next || !currentPassword) {
+      setError('Enter a new email address and your current password.');
+      return;
+    }
+    setError('');
+    setPending(true);
+    try {
+      await changeEmail(next, currentPassword);
+      close();
+      setChanged(true);
+    } catch (err) {
+      // Everything the endpoint refuses — a wrong password, an address someone else holds —
+      // belongs here beside the control. A dead session is the one message that arrives here
+      // without belonging to the form, and it is harmless: the API client has already cleared the
+      // auth context by the time it lands, so the routing gate is on its way out of the page.
+      setError(err.message);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <section className="card settings-card">
+      <div className="settings-card-head">
+        <h2>Account and security</h2>
+        <p className="subtitle">
+          The address you sign in with. Changing it asks for your password, and you stay signed in
+          here.
+        </p>
+      </div>
+
+      <div className="settings-row">
+        <div>
+          <p className="settings-row-label">Email address</p>
+          <p className="settings-row-value">{account?.email}</p>
+        </div>
+        <div className="settings-row-actions">
+          {changed && (
+            <span className="settings-saved" role="status">
+              Email updated
+            </span>
+          )}
+          {!open && (
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => {
+                setChanged(false);
+                setOpen(true);
+              }}
+            >
+              Change
+            </button>
+          )}
+        </div>
+      </div>
+
+      {open && (
+        <form className="settings-fields" onSubmit={handleSubmit}>
+          <label htmlFor="settings-email">
+            New email address
+            <input
+              id="settings-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              placeholder="jane@example.com"
+            />
+          </label>
+
+          <label htmlFor="settings-email-password">
+            Current password
+            <input
+              id="settings-email-password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </label>
+
+          {error && (
+            <p className="error-text" role="alert">
+              {error}
+            </p>
+          )}
+
+          <div className="settings-actions">
+            <button type="submit" className="btn-primary" disabled={pending}>
+              {pending ? 'Changing…' : 'Change email'}
+            </button>
+            <button type="button" className="btn-ghost" onClick={close} disabled={pending}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+    </section>
+  );
+}
+
 export default function AccountSettingsPage() {
   return (
     <div className="settings">
@@ -143,12 +276,7 @@ export default function AccountSettingsPage() {
 
       <ProfileCard />
 
-      {/* Filled in by the email and password controls. */}
-      <section className="card settings-card">
-        <div className="settings-card-head">
-          <h2>Account and security</h2>
-        </div>
-      </section>
+      <AccountSecurityCard />
 
       {/* Filled in by the account actions, including the ones that move here from History. */}
       <section className="card settings-card">
