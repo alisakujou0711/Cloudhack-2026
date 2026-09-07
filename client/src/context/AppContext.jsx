@@ -69,8 +69,6 @@ export function AppProvider({ children }) {
   // 'idle' with no session, then 'loading' -> 'ready' | 'error'. Nothing may judge the profile
   // gate before this reaches 'ready'.
   const [loadStatus, setLoadStatus] = useState('idle');
-  // What the header reports: 'idle' | 'pending' | 'saving' | 'saved' | 'error'.
-  const [saveStatus, setSaveStatus] = useState('idle');
   const [loadAttempt, setLoadAttempt] = useState(0);
 
   // The whole document goes up on every save, so the write reads the newest state at flush time
@@ -81,9 +79,6 @@ export function AppProvider({ children }) {
   const inFlightSave = useRef(null);
   // The account a queued or in-flight write belongs to; it must never land on the next one.
   const savingFor = useRef(null);
-  // Whether every mutation coalesced into the queued write asked to stay off the header. One loud
-  // mutation in the batch makes the whole write loud, since a single request covers them all.
-  const pendingSaveIsQuiet = useRef(true);
 
   useEffect(() => {
     latestState.current = state;
@@ -91,21 +86,12 @@ export function AppProvider({ children }) {
 
   const runSave = useCallback((forAccountId) => {
     if (!forAccountId || savingFor.current !== forAccountId) return;
-    const quiet = pendingSaveIsQuiet.current;
-    pendingSaveIsQuiet.current = true;
-    if (!quiet) setSaveStatus('saving');
     const request = api
       .saveState(latestState.current)
-      .then(() => {
-        // A quiet write leaves the header where it was — unless it is reporting a failure this
-        // write has just undone, which would be a lie the person acts on.
-        if (savingFor.current === forAccountId) setSaveStatus((prev) => (quiet && prev !== 'error' ? prev : 'saved'));
-      })
       .catch((err) => {
-        // A 401 is already handled centrally by the API client; anything else stays on screen as
-        // an unsettled save rather than interrupting whatever the person is doing.
+        // A 401 is already handled centrally by the API client; anything else is logged and left
+        // alone rather than interrupting whatever the person is doing.
         console.warn('Failed to save your work', err);
-        if (savingFor.current === forAccountId) setSaveStatus('error');
       })
       .finally(() => {
         if (inFlightSave.current === request) inFlightSave.current = null;
@@ -121,13 +107,9 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  const scheduleSave = useCallback((quiet) => {
+  const scheduleSave = useCallback(() => {
     const forAccountId = savingFor.current;
     if (!forAccountId) return;
-    if (!quiet) {
-      pendingSaveIsQuiet.current = false;
-      setSaveStatus('pending');
-    }
     cancelPendingSave();
     saveTimer.current = setTimeout(() => {
       saveTimer.current = null;
@@ -146,13 +128,11 @@ export function AppProvider({ children }) {
     if (!accountId) {
       setState(defaultState());
       setLoadStatus('idle');
-      setSaveStatus('idle');
       return undefined;
     }
 
     let cancelled = false;
     setLoadStatus('loading');
-    setSaveStatus('idle');
     api
       .getState()
       .then((document) => {
@@ -177,13 +157,9 @@ export function AppProvider({ children }) {
   // Every mutation goes through here: React state moves immediately and the whole document is
   // scheduled for a write. Loading deliberately does not, or the document that just arrived
   // would be written straight back.
-  //
-  // `quiet` saves exactly the same, it just doesn't move the header's indicator. It is for
-  // incidental one-tap toggles, where "Saving... / Saved" flickering next to the account name is
-  // more noticeable than the thing that was toggled. A failure still shows.
-  const mutate = (updater, { quiet = false } = {}) => {
+  const mutate = (updater) => {
     setState(updater);
-    scheduleSave(quiet);
+    scheduleSave();
   };
 
   const setProfile = (profile) => mutate((s) => ({ ...s, profile }));
@@ -209,13 +185,10 @@ export function AppProvider({ children }) {
       history: [{ id: makeHistoryId(), timestamp: Date.now(), bookmarked: false, ...entry }, ...s.history],
     }));
   const toggleBookmark = (id) =>
-    mutate(
-      (s) => ({
-        ...s,
-        history: s.history.map((h) => (h.id === id ? { ...h, bookmarked: !h.bookmarked } : h)),
-      }),
-      { quiet: true },
-    );
+    mutate((s) => ({
+      ...s,
+      history: s.history.map((h) => (h.id === id ? { ...h, bookmarked: !h.bookmarked } : h)),
+    }));
   const removeHistoryEntry = (id) =>
     mutate((s) => ({ ...s, history: s.history.filter((h) => h.id !== id) }));
 
@@ -228,33 +201,27 @@ export function AppProvider({ children }) {
     if (!forAccountId) return;
     // A queued write still holds the document being cleared and would put it straight back.
     const hadQueuedWrite = Boolean(saveTimer.current);
-    const statusBeforeClearing = saveStatus;
     cancelPendingSave();
-    setSaveStatus('saving');
     // One already on the wire cannot be cancelled, only outlasted: a PUT that reached the server
     // after the DELETE would silently restore everything. Waiting orders the two.
     if (inFlightSave.current) await inFlightSave.current;
     try {
       await api.clearState();
     } catch (err) {
-      // Nothing was cleared, so the document still stands. The header goes back to what it was
-      // saying — a dropped write is re-queued, and with none queued there was nothing
-      // outstanding — and the History page reports the failure itself.
+      // Nothing was cleared, so the document still stands: a dropped write is re-queued, and the
+      // History page reports the failure itself.
       if (hadQueuedWrite) scheduleSave();
-      else setSaveStatus(statusBeforeClearing);
       throw err;
     }
     if (savingFor.current !== forAccountId) return;
     // The server is already at the empty document, so this moves state without scheduling a
     // write of it — `mutate` here would save the defaults straight back over the wipe.
     setState(defaultState());
-    setSaveStatus('saved');
   };
 
   const value = {
     ...state,
     loadStatus,
-    saveStatus,
     reloadState,
     setProfile,
     setUniversityPortfolio,

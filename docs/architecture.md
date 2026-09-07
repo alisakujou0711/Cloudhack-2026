@@ -87,14 +87,9 @@ State keys (`defaultState()`): `profile`, `universityPortfolio`, `internshipPort
 - **Nothing is written to browser storage.** The `localStorage` copy was removed, not demoted to a
   cache — a cached document is stale the moment a different account signs in. See
   `docs/adr/0002-server-is-sole-source-of-truth.md` before reintroducing one.
-- Two statuses come out of the context: `loadStatus` (`idle | loading | ready | error`), which
-  gates routing, and `saveStatus` (`idle | pending | saving | saved | error`), which is what the
-  header's indicator in `Layout.jsx` reports.
-- **`mutate(updater, {quiet: true})` writes without moving `saveStatus`** — for incidental
-  one-tap toggles (History's bookmark star) where a flicker beside the account name outweighs the
-  thing being toggled. It is only the indicator that is skipped: the write is the same debounced
-  `PUT`, a failure still shows `error`, and one loud mutation in a coalesced batch makes the whole
-  write loud, since a single request covers them all.
+- One status comes out of the context: `loadStatus` (`idle | loading | ready | error`), which
+  gates routing. Saving is deliberately invisible — the header reports nothing, and a failed write
+  is logged to the console only.
 - Signing out cancels any queued write and resets state to defaults, so a pending save can never
   land on the account that signs in next.
 - **Clearing is a server call, not a local reset.** `clearData()` (History page, "Clear my data")
