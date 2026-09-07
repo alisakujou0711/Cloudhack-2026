@@ -2745,7 +2745,7 @@ label {
 .log-title {
   margin: 0.25rem 0 0;
   font-family: "Newsreader", Georgia, "Times New Roman", serif;
-  font-size: clamp(2rem, 3.2vw, 2.6rem);
+  font-size: clamp(1.9rem, 3vw, 2.35rem);
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: -0.018em;
@@ -4053,44 +4053,271 @@ label {
   font-style: italic;
 }
 
-/* Account settings ---------------------------------------------------------
-   Reached from the avatar menu only. One narrow column of titled cards, kept short enough to
-   take in at once. */
+/* Account settings — the record
+   Reached from the avatar menu only, and the one screen in the app that is about the account
+   rather than about a document. So it is built as a record: the file the app holds on you at the
+   top, and under it the three bands that rewrite it — the profile every review reads, what you
+   sign in with, and what you can do to the account itself. The record sits on the page's own
+   ground; the three cards under it are the controls, so what you can act on is what is boxed.
+
+   The loud thing is the account's own colour, already derived from the name for the header
+   avatar, so it costs nothing to carry: the disc wears it, and a fact of the record lights it for
+   a beat when it is rewritten. Scoped on .settings, the way the log is scoped on .history, so
+   none of this leaks into the rest of the app. */
 .settings {
-  max-width: 720px;
-  margin: 0 auto;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  --ac-ink: #19233a;
+  --ac-mute: #6b7488;
+  --ac-rule: rgba(25, 35, 58, 0.13);
+  --ac-field: #fbfbfd;
+  --ac-tone: var(--avatar-tone-0);
+  /* The column is held to a readable measure and centred in the scroller, so the page reads as
+     one thing on the page's middle rather than a form pinned to the left edge. Everything inside
+     stays left-aligned — a form is read down a left edge, not from a centre line. */
+  max-width: 45rem;
+  margin-inline: auto;
+  color: var(--ac-ink);
+}
+
+/* One rule per --avatar-tone-* token, the same eight the header avatar picks from.
+   AccountSettingsPage picks the index from the name; keep the two counts equal. */
+.settings-tone-0 {
+  --ac-tone: var(--avatar-tone-0);
+}
+.settings-tone-1 {
+  --ac-tone: var(--avatar-tone-1);
+}
+.settings-tone-2 {
+  --ac-tone: var(--avatar-tone-2);
+}
+.settings-tone-3 {
+  --ac-tone: var(--avatar-tone-3);
+}
+.settings-tone-4 {
+  --ac-tone: var(--avatar-tone-4);
+}
+.settings-tone-5 {
+  --ac-tone: var(--avatar-tone-5);
+}
+.settings-tone-6 {
+  --ac-tone: var(--avatar-tone-6);
+}
+.settings-tone-7 {
+  --ac-tone: var(--avatar-tone-7);
+}
+
+/* Arriving at the page
+   One orchestrated sequence rather than an effect per element: the file and the bands under it
+   rise into place once, in reading order, on the mount that opening the page causes. The step
+   comes in from AccountSettingsPage, which is the only place that knows the order. */
+.settings .rise {
+  animation: rise-in 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--rise-step, 0) * 55ms);
+}
+
+.settings-headline {
+  margin: 0.25rem 0 0;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.9rem, 3vw, 2.35rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ac-ink);
+}
+/* The record itself — who the account belongs to, and the four facts the app holds on them.
+   Nothing here is a control: every one of them is changed in a band below, and lights when it
+   is. */
+.record {
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem;
+  margin: 1.7rem 0 1.85rem;
+}
+
+.record-identity {
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
 }
 
-.settings-head h1 {
+/* The header avatar at the size a page can carry, wearing the tone the same name gives it. */
+.record-disc {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.record-names {
+  min-width: 0;
+}
+.record-name {
   margin: 0;
-  font-size: 1.5rem;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  color: var(--ac-ink);
 }
-.settings-head .subtitle {
-  margin: 0.35rem 0 0;
+.record-email {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ac-mute);
+  overflow-wrap: anywhere;
 }
 
+.record-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1.5rem;
+}
+
+/* Each fact hangs off its own short rule, so the flash has structure to ride rather than being a
+   tint dropped behind the words. */
+.record-field {
+  position: relative;
+  min-width: 0;
+  padding-left: 0.85rem;
+}
+.record-field::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.15rem;
+  bottom: 0.15rem;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--ac-rule);
+}
+.record-field-label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ac-mute);
+}
+.record-field-value {
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ac-ink);
+}
+
+/* A fact being rewritten, and the only thing on the page that moves without being hovered or
+   pressed. The value arrives from above, because it replaced something; the rule it hangs on
+   burns in the account's colour and cools back to a hairline. It answers a save made further
+   down the page, which is what makes it worth the motion. */
+.record-field.is-fresh .record-field-value {
+  animation: record-tick 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.record-field.is-fresh::before {
+  animation: record-mark 1600ms ease-out both;
+}
+
+@keyframes record-tick {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes record-mark {
+  0%,
+  40% {
+    background: var(--ac-tone);
+  }
+  100% {
+    background: var(--ac-rule);
+  }
+}
+
+/* One of the three panels. The app's card, in this room's palette. */
 .settings-card {
-  padding: 1.4rem 1.5rem;
+  padding: 1.35rem 1.5rem 1.5rem;
+}
+.settings-card + .settings-card {
+  margin-top: 1.1rem;
 }
 
+/* The head names the panel and, under it, the one thing worth knowing before touching anything in
+   it. Everything explanatory on this page is the muted grey; only names are ink.
+
+   The panel's name and the names of the rows in it are both ink, so the head is told apart from
+   its contents by scale and by structure instead of by colour: the serif at the size the record's
+   own name is set in, over a rule carried to both edges of the panel. Above the rule is what the
+   panel is called; below it is everything you can press. */
+.settings-card-head {
+  margin: 0 -1.5rem 1.35rem;
+  padding: 0 1.5rem 1.1rem;
+  border-bottom: 1px solid var(--ac-rule);
+}
 .settings-card-head h2 {
   margin: 0;
-  font-size: 1.05rem;
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  color: var(--ac-ink);
 }
 .settings-card-head .subtitle {
   margin: 0.3rem 0 0;
-  font-size: 0.86rem;
-  max-width: 62ch;
+  max-width: 52ch;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--ac-mute);
 }
 
 .settings-fields {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 0.95rem;
+  margin-top: 0;
+}
+/* A form a row opened, rather than the one a band is made of. */
+.settings-row + .settings-fields {
   margin-top: 1.15rem;
+}
+
+/* The room's fields: crisp corners, and capped so a line of type never runs the width of a band. */
+.settings input {
+  max-width: 24rem;
+  border-radius: 6px;
+  border-color: var(--ac-rule);
+  background: var(--ac-field);
+  color: var(--ac-ink);
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+.settings input:focus {
+  outline: 2px solid var(--ac-ink);
+  outline-offset: 1px;
+  border-color: var(--ac-ink);
+  background: var(--surface);
+}
+.settings .btn-primary,
+.settings .btn-ghost,
+.settings .btn-danger {
+  border-radius: 6px;
 }
 
 /* A fieldset rather than a label, so the legend has to be given the label styling by hand. */
@@ -4103,7 +4330,22 @@ label {
   padding: 0;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--ac-mute);
+}
+
+/* The three levels are onboarding's control, shared deliberately; only the stock they are drawn
+   on is this room's. What "picked" looks like stays the app's primary, as on every other tab. */
+.settings .onboard-levels {
+  max-width: 24rem;
+}
+.settings .onboard-level {
+  border-radius: 6px;
+  border-color: var(--ac-rule);
+  background: var(--ac-field);
+}
+.settings .onboard-level:hover,
+.settings .onboard-level.is-picked {
+  background: var(--surface);
 }
 
 .settings-actions {
@@ -4119,29 +4361,38 @@ label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1.15rem;
+  gap: 1.5rem;
 }
 
-/* A second fact in the same card — following the first row directly, or following the form the
+/* A second fact in the same band — following the first row directly, or following the form the
    first row opened. The rule separates the two so an open form reads as belonging to the row
    above it rather than to the one below. */
 .settings-row + .settings-row,
 .settings-fields + .settings-row,
 .settings-confirm + .settings-row {
-  border-top: 1px solid var(--border);
-  padding-top: 1.15rem;
+  margin-top: 1.2rem;
+  border-top: 1px solid var(--ac-rule);
+  padding-top: 1.2rem;
 }
 
 .settings-row-label {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--ac-ink);
 }
 .settings-row-value {
   margin: 0.2rem 0 0;
-  font-size: 0.95rem;
+  max-width: 48ch;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--ac-mute);
+}
+/* The one second line on the page that is a fact rather than an explanation of one, so it keeps
+   the ink the grey is measured against. */
+.settings-row-value.is-data {
+  font-size: 0.9rem;
+  color: var(--ac-ink);
 }
 
 /* Never squeezed by the explanation beside it: the control keeps its label on one line and the
@@ -4158,7 +4409,7 @@ label {
 .settings-hint {
   font-size: 0.78rem;
   font-weight: 400;
-  color: var(--text-muted);
+  color: var(--ac-mute);
 }
 
 /* Transient: it is gone again a couple of seconds later, so it sits beside the button rather
@@ -4168,16 +4419,24 @@ label {
   font-weight: 600;
   color: var(--success);
 }
+/* Its opposite, in the same slot: work the person could still walk away from. Said quietly — it
+   is a reminder, not a warning. */
+.settings-pending {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ac-mute);
+}
 
-/* Everything below this rule is destructive. The heavier line is the card's one structural
+/* Everything below this rule is destructive. The heavier line is the band's one structural
    division, so the ordinary rows above it are never mistaken for these — Clear my data, and
    Delete account beneath it. */
 .settings-danger {
-  margin-top: 2rem;
-  border-top: 2px solid var(--text-muted);
+  margin-top: 1.9rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--ac-ink);
 }
 /* The trigger stays a ghost button until it is hovered: the row is one of several, and red on all
-   of them at rest would make the card read as a warning rather than as a list of actions. */
+   of them at rest would make the band read as a warning rather than as a list of actions. */
 .settings-danger-trigger:hover {
   color: var(--danger);
   border-color: #fecaca;
@@ -4191,21 +4450,27 @@ label {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  margin-top: 1rem;
+  margin-top: 1.1rem;
   background: var(--danger-bg);
   border: 1px solid #fecaca;
-  border-radius: 10px;
-  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  padding: 0.95rem 1.1rem;
 }
 .settings-confirm p {
   margin: 0;
+  max-width: 60ch;
   font-size: 0.88rem;
+  line-height: 1.55;
   color: #991b1b;
 }
-/* Held to the width of what it takes rather than the card's: a password field spanning the whole
+/* Held to the width of what it takes rather than the band's: a password field spanning the whole
    panel reads as the main event, and the sentence above it is. */
 .settings-confirm label {
   max-width: 22rem;
+}
+.settings .settings-confirm input {
+  background: var(--surface);
+  border-color: #fecaca;
 }
 .settings-confirm-actions {
   display: flex;
@@ -4213,4 +4478,49 @@ label {
 }
 .settings-confirm .error-text {
   margin: 0;
+}
+
+/* Opened by a press, so it arrives rather than appearing — and the only thing that moves is the
+   panel the press produced. */
+.settings-fields.is-opened,
+.settings-confirm.is-opened {
+  animation: rise-in 300ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+/* Narrow: the four facts stand under the name rather than beside it. */
+@media (max-width: 700px) {
+  .record {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .record-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The arrival is the whole point of opening the page, so under reduce it is simply already
+     there. The record still has to say which fact was rewritten, so its mark holds the lit state
+     instead of playing it. */
+  .settings .rise,
+  .settings-fields.is-opened,
+  .settings-confirm.is-opened,
+  .record-field.is-fresh .record-field-value {
+    animation: none;
+  }
+  .record-field.is-fresh::before {
+    animation: none;
+    background: var(--ac-tone);
+  }
+  .settings input {
+    transition: none;
+  }
 }

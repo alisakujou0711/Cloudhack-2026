@@ -1,16 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../api/client';
 import { useApp, EDUCATION_LEVELS } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { initialsFrom, toneFrom } from '../utils/avatar';
 
 // How long the "Saved" line stays up. Long enough to be read on the way to the next thing, short
 // enough that it is gone before it becomes part of the page.
 const CONFIRMATION_MS = 2500;
 
+// How long a fact on the record stays lit after it is rewritten. Longer than a confirmation,
+// because the person's eyes are on the control they just pressed and the record is above it.
+const FLASH_MS = 1600;
+
 // The account's minimum, restated where the new password is typed rather than left to be guessed.
 // The server enforces it too and stays the authority (`server/services/auth.js`); this copy exists
 // so the rule is on screen before the field is submitted.
 const PASSWORD_MIN_LENGTH = 8;
+
+// Everything rises into place once, in reading order, the way every other tab arrives. The steps
+// are written here rather than derived, because the order is the page's and no band knows where
+// it sits.
+const rise = (step) => ({ '--rise-step': step });
 
 // A confirmation that retires itself, and can be retired early — one left standing beside a
 // control that is ready to be pressed again reads as though the next change had been saved too.
@@ -24,6 +34,98 @@ function useConfirmation() {
   }, [shown]);
 
   return [shown, setShown];
+}
+
+// True for a beat after `value` actually changes, and never on the first render — the record is
+// lit when a fact on it is rewritten, not when the page is opened. Watching the value rather than
+// being told by the form means every path that can change a fact lights it, including one that
+// lands from the other end of the page.
+function useChangeFlash(value) {
+  const previous = useRef(value);
+  const [fresh, setFresh] = useState(false);
+
+  useEffect(() => {
+    if (previous.current === value) return undefined;
+    previous.current = value;
+    setFresh(true);
+    const timer = setTimeout(() => setFresh(false), FLASH_MS);
+    return () => clearTimeout(timer);
+  }, [value]);
+
+  return fresh;
+}
+
+// One fact of the record. The value is keyed on itself so a rewrite remounts it and the tick plays
+// again — without that, changing the same field twice in quick succession would light the rule and
+// leave the value sitting there as though nothing had been written.
+function RecordField({ label, value }) {
+  const fresh = useChangeFlash(value);
+
+  return (
+    <div className={fresh ? 'record-field is-fresh' : 'record-field'}>
+      <p className="record-field-label">{label}</p>
+      <p className="record-field-value" key={String(value)}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
+// "March 2026" from the ISO string the account carries. A date that cannot be read is not
+// something to report as broken on this page — the line simply says nothing.
+function monthAndYear(iso) {
+  const date = new Date(iso);
+  if (!iso || Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+}
+
+// The head of the page: the file the rest of it edits. Nothing here is a control — every fact on
+// it is changed further down, and lights when it is.
+function RecordHead() {
+  const { profile, history } = useApp();
+  const { account } = useAuth();
+
+  const name = profile?.name || '';
+  const level = EDUCATION_LEVELS.find((lvl) => lvl.value === profile?.educationLevel);
+  const reviews = history.length;
+
+  return (
+    <section className="record">
+      <div className="record-identity">
+        <span className={`record-disc avatar-tone-${toneFrom(name)}`} aria-hidden="true">
+          {initialsFrom(name)}
+        </span>
+        <div className="record-names">
+          <h2 className="record-name">{name}</h2>
+          <p className="record-email">{account?.email}</p>
+        </div>
+      </div>
+
+      <div className="record-fields">
+        <RecordField label="Education level" value={level ? level.label : '—'} />
+        <RecordField label="Based in" value={profile?.location || '—'} />
+        <RecordField label="On file since" value={monthAndYear(account?.createdAt)} />
+        <RecordField
+          label="In your log"
+          value={reviews === 0 ? 'Nothing yet' : `${reviews} ${reviews === 1 ? 'review' : 'reviews'}`}
+        />
+      </div>
+    </section>
+  );
+}
+
+// One of the three panels. The deck is the single thing worth knowing before touching anything in
+// the card — anything longer belongs on the row it applies to, or nowhere.
+function SettingsSection({ title, deck, step, children }) {
+  return (
+    <section className="card settings-card rise" style={rise(step)}>
+      <div className="settings-card-head">
+        <h2>{title}</h2>
+        <p className="subtitle">{deck}</p>
+      </div>
+      {children}
+    </section>
+  );
 }
 
 // The three profile facts, edited together and saved with one button. Saving goes through the
@@ -70,15 +172,11 @@ function ProfileCard() {
   };
 
   return (
-    <section className="card settings-card">
-      <div className="settings-card-head">
-        <h2>Profile</h2>
-        <p className="subtitle">
-          Your name, where you are in your education, and where you&apos;re based. Every review reads
-          all three.
-        </p>
-      </div>
-
+    <SettingsSection
+      title="Profile"
+      deck="Every review you run reads all three."
+      step={2}
+    >
       <form className="settings-fields" onSubmit={handleSubmit}>
         <label htmlFor="settings-name">
           Name
@@ -137,6 +235,9 @@ function ProfileCard() {
           <button type="submit" className="btn-primary" disabled={!dirty}>
             Save changes
           </button>
+          {/* Unsaved work is worth saying out loud on a page you can leave by pressing an avatar.
+              It takes the slot the confirmation takes, so the row never grows. */}
+          {dirty && !saved && <span className="settings-pending">Not saved yet</span>}
           {saved && (
             <span className="settings-saved" role="status">
               Saved
@@ -144,7 +245,7 @@ function ProfileCard() {
           )}
         </div>
       </form>
-    </section>
+    </SettingsSection>
   );
 }
 
@@ -196,7 +297,7 @@ function EmailChange() {
       <div className="settings-row">
         <div>
           <p className="settings-row-label">Email address</p>
-          <p className="settings-row-value">{account?.email}</p>
+          <p className="settings-row-value is-data">{account?.email}</p>
         </div>
         <div className="settings-row-actions">
           {changed && (
@@ -220,7 +321,7 @@ function EmailChange() {
       </div>
 
       {open && (
-        <form className="settings-fields" onSubmit={handleSubmit}>
+        <form className="settings-fields is-opened" onSubmit={handleSubmit}>
           <label htmlFor="settings-email">
             New email address
             <input
@@ -321,9 +422,7 @@ function PasswordChange() {
       <div className="settings-row">
         <div>
           <p className="settings-row-label">Password</p>
-          <p className="settings-row-value">
-            Changing it signs out every other device and keeps you signed in here.
-          </p>
+          <p className="settings-row-value">Signs out every other device.</p>
         </div>
         <div className="settings-row-actions">
           {changed && (
@@ -347,7 +446,7 @@ function PasswordChange() {
       </div>
 
       {open && (
-        <form className="settings-fields" onSubmit={handleSubmit}>
+        <form className="settings-fields is-opened" onSubmit={handleSubmit}>
           <label htmlFor="settings-current-password">
             Current password
             <input
@@ -405,23 +504,15 @@ function PasswordChange() {
   );
 }
 
-// The two credentials the account signs in with, in one card because they are guarded the same
+// The two credentials the account signs in with, in one band because they are guarded the same
 // way: neither will change anything without the current password.
 function AccountSecurityCard() {
   return (
-    <section className="card settings-card">
-      <div className="settings-card-head">
-        <h2>Account and security</h2>
-        <p className="subtitle">
-          What you sign in with. Both changes ask for your current password, and you stay signed in
-          here.
-        </p>
-      </div>
-
+    <SettingsSection title="Account and security" deck="Both changes ask for your current password." step={3}>
       <EmailChange />
 
       <PasswordChange />
-    </section>
+    </SettingsSection>
   );
 }
 
@@ -432,7 +523,7 @@ function ContactSupport() {
     <div className="settings-row">
       <div>
         <p className="settings-row-label">Contact support</p>
-        <p className="settings-row-value">Ask a question about your account or report something wrong.</p>
+        <p className="settings-row-value">Ask a question or report a problem.</p>
       </div>
       <div className="settings-row-actions">
         {/* Deliberately inert: the surface is here so the shape of the card is the finished one,
@@ -446,17 +537,34 @@ function ContactSupport() {
   );
 }
 
+// Rounded the way a file listing rounds it: a download is being sized up before it is taken, not
+// audited, so one figure past the point is as much as the number is worth.
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} bytes`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb < 10 ? kb.toFixed(1) : Math.round(kb)} KB`;
+  return `${(kb / 1024).toFixed(1)} MB`;
+}
+
 // The whole state document, written out as JSON the student can keep somewhere the product cannot
 // reach. No endpoint: the client already holds the document the server would send back, so this is
 // the resume export's anchor-and-object-URL pattern over a blob built here.
 function DownloadMyData() {
   const { exportDocument } = useApp();
   const [downloaded, setDownloaded] = useConfirmation();
+  // The state object itself, whose identity changes only when the document does — which is what
+  // makes it the right thing to memoize on.
+  const stateDocument = exportDocument();
+
+  // Serialized once per change to the document rather than once per render, and handed to the
+  // download itself — so the size on screen is the size of the file that arrives rather than an
+  // estimate of it. Indented, because the point of the file is that it can be read: a student
+  // opening it should find their essays and history, not one line of JSON.
+  const json = useMemo(() => JSON.stringify(stateDocument, null, 2), [stateDocument]);
+  const size = useMemo(() => formatBytes(new Blob([json]).size), [json]);
 
   const handleDownload = () => {
-    // Indented, because the point of the file is that it can be read — a student opening it should
-    // find their essays and history, not one line of JSON.
-    const blob = new Blob([JSON.stringify(exportDocument(), null, 2)], { type: 'application/json' });
+    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -472,9 +580,7 @@ function DownloadMyData() {
     <div className="settings-row">
       <div>
         <p className="settings-row-label">Download my data</p>
-        <p className="settings-row-value">
-          Everything on this account — your profile, drafts, reviews, history and chat — as one JSON file.
-        </p>
+        <p className="settings-row-value">Everything on this account as one JSON file, {size}.</p>
       </div>
       <div className="settings-row-actions">
         {downloaded && (
@@ -507,7 +613,7 @@ function SignOutRow() {
     <div className="settings-row">
       <div>
         <p className="settings-row-label">Sign out</p>
-        <p className="settings-row-value">Ends this session on this device. Everything you have saved stays.</p>
+        <p className="settings-row-value">Ends this session on this device. Your work stays.</p>
       </div>
       <div className="settings-row-actions">
         <button type="button" className="btn-ghost" onClick={handleSignOut} disabled={pending}>
@@ -548,8 +654,7 @@ function ClearMyData() {
         <div>
           <p className="settings-row-label">Clear my data</p>
           <p className="settings-row-value">
-            Wipes your profile, history, drafts and saved assessments from this account and takes you
-            back to onboarding. Your account itself stays — you will still be signed in.
+            Wipes everything you have saved and takes you back to onboarding. Your account stays.
           </p>
         </div>
         <div className="settings-row-actions">
@@ -562,7 +667,7 @@ function ClearMyData() {
       </div>
 
       {confirming && (
-        <div className="settings-confirm">
+        <div className="settings-confirm is-opened">
           <p>This cannot be undone. Everything on this account goes back to how it looked the day you signed up.</p>
           <div className="settings-confirm-actions">
             <button type="button" className="btn-danger" onClick={confirm} disabled={clearing}>
@@ -642,10 +747,7 @@ function DeleteAccount() {
       <div className="settings-row">
         <div>
           <p className="settings-row-label">Delete account</p>
-          <p className="settings-row-value">
-            Deletes your account, the email and password you sign in with, and everything you have
-            saved. This cannot be undone.
-          </p>
+          <p className="settings-row-value">Deletes your account and everything on it, for good.</p>
         </div>
         <div className="settings-row-actions">
           {!confirming && (
@@ -657,11 +759,10 @@ function DeleteAccount() {
       </div>
 
       {confirming && (
-        <form className="settings-confirm" onSubmit={confirm}>
+        <form className="settings-confirm is-opened" onSubmit={confirm}>
           <p>
-            This cannot be undone. Your account and everything on it are deleted immediately, and
-            nothing brings them back. You can sign up again with the same email address, and you
-            would start from an empty account.
+            This cannot be undone. Your account and everything on it are deleted immediately. You can
+            sign up again with the same email address and start from an empty account.
           </p>
 
           <label htmlFor="settings-delete-password">
@@ -695,16 +796,11 @@ function DeleteAccount() {
   );
 }
 
-// What a student does to their account rather than to their work. The rule below the ordinary rows
-// is the card's one structural rule: everything under it is destructive.
+// What a student does to their account rather than to their work. The rule below the ordinary
+// rows is the band's one structural division: everything under it is destructive.
 function AccountActionsCard() {
   return (
-    <section className="card settings-card">
-      <div className="settings-card-head">
-        <h2>Account actions</h2>
-        <p className="subtitle">Your account itself, rather than the work on it.</p>
-      </div>
-
+    <SettingsSection title="Account actions" deck="Your account itself, rather than the work on it." step={4}>
       <ContactSupport />
 
       <DownloadMyData />
@@ -716,17 +812,27 @@ function AccountActionsCard() {
 
         <DeleteAccount />
       </div>
-    </section>
+    </SettingsSection>
   );
 }
 
 export default function AccountSettingsPage() {
+  const { profile } = useApp();
+
+  // The room takes the account's own colour — the tone the header avatar has worn since the
+  // profile was written — so the disc on the record and the rule that lights when a fact changes
+  // are the one loud thing here, and they are a different colour on every account.
+  const tone = toneFrom(profile?.name || '');
+
   return (
-    <div className="settings">
-      <header className="settings-head">
-        <h1>Account settings</h1>
-        <p className="subtitle">What the app knows about you, and what you can do about it.</p>
-      </header>
+    <div className={`settings settings-tone-${tone}`}>
+      <h1 className="settings-headline rise" style={rise(0)}>
+        You, on file.
+      </h1>
+
+      <div className="rise" style={rise(1)}>
+        <RecordHead />
+      </div>
 
       <ProfileCard />
 
