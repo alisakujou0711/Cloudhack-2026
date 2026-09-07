@@ -78,7 +78,8 @@ the desk is scoped under `.optimize`.
   state, not history.
 - **"Clear my data" is not on this page.** It sat below the shelf while there was nowhere else to
   put it that was not the header, beside Sign out; it now lives in the Account actions card on
-  `/app/settings`, with the other things done to the account rather than to the work on it.
+  `/app/settings`, with the other things done to the account rather than to the work on it. See
+  `docs/features/account-settings.md`.
 
 ## Invariants
 

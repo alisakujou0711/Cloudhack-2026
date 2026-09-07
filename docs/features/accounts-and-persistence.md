@@ -53,6 +53,7 @@ session cookie, and one state document per Account read and written over `/api/s
     person to sign-in, where a one-off in-memory `notice` says what happened. The settings page
     settles the queued write first — see the invariant below.
 
+The settings page these last four steps are pressed from is `docs/features/account-settings.md`.
 The client-side rules these steps lean on — the two gates, why auth and app state are separate
 contexts, and how a queued write stays scoped to its Account — are stated once in
 `docs/architecture.md`.

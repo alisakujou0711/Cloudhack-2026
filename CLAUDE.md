@@ -88,6 +88,7 @@ the code still runs.
 | `docs/llm.md` | Adding or changing **any** LLM call, prompt, mock, or provider |
 | `docs/api.md` | Adding or changing an endpoint, or checking a request/response shape |
 | `docs/features/accounts-and-persistence.md` | Touching sign-in/sign-up, sessions, the routing gate, or where the state document is stored |
+| `docs/features/account-settings.md` | Working on the settings page, the header account menu, or changing/deleting an account |
 | `docs/features/onboarding.md` | Touching the profile, education levels, or international-applicant behavior |
 | `docs/features/application-optimization.md` | Working on the type picker, uploads, or adding a new optimization type |
 | `docs/features/document-pipeline.md` | Touching text extraction, document classification, or field parsing |
