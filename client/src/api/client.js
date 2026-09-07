@@ -1,40 +1,71 @@
 const BASE = '/api';
 
+// Set by AuthProvider. Called once, centrally, whenever a session turns out to be gone.
+let unauthorizedHandler = null;
+
+export function setUnauthorizedHandler(handler) {
+  unauthorizedHandler = handler;
+}
+
+const SESSION_EXPIRED = 'Your session has ended. Please sign in again.';
+
+// Every transport ends a non-2xx the same way. A 401 outside /auth/* is never about the endpoint
+// that returned it — the session expired or was revoked — so it is handled once, here, instead of
+// landing in the inline .error-text of whichever panel made the call; the routing gate takes over
+// from the cleared auth context. Auth endpoints are exempt: their 401 means "those credentials
+// are wrong", which belongs on the sign-in screen.
+function throwForResponse(path, res, data) {
+  if (res.status === 401 && !path.startsWith('/auth/')) {
+    if (unauthorizedHandler) unauthorizedHandler();
+    throw new Error(SESSION_EXPIRED);
+  }
+  throw new Error(data.error || `Request failed: ${res.status}`);
+}
+
 async function request(path, options) {
   const res = await fetch(`${BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     ...options,
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(data.error || `Request failed: ${res.status}`);
-  }
+  if (!res.ok) throwForResponse(path, res, data);
   return data;
 }
 
 async function requestFormData(path, formData) {
-  const res = await fetch(`${BASE}${path}`, { method: 'POST', body: formData });
+  const res = await fetch(`${BASE}${path}`, { method: 'POST', credentials: 'include', body: formData });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(data.error || `Request failed: ${res.status}`);
-  }
+  if (!res.ok) throwForResponse(path, res, data);
   return data;
 }
 
 async function requestBlob(path, options) {
   const res = await fetch(`${BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     ...options,
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || `Request failed: ${res.status}`);
+    throwForResponse(path, res, data);
   }
   return res.blob();
 }
 
 export const api = {
   health: () => request('/health'),
+  signUp: (payload) => request('/auth/signup', { method: 'POST', body: JSON.stringify(payload) }),
+  signIn: (payload) => request('/auth/login', { method: 'POST', body: JSON.stringify(payload) }),
+  signOut: () => request('/auth/logout', { method: 'POST' }),
+  me: () => request('/auth/me'),
+  // The state document travels as itself, not inside an envelope: what GET returns is what PUT
+  // takes back.
+  getState: () => request('/state'),
+  saveState: (state) => request('/state', { method: 'PUT', body: JSON.stringify(state) }),
+  // "Clear my data": the document goes back to the empty one a new account holds. The account,
+  // and this session, are untouched.
+  clearState: () => request('/state', { method: 'DELETE' }),
   universityOptions: () => request('/university/options'),
   assessUniversity: (payload) =>
     request('/assess/university', { method: 'POST', body: JSON.stringify(payload) }),

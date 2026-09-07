@@ -11,6 +11,13 @@ const { classifyDocument } = require('../services/documentClassifier');
 const { assessEssays } = require('../services/essayOptimization');
 const { assessCoverLetter } = require('../services/coverLetterOptimization');
 const { prepareInterview } = require('../services/interviewPrep');
+const { signUp, signIn, signOut } = require('../services/auth');
+const { readState, replaceState, clearState } = require('../services/userState');
+const {
+  setSessionCookie,
+  clearSessionCookie,
+  requireAuth,
+} = require('../middleware/auth');
 
 const router = express.Router();
 const upload = multer({
@@ -20,6 +27,78 @@ const upload = multer({
 
 router.get('/health', (req, res) => {
   res.json({ ok: true, llmConfigured: hasKey, llmProvider: provider });
+});
+
+// An expected rejection (a taken email, a bad password) carries its own status and is not
+// logged; anything else is a real failure and follows the file's 400-plus-log convention.
+function sendAuthError(res, err) {
+  if (!err.status) console.error(err);
+  res.status(err.status || 400).json({ error: err.message });
+}
+
+router.post('/auth/signup', (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ error: 'email and password are required' });
+    }
+    const { user, session } = signUp({ email, password });
+    setSessionCookie(res, session);
+    res.status(201).json({ user });
+  } catch (err) {
+    sendAuthError(res, err);
+  }
+});
+
+router.post('/auth/login', (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ error: 'email and password are required' });
+    }
+    const { user, session } = signIn({ email, password });
+    setSessionCookie(res, session);
+    res.json({ user });
+  } catch (err) {
+    sendAuthError(res, err);
+  }
+});
+
+// Everything below this line needs a session. The health check and the two credential routes
+// above are the only open endpoints — a route added below is gated by default, and the guard sits
+// ahead of `upload.single`, so a stranger's upload is refused without multer ever parsing it.
+router.use(requireAuth);
+
+router.post('/auth/logout', (req, res) => {
+  signOut(req.sessionToken);
+  clearSessionCookie(res);
+  res.json({ ok: true });
+});
+
+router.get('/auth/me', (req, res) => {
+  res.json({ user: req.user });
+});
+
+router.get('/state', (req, res) => {
+  res.json(readState(req.user.id));
+});
+
+// The only check is that the body is a JSON object. The thirteen keys are not validated: the
+// client is the sole writer, and a shape check here would need updating on every state change.
+router.put('/state', (req, res) => {
+  const state = req.body;
+  if (!state || typeof state !== 'object' || Array.isArray(state)) {
+    return res.status(400).json({ error: 'The state document must be a JSON object' });
+  }
+  replaceState(req.user.id, state);
+  res.json({ ok: true });
+});
+
+// Clearing the document, not the Account: the Session and the credentials are untouched, so the
+// person stays signed in and the routing gate walks them back through onboarding.
+router.delete('/state', (req, res) => {
+  clearState(req.user.id);
+  res.json({ ok: true });
 });
 
 router.get('/university/options', (req, res) => {

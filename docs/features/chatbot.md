@@ -18,7 +18,7 @@ every message so it can answer cross-feature questions.
 
 1. User types; the message is appended to `chatHistory` immediately.
 2. `POST /chat` with `{message, history, context}` — the **full** prior history every time, since
-   the server keeps no session.
+   the server keeps nothing about the conversation between requests.
 3. The reply is appended as an `assistant` turn and rendered through `react-markdown`. Errors are
    appended as a message rather than thrown, so the thread never breaks.
 

@@ -1,15 +1,20 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const apiRouter = require('./routes/api');
+const app = require('./app');
 const { hasKey, provider } = require('./services/llm');
+const { seedDemoAccount } = require('./services/demoAccount');
 
-const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors());
-app.use(express.json({ limit: '2mb' }));
-app.use('/api', apiRouter);
+// Seeding is skipped once the account exists, so this runs on every boot and only ever writes on
+// the first. A failure here must not take the server down with it — the demo account is a
+// convenience, and everything else works without it.
+function seedAndAnnounceDemoAccount() {
+  try {
+    const { seeded, email, password } = seedDemoAccount();
+    console.log(`Demo account (${seeded ? 'seeded' : 'already present'}): ${email} / ${password}`);
+  } catch (err) {
+    console.error('Could not seed the demo account:', err.message);
+  }
+}
 
 app.listen(PORT, () => {
   console.log(`PortfolioPath API listening on http://localhost:${PORT}`);
@@ -18,4 +23,5 @@ app.listen(PORT, () => {
   } else {
     console.log(`LLM provider: ${provider}`);
   }
+  seedAndAnnounceDemoAccount();
 });

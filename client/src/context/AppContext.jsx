@@ -1,6 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { api } from '../api/client';
+import { useAuth } from './AuthContext';
 
-const STORAGE_KEY = 'portfoliopath_state';
+// Long enough that typing in a text field sends one write rather than one per keystroke, short
+// enough that the header settles while the person is still looking at it.
+const SAVE_DEBOUNCE_MS = 800;
 
 const EDUCATION_LEVELS = [
   { value: 'jc', label: 'Junior College / Pre-University' },
@@ -37,22 +41,16 @@ function defaultState() {
   };
 }
 
-function loadInitialState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      // Older versions stored chat history split per page ({ university: [], internship: [] });
-      // merge it into a single timeline so accounts created before this change don't lose history.
-      if (parsed.chatHistory && !Array.isArray(parsed.chatHistory)) {
-        parsed.chatHistory = [...(parsed.chatHistory.university || []), ...(parsed.chatHistory.internship || [])];
-      }
-      return { ...defaultState(), ...parsed };
-    }
-  } catch (err) {
-    console.warn('Failed to load saved state', err);
+// The state document read from the server is spread over `defaultState()`, so a key added after
+// an account's last save is present rather than undefined.
+function fromDocument(document) {
+  const parsed = { ...(document || {}) };
+  // Older versions stored chat history split per page ({ university: [], internship: [] });
+  // merge it into a single timeline so accounts created before that change don't lose history.
+  if (parsed.chatHistory && !Array.isArray(parsed.chatHistory)) {
+    parsed.chatHistory = [...(parsed.chatHistory.university || []), ...(parsed.chatHistory.internship || [])];
   }
-  return defaultState();
+  return { ...defaultState(), ...parsed };
 }
 
 function makeHistoryId() {
@@ -64,49 +62,183 @@ function makeHistoryId() {
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
-  const [state, setState] = useState(loadInitialState);
+  const { account } = useAuth();
+  const accountId = account ? account.id : null;
+
+  const [state, setState] = useState(defaultState);
+  // 'idle' with no session, then 'loading' -> 'ready' | 'error'. Nothing may judge the profile
+  // gate before this reaches 'ready'.
+  const [loadStatus, setLoadStatus] = useState('idle');
+  // What the header reports: 'idle' | 'pending' | 'saving' | 'saved' | 'error'.
+  const [saveStatus, setSaveStatus] = useState('idle');
+  const [loadAttempt, setLoadAttempt] = useState(0);
+
+  // The whole document goes up on every save, so the write reads the newest state at flush time
+  // rather than whatever was current when it was scheduled.
+  const latestState = useRef(state);
+  const saveTimer = useRef(null);
+  // The write currently on the wire, if any. Cancelling the timer cannot recall one already sent.
+  const inFlightSave = useRef(null);
+  // The account a queued or in-flight write belongs to; it must never land on the next one.
+  const savingFor = useRef(null);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    latestState.current = state;
   }, [state]);
 
-  const setProfile = (profile) => setState((s) => ({ ...s, profile }));
+  const runSave = useCallback((forAccountId) => {
+    if (!forAccountId || savingFor.current !== forAccountId) return;
+    setSaveStatus('saving');
+    const request = api
+      .saveState(latestState.current)
+      .then(() => {
+        if (savingFor.current === forAccountId) setSaveStatus('saved');
+      })
+      .catch((err) => {
+        // A 401 is already handled centrally by the API client; anything else stays on screen as
+        // an unsettled save rather than interrupting whatever the person is doing.
+        console.warn('Failed to save your work', err);
+        if (savingFor.current === forAccountId) setSaveStatus('error');
+      })
+      .finally(() => {
+        if (inFlightSave.current === request) inFlightSave.current = null;
+      });
+    // Settled or not, this is the write "clear my data" has to outlast. It never rejects.
+    inFlightSave.current = request;
+  }, []);
+
+  const cancelPendingSave = useCallback(() => {
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+  }, []);
+
+  const scheduleSave = useCallback(() => {
+    const forAccountId = savingFor.current;
+    if (!forAccountId) return;
+    setSaveStatus('pending');
+    cancelPendingSave();
+    saveTimer.current = setTimeout(() => {
+      saveTimer.current = null;
+      runSave(forAccountId);
+    }, SAVE_DEBOUNCE_MS);
+  }, [cancelPendingSave, runSave]);
+
+  // The server is the sole source of truth: the document is read once per session and nothing is
+  // written to browser storage. See docs/adr/0002-server-is-sole-source-of-truth.md.
+  useEffect(() => {
+    // A queued write belongs to the account that made it; signing out drops it rather than
+    // letting it land on whoever signs in next.
+    cancelPendingSave();
+    savingFor.current = accountId;
+
+    if (!accountId) {
+      setState(defaultState());
+      setLoadStatus('idle');
+      setSaveStatus('idle');
+      return undefined;
+    }
+
+    let cancelled = false;
+    setLoadStatus('loading');
+    setSaveStatus('idle');
+    api
+      .getState()
+      .then((document) => {
+        if (cancelled) return;
+        setState(fromDocument(document));
+        setLoadStatus('ready');
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.warn('Failed to load your saved work', err);
+        setLoadStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [accountId, loadAttempt, cancelPendingSave]);
+
+  useEffect(() => cancelPendingSave, [cancelPendingSave]);
+
+  const reloadState = () => setLoadAttempt((attempt) => attempt + 1);
+
+  // Every mutation goes through here: React state moves immediately and the whole document is
+  // scheduled for a write. Loading deliberately does not, or the document that just arrived
+  // would be written straight back.
+  const mutate = (updater) => {
+    setState(updater);
+    scheduleSave();
+  };
+
+  const setProfile = (profile) => mutate((s) => ({ ...s, profile }));
   const setUniversityPortfolio = (updates) =>
-    setState((s) => ({ ...s, universityPortfolio: { ...s.universityPortfolio, ...updates } }));
+    mutate((s) => ({ ...s, universityPortfolio: { ...s.universityPortfolio, ...updates } }));
   const setInternshipPortfolio = (updates) =>
-    setState((s) => ({ ...s, internshipPortfolio: { ...s.internshipPortfolio, ...updates } }));
+    mutate((s) => ({ ...s, internshipPortfolio: { ...s.internshipPortfolio, ...updates } }));
   const setEssayOptimization = (updates) =>
-    setState((s) => ({ ...s, essayOptimization: { ...s.essayOptimization, ...updates } }));
+    mutate((s) => ({ ...s, essayOptimization: { ...s.essayOptimization, ...updates } }));
   const setCoverLetterOptimization = (updates) =>
-    setState((s) => ({ ...s, coverLetterOptimization: { ...s.coverLetterOptimization, ...updates } }));
-  const setInterviewPrep = (updates) => setState((s) => ({ ...s, interviewPrep: { ...s.interviewPrep, ...updates } }));
-  const setUniversityAssessment = (result) => setState((s) => ({ ...s, universityAssessment: result }));
-  const setInternshipAssessment = (result) => setState((s) => ({ ...s, internshipAssessment: result }));
-  const setEssayAssessment = (result) => setState((s) => ({ ...s, essayAssessment: result }));
-  const setCoverLetterAssessment = (result) => setState((s) => ({ ...s, coverLetterAssessment: result }));
-  const setInterviewPlan = (result) => setState((s) => ({ ...s, interviewPlan: result }));
-  const appendChat = (entry) => setState((s) => ({ ...s, chatHistory: [...s.chatHistory, entry] }));
+    mutate((s) => ({ ...s, coverLetterOptimization: { ...s.coverLetterOptimization, ...updates } }));
+  const setInterviewPrep = (updates) => mutate((s) => ({ ...s, interviewPrep: { ...s.interviewPrep, ...updates } }));
+  const setUniversityAssessment = (result) => mutate((s) => ({ ...s, universityAssessment: result }));
+  const setInternshipAssessment = (result) => mutate((s) => ({ ...s, internshipAssessment: result }));
+  const setEssayAssessment = (result) => mutate((s) => ({ ...s, essayAssessment: result }));
+  const setCoverLetterAssessment = (result) => mutate((s) => ({ ...s, coverLetterAssessment: result }));
+  const setInterviewPlan = (result) => mutate((s) => ({ ...s, interviewPlan: result }));
+  const appendChat = (entry) => mutate((s) => ({ ...s, chatHistory: [...s.chatHistory, entry] }));
 
   const addHistoryEntry = (entry) =>
-    setState((s) => ({
+    mutate((s) => ({
       ...s,
       history: [{ id: makeHistoryId(), timestamp: Date.now(), bookmarked: false, ...entry }, ...s.history],
     }));
   const toggleBookmark = (id) =>
-    setState((s) => ({
+    mutate((s) => ({
       ...s,
       history: s.history.map((h) => (h.id === id ? { ...h, bookmarked: !h.bookmarked } : h)),
     }));
   const removeHistoryEntry = (id) =>
-    setState((s) => ({ ...s, history: s.history.filter((h) => h.id !== id) }));
+    mutate((s) => ({ ...s, history: s.history.filter((h) => h.id !== id) }));
 
-  const resetAll = () => {
-    localStorage.removeItem(STORAGE_KEY);
+  // "Clear my data" on the History page — the destructive half of the header's old "Start over",
+  // which became Sign out. The account survives; only the document goes, and it goes on the
+  // server rather than just here, so signing back in shows the same empty account. Losing the
+  // profile with it is what walks the person back to onboarding through the routing gate.
+  const clearData = async () => {
+    const forAccountId = savingFor.current;
+    if (!forAccountId) return;
+    // A queued write still holds the document being cleared and would put it straight back.
+    const hadQueuedWrite = Boolean(saveTimer.current);
+    const statusBeforeClearing = saveStatus;
+    cancelPendingSave();
+    setSaveStatus('saving');
+    // One already on the wire cannot be cancelled, only outlasted: a PUT that reached the server
+    // after the DELETE would silently restore everything. Waiting orders the two.
+    if (inFlightSave.current) await inFlightSave.current;
+    try {
+      await api.clearState();
+    } catch (err) {
+      // Nothing was cleared, so the document still stands. The header goes back to what it was
+      // saying — a dropped write is re-queued, and with none queued there was nothing
+      // outstanding — and the History page reports the failure itself.
+      if (hadQueuedWrite) scheduleSave();
+      else setSaveStatus(statusBeforeClearing);
+      throw err;
+    }
+    if (savingFor.current !== forAccountId) return;
+    // The server is already at the empty document, so this moves state without scheduling a
+    // write of it — `mutate` here would save the defaults straight back over the wipe.
     setState(defaultState());
+    setSaveStatus('saved');
   };
 
   const value = {
     ...state,
+    loadStatus,
+    saveStatus,
+    reloadState,
     setProfile,
     setUniversityPortfolio,
     setInternshipPortfolio,
@@ -122,7 +254,7 @@ export function AppProvider({ children }) {
     addHistoryEntry,
     toggleBookmark,
     removeHistoryEntry,
-    resetAll,
+    clearData,
     suggestedOptimizationType: state.profile ? suggestedOptimizationType(state.profile.educationLevel) : 'university',
   };
 

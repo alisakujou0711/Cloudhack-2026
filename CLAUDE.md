@@ -12,7 +12,11 @@ document, pick what they're optimizing (university application / internship appl
 cover letter), and get structured, itemized feedback. Plus interview prep, a curated inspirations
 gallery, a history log, and a context-aware chatbot. `README.md` is the product description.
 
-No auth, no database, no test suite. All state is one object in `localStorage`.
+Accounts are email + password, backed by a SQLite file the server creates on first boot
+(`server/db.js`). Everything a student produces is one JSON state document per account, held in
+that database and read and written over `/api/state` — nothing is kept in browser storage. A
+fresh database is seeded with one worked-in demo account (`demo@portfoliopath.app` /
+`portfoliopath`) — the credentials the startup log prints.
 
 ## Commands
 
@@ -21,6 +25,7 @@ No auth, no database, no test suite. All state is one object in `localStorage`.
 cd server
 npm install
 npm run dev          # node --watch index.js, http://localhost:4000
+npm test             # node --test, boots the app over HTTP against a temp database
 
 # Frontend (Terminal 2)
 cd client
@@ -30,12 +35,16 @@ npm run build
 npm run lint           # oxlint
 ```
 
-There is no test suite in either package (`server`'s `npm test` is an unset placeholder). There is
-no root-level install — `client/` and `server/` are independent npm packages with their own
-`node_modules`, always installed/run separately.
+`server` has a test suite — Node's built-in runner driving the exported app over real HTTP
+(`server/test/`). `client` has none. There is no root-level install — `client/` and `server/` are
+independent npm packages with their own `node_modules`, always installed/run separately.
 
 The app runs fully **offline and keyless** — every LLM call has a deterministic mock fallback. Set
 `GEMINI_API_KEY` or `ANTHROPIC_API_KEY` in `server/.env` for live output.
+
+There are **no required** environment variables. Three optional ones: `DATABASE_PATH` (where the
+SQLite file lives — the tests point it at a throwaway file), `SESSION_TTL_MS` (session lifetime,
+default 30 days), and `CLIENT_ORIGIN` (the CORS origin).
 
 ## Hard rules
 
@@ -75,9 +84,10 @@ the code still runs.
 
 | Read this | When you're... |
 | --- | --- |
-| `docs/architecture.md` | Orienting; touching routing, `AppContext`, `localStorage`, styling, or the request path |
+| `docs/architecture.md` | Orienting; touching routing, `AppContext`, state loading and saving, styling, or the request path |
 | `docs/llm.md` | Adding or changing **any** LLM call, prompt, mock, or provider |
 | `docs/api.md` | Adding or changing an endpoint, or checking a request/response shape |
+| `docs/features/accounts-and-persistence.md` | Touching sign-in/sign-up, sessions, the routing gate, or where the state document is stored |
 | `docs/features/onboarding.md` | Touching the profile, education levels, or international-applicant behavior |
 | `docs/features/application-optimization.md` | Working on the type picker, uploads, or adding a new optimization type |
 | `docs/features/document-pipeline.md` | Touching text extraction, document classification, or field parsing |
@@ -89,6 +99,7 @@ the code still runs.
 | `docs/features/chatbot.md` | Working on the chatbot, chat context, or `ChatUIContext` |
 | `docs/features/history.md` | Working on the history log, snapshots, or bookmarking |
 | `docs/features/inspirations.md` | Working on the sample essay/resume galleries |
+| `docs/features/demo-account.md` | Touching the seeded demo account, its fixtures, or boot-time seeding |
 
 ### Adding a feature doc
 

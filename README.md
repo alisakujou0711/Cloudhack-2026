@@ -25,6 +25,22 @@ npm run dev
 
 Open http://localhost:5173.
 
+### Demo account
+
+The server seeds one account on its first boot against a new database, already carrying a
+profile and several finished optimization runs in History:
+
+    Email:    demo@portfoliopath.app
+    Password: portfoliopath
+
+Sign in with those on the normal sign-in screen — there is no demo button. The same credentials
+are printed in the server's startup log. Or create your own account with **Sign up** and start
+from an empty one.
+
+Seeding only happens when that account is absent, so restarting the server never overwrites work
+in progress — including a demo account whose data has been cleared, which stays cleared. Delete
+`server/data/portfoliopath.db` to get the seeded content back.
+
 ## LLM integration
 
 The server calls an LLM (Gemini or Claude) for classification, feedback generation, and the
@@ -91,5 +107,8 @@ empty answer. All extracted/pre-filled fields stay editable. See `samples/` for 
 - University checklist covers NUS, NTU, SMU, SUTD across a few majors, Singapore only.
 - Internship/essay/cover-letter review uses general rubrics rather than real job postings
   or actual application portals.
-- All state (profile, portfolios, assessments, chat, history) is stored in `localStorage` —
-  no auth or persistent database for the demo.
+- Accounts are email + password, held in a local SQLite file the server creates on first boot;
+  the app opens on a sign-in screen and onboarding runs once per account.
+- Application state (profile, portfolios, assessments, chat, history) belongs to the account and
+  is saved to the server, so it follows you between browsers and two accounts on one machine stay
+  separate. The app needs the server running to open.

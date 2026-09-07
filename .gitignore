@@ -7,6 +7,11 @@ node_modules/
 .env.*.local
 !.env.example
 
+# SQLite database (created on first boot — never commit accounts or password hashes)
+server/data/*.db
+server/data/*.db-wal
+server/data/*.db-shm
+
 # Build output
 dist/
 dist-ssr/
