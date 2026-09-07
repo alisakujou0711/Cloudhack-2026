@@ -1,6 +1,6 @@
 # API reference
 
-All endpoints live in `server/routes/api.js`, mounted at `/api` by `server/index.js`. Client
+All endpoints live in `server/routes/api.js`, mounted at `/api` by `server/app.js`. Client
 methods are in `client/src/api/client.js`.
 
 ## Shared behavior
@@ -9,7 +9,7 @@ methods are in `client/src/api/client.js`.
   needs (including `profile`) in the body.
 - **Uploads**: `multer` with `memoryStorage()`, `fileSize` capped at **10MB**, always the field
   name `file`. Nothing is written to disk.
-- **JSON bodies**: capped at `2mb` (`express.json({ limit: '2mb' })` in `index.js`).
+- **JSON bodies**: capped at `2mb` (`express.json({ limit: '2mb' })` in `app.js`).
 - **Errors**: `400 {error: string}` for missing/invalid input and for any thrown service error
   (which is also `console.error`'d). `422 {error}` is used for one specific case — a file parsed
   successfully but yielded no text.
