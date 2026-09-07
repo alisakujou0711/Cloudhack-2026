@@ -30,15 +30,15 @@ The test client helper gains a `patch` method; everything else runs over the exi
 
 **Status:** ready-for-agent
 
-- [ ] The Account and security card offers the current email address and a way to change it.
-- [ ] Changing it requires the current password.
-- [ ] A correct password changes the address and reports success.
-- [ ] A wrong password is refused with an inline message and leaves the address unchanged.
-- [ ] An address already registered to another Account is refused with a clear message.
-- [ ] The new address is matched case-insensitively, as sign-up's is.
-- [ ] The Session survives: the student stays signed in and can keep working.
-- [ ] The avatar menu shows the new address without a reload.
-- [ ] Signing out and back in works with the new address and fails with the old one.
-- [ ] The endpoint returns 401 without a Session.
-- [ ] The behaviour above is covered by tests over the existing HTTP seam, following the existing
+- [x] The Account and security card offers the current email address and a way to change it.
+- [x] Changing it requires the current password.
+- [x] A correct password changes the address and reports success.
+- [x] A wrong password is refused with an inline message and leaves the address unchanged.
+- [x] An address already registered to another Account is refused with a clear message.
+- [x] The new address is matched case-insensitively, as sign-up's is.
+- [x] The Session survives: the student stays signed in and can keep working.
+- [x] The avatar menu shows the new address without a reload.
+- [x] Signing out and back in works with the new address and fails with the old one.
+- [x] The endpoint returns 401 without a Session.
+- [x] The behaviour above is covered by tests over the existing HTTP seam, following the existing
       authentication suite's style.

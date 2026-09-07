@@ -19,15 +19,15 @@ The menu closes on an outside click and on Escape, so it can never trap someone.
 
 **Status:** ready-for-agent
 
-- [ ] The header shows a circular avatar instead of the Profile name and the Sign out button.
-- [ ] The avatar shows initials derived from the Profile name.
-- [ ] The avatar's background colour is derived from the Profile name and is the same on every load.
-- [ ] Two Accounts with different Profile names show different initials and different colours.
-- [ ] Clicking the avatar opens a menu showing the Profile name, the Account's email address, and
+- [x] The header shows a circular avatar instead of the Profile name and the Sign out button.
+- [x] The avatar shows initials derived from the Profile name.
+- [x] The avatar's background colour is derived from the Profile name and is the same on every load.
+- [x] Two Accounts with different Profile names show different initials and different colours.
+- [x] Clicking the avatar opens a menu showing the Profile name, the Account's email address, and
       Sign out.
-- [ ] Sign out from the menu ends the Session and returns to sign-in, exactly as the header button
+- [x] Sign out from the menu ends the Session and returns to sign-in, exactly as the header button
       did.
-- [ ] Clicking outside the menu closes it.
-- [ ] Pressing Escape closes it.
-- [ ] The four existing tabs are unchanged.
-- [ ] Styling reuses the existing stylesheet's tokens and semantic class naming.
+- [x] Clicking outside the menu closes it.
+- [x] Pressing Escape closes it.
+- [x] The four existing tabs are unchanged.
+- [x] Styling reuses the existing stylesheet's tokens and semantic class naming.

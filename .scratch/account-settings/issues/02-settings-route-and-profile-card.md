@@ -29,18 +29,18 @@ is a hint and never a guard, so no existing Assessment or History entry is inval
 
 **Status:** ready-for-agent
 
-- [ ] The avatar menu has an "Account settings" entry that opens the settings page.
-- [ ] The settings page keeps the header and the chatbot.
-- [ ] Reaching the settings URL without a Session lands on sign-in; without a Profile, on onboarding.
-- [ ] Account settings is not added to the tab navigation.
-- [ ] The page renders three titled cards; the second and third are present but empty.
-- [ ] The Profile card is pre-filled with the stored name, education level and location.
-- [ ] The education level offers the same options as onboarding.
-- [ ] The Save button is disabled until a field differs from what is stored.
-- [ ] Saving with any field blank shows one inline message and changes nothing.
-- [ ] Saving shows a brief confirmation.
-- [ ] Editing the name updates the header avatar's initials immediately.
-- [ ] Changing the location to somewhere outside Singapore makes International notes appear on a new
+- [x] The avatar menu has an "Account settings" entry that opens the settings page.
+- [x] The settings page keeps the header and the chatbot.
+- [x] Reaching the settings URL without a Session lands on sign-in; without a Profile, on onboarding.
+- [x] Account settings is not added to the tab navigation.
+- [x] The page renders three titled cards; the second and third are present but empty.
+- [x] The Profile card is pre-filled with the stored name, education level and location.
+- [x] The education level offers the same options as onboarding.
+- [x] The Save button is disabled until a field differs from what is stored.
+- [x] Saving with any field blank shows one inline message and changes nothing.
+- [x] Saving shows a brief confirmation.
+- [x] Editing the name updates the header avatar's initials immediately.
+- [x] Changing the location to somewhere outside Singapore makes International notes appear on a new
       Assessment; changing it back to Singapore stops them.
-- [ ] Reloading after a save shows the new values, proving they reached the server.
-- [ ] Existing History entries and Assessments survive a Profile change untouched.
+- [x] Reloading after a save shows the new values, proving they reached the server.
+- [x] Existing History entries and Assessments survive a Profile change untouched.

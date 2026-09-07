@@ -29,14 +29,14 @@ ordinary rows and the destructive ones.
 
 **Status:** ready-for-agent
 
-- [ ] The Account actions card renders four rows, each with a title, an explanatory line, and a
+- [x] The Account actions card renders four rows, each with a title, an explanatory line, and a
       control.
-- [ ] Contact support does nothing when pressed and carries a tooltip marking it as planned.
-- [ ] Download my data produces a readable file containing the Account's whole State document.
-- [ ] Sign out from this card ends the Session and returns to sign-in.
-- [ ] Clear my data requires an explicit confirmation; cancelling changes nothing.
-- [ ] Confirming resets the State document on the server, not only in the browser.
-- [ ] After clearing, the student is still signed in and is routed to onboarding.
-- [ ] Signing out and back in after clearing shows the empty Account, confirming it persisted.
-- [ ] Clear my data no longer appears anywhere on the History page.
-- [ ] Clear my data is visually separated from the ordinary rows above it.
+- [x] Contact support does nothing when pressed and carries a tooltip marking it as planned.
+- [x] Download my data produces a readable file containing the Account's whole State document.
+- [x] Sign out from this card ends the Session and returns to sign-in.
+- [x] Clear my data requires an explicit confirmation; cancelling changes nothing.
+- [x] Confirming resets the State document on the server, not only in the browser.
+- [x] After clearing, the student is still signed in and is routed to onboarding.
+- [x] Signing out and back in after clearing shows the empty Account, confirming it persisted.
+- [x] Clear my data no longer appears anywhere on the History page.
+- [x] Clear my data is visually separated from the ordinary rows above it.

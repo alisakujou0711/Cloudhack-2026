@@ -32,15 +32,15 @@ The new ADR needs no edit; it was written with the spec and already describes wh
 
 **Status:** ready-for-agent
 
-- [ ] A new Account settings feature document exists, following the existing skeleton and within the
+- [x] A new Account settings feature document exists, following the existing skeleton and within the
       50–80 line budget.
-- [ ] It has a row in the documentation map in the repo's agent entry point.
-- [ ] No doc still claims account deletion is not built.
-- [ ] No doc still claims changing a password is absent.
-- [ ] The API reference documents all three new endpoints, including that each requires the current
+- [x] It has a row in the documentation map in the repo's agent entry point.
+- [x] No doc still claims account deletion is not built.
+- [x] No doc still claims changing a password is absent.
+- [x] The API reference documents all three new endpoints, including that each requires the current
       password and that a password change revokes the Account's other Sessions.
-- [ ] The onboarding document reflects the new header and no longer claims onboarding is the only
+- [x] The onboarding document reflects the new header and no longer claims onboarding is the only
       place the Profile is set.
-- [ ] The history document no longer places Clear my data on the History page.
-- [ ] The architecture document's routing and header descriptions match what was built.
-- [ ] No document restates another at length; each links instead.
+- [x] The history document no longer places Clear my data on the History page.
+- [x] The architecture document's routing and header descriptions match what was built.
+- [x] No document restates another at length; each links instead.

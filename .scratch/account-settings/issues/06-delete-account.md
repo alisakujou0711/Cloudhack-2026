@@ -23,7 +23,7 @@ hand — that is what keeps deletion complete when a table is added later.
 **The queued write is the hazard.** The client holds a debounced whole-document write for up to 800ms
 after any change, and a write still queued or in flight when the Account disappears arrives at a
 deleted row and trips the central Session-expired handling in the middle of the flow. The existing
-clear-data path already solves exactly this — it cancels the queued write and *awaits* any write
+clear-data path already solves exactly this — it cancels the queued write and _awaits_ any write
 already on the wire, because an in-flight request cannot be cancelled. Deletion must reuse that
 sequence. Editing the Profile and immediately deleting the Account is the path that finds it.
 
@@ -36,19 +36,19 @@ Account email address (the server-side current-password verification).
 
 **Status:** ready-for-agent
 
-- [ ] Delete account sits at the bottom of the Account actions card, visually marked as destructive.
-- [ ] It requires a two-step confirmation and the Account password.
-- [ ] The confirmation states plainly that it cannot be undone.
-- [ ] Cancelling at either step leaves everything exactly as it was.
-- [ ] A wrong password is refused with an inline message and the Account survives.
-- [ ] A correct password deletes the Account and clears the Session.
-- [ ] The student lands on sign-in with a short neutral sentence saying the Account was deleted,
+- [x] Delete account sits at the bottom of the Account actions card, visually marked as destructive.
+- [x] It requires a two-step confirmation and the Account password.
+- [x] The confirmation states plainly that it cannot be undone.
+- [x] Cancelling at either step leaves everything exactly as it was.
+- [x] A wrong password is refused with an inline message and the Account survives.
+- [x] A correct password deletes the Account and clears the Session.
+- [x] The student lands on sign-in with a short neutral sentence saying the Account was deleted,
       which does not survive a reload.
-- [ ] The old email and password no longer sign in.
-- [ ] Signing up again with the same address succeeds and yields an empty State document.
-- [ ] Editing the Profile and immediately deleting the Account completes cleanly, with no stray error
+- [x] The old email and password no longer sign in.
+- [x] Signing up again with the same address succeeds and yields an empty State document.
+- [x] Editing the Profile and immediately deleting the Account completes cleanly, with no stray error
       from a queued write.
-- [ ] The endpoint returns 401 without a Session.
-- [ ] Deleting the seeded demo Account and restarting the server brings it back.
-- [ ] The behaviour above is covered by tests over the existing HTTP seam, with the cascade observed
+- [x] The endpoint returns 401 without a Session.
+- [x] Deleting the seeded demo Account and restarting the server brings it back.
+- [x] The behaviour above is covered by tests over the existing HTTP seam, with the cascade observed
       through what a later request can see rather than by reading tables.
