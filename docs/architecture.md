@@ -89,7 +89,9 @@ State keys (`defaultState()`): `profile`, `universityPortfolio`, `internshipPort
   `docs/adr/0002-server-is-sole-source-of-truth.md` before reintroducing one.
 - One status comes out of the context: `loadStatus` (`idle | loading | ready | error`), which
   gates routing. Saving is deliberately invisible — the header reports nothing, and a failed write
-  is logged to the console only.
+  is logged to the console only. The one exception is the Profile card's transient "Saved" line on
+  `/app/settings`, which acknowledges an explicit button press rather than reporting the write: it
+  appears before the debounced `PUT` is even scheduled and does not know whether it landed.
 - Signing out cancels any queued write and resets state to defaults, so a pending save can never
   land on the account that signs in next.
 - **Clearing is a server call, not a local reset.** `clearData()` (History page, "Clear my data")
@@ -127,12 +129,16 @@ profile gate waits on a second condition for the same reason: until `AppContext`
 through onboarding. A failed load renders a retry screen rather than an empty app.
 
 `/signin` · `/signup` · `/onboarding` are each their own route; the first two redirect to `/` once
-a session exists, and onboarding stays the only place `profile` is set. Everything else nests
+a session exists, and onboarding is where `profile` is first set — the Profile card on
+`/app/settings` is the only other place it changes. Everything else nests
 under `/app` in `client/src/components/Layout.jsx` (header nav, the `AccountMenu` avatar, and the
 floating `ChatbotWidget`),
 guarded by both a session and `profile`.
 
-`/app/optimize` · `/app/history` · `/app/interviews` · `/app/inspirations`
+`/app/optimize` · `/app/history` · `/app/interviews` · `/app/inspirations` · `/app/settings`
+
+`/app/settings` is deliberately absent from the tab nav — the `AccountMenu` avatar is the only way
+in.
 
 `/app/university` and `/app/internship` are **redirects** left over from an earlier two-tab
 layout, folded into the single Optimize tab. Don't revive them as real routes without checking

@@ -9,6 +9,7 @@ import ApplicationOptimizationPage from './pages/ApplicationOptimizationPage';
 import HistoryPage from './pages/HistoryPage';
 import InterviewsPage from './pages/InterviewsPage';
 import InspirationsPage from './pages/InspirationsPage';
+import AccountSettingsPage from './pages/AccountSettingsPage';
 import Layout from './components/Layout';
 
 // Where someone who has not passed both gates belongs, or null once both are passed. Stated once
@@ -82,6 +83,8 @@ function AppRoutes() {
         <Route path="history" element={<HistoryPage />} />
         <Route path="interviews" element={<InterviewsPage />} />
         <Route path="inspirations" element={<InspirationsPage />} />
+        {/* Reached from the avatar menu only — deliberately not a fifth tab. */}
+        <Route path="settings" element={<AccountSettingsPage />} />
         {/* Legacy routes from the old two-tab layout */}
         <Route path="university" element={<Navigate to="/app/optimize" replace />} />
         <Route path="internship" element={<Navigate to="/app/optimize" replace />} />

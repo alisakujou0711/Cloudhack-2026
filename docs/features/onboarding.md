@@ -12,7 +12,8 @@ behavior throughout the product.
 | `client/src/pages/OnboardingPage.jsx` | The form; all three fields required, inline error otherwise |
 | `client/src/context/AppContext.jsx` | `EDUCATION_LEVELS`, `suggestedOptimizationType`, `setProfile` |
 | `client/src/App.jsx` | Route guard — with a session but no profile, every `/app/*` route redirects to `/onboarding` |
-| `client/src/components/AccountMenu.jsx` | The header avatar — initials and colour from `profile.name` — and the menu holding the name, the account email and "Sign out" |
+| `client/src/pages/AccountSettingsPage.jsx` | The Profile card — the only other place the three fields are edited, after onboarding sets them |
+| `client/src/components/AccountMenu.jsx` | The header avatar — initials and colour from `profile.name` — and the menu holding the name, the account email, "Account settings" and "Sign out" |
 
 ## Flow
 

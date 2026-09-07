@@ -367,6 +367,8 @@ label {
   border: none;
 }
 
+/* Shared: the onboarding form and the settings Profile card offer the same three levels the
+   same way. */
 .onboard-levels {
   display: grid;
   gap: 0.5rem;
@@ -1224,8 +1226,11 @@ label {
   word-break: break-all;
 }
 
+/* Worn by both a button (Sign out) and a router link (Account settings), so it carries the
+   resets a button would otherwise get for free. */
 .account-menu-item {
   display: block;
+  box-sizing: border-box;
   width: 100%;
   text-align: left;
   background: transparent;
@@ -1235,6 +1240,7 @@ label {
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--text);
+  text-decoration: none;
 }
 .account-menu-item:hover {
   background: var(--optional-bg);
@@ -4031,4 +4037,72 @@ label {
   font-size: 0.82rem;
   color: var(--text-muted);
   font-style: italic;
+}
+
+/* Account settings ---------------------------------------------------------
+   Reached from the avatar menu only. One narrow column of titled cards, kept short enough to
+   take in at once. */
+.settings {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.settings-head h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+.settings-head .subtitle {
+  margin: 0.35rem 0 0;
+}
+
+.settings-card {
+  padding: 1.4rem 1.5rem;
+}
+
+.settings-card-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.settings-card-head .subtitle {
+  margin: 0.3rem 0 0;
+  font-size: 0.86rem;
+  max-width: 62ch;
+}
+
+.settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 1.15rem;
+}
+
+/* A fieldset rather than a label, so the legend has to be given the label styling by hand. */
+.settings-choice {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+.settings-choice legend {
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* Transient: it is gone again a couple of seconds later, so it sits beside the button rather
+   than taking a line of its own and moving everything under it. */
+.settings-saved {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--success);
 }

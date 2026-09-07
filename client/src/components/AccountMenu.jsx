@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -81,6 +82,9 @@ export default function AccountMenu() {
             <span className="account-menu-name">{name}</span>
             <span className="account-menu-email">{account?.email}</span>
           </div>
+          <Link to="/app/settings" className="account-menu-item" onClick={() => setOpen(false)}>
+            Account settings
+          </Link>
           <button type="button" className="account-menu-item" onClick={signOut}>
             Sign out
           </button>
