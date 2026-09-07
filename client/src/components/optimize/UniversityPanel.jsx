@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { api } from '../../api/client';
 import { mockNotice } from '../../utils/llmSource';
 import DocumentUploader from './DocumentUploader';
+import MarkupPanel from './MarkupPanel';
 
 // University Application Optimization. Upload is optional here — the form works fine filled in
 // by hand; a file just pre-fills fields for convenience.
@@ -79,10 +80,12 @@ export default function UniversityPanel({ onComplete }) {
 
   return (
     <div className="page-grid">
-      <div className="card">
-        <h2>University Application Optimization</h2>
-        <p className="subtitle">
-          Scope: Singapore universities (MVP). {prefilling && 'Pre-filling fields from your uploaded file…'}
+      <div className="card work-card">
+        <h1 className="panel-title">University application</h1>
+        <p className="panel-deck">
+          {prefilling
+            ? 'Reading your file into the fields below…'
+            : 'Singapore universities, for now. Upload a transcript to fill this in, or type it in yourself.'}
         </p>
         <form onSubmit={handleSubmit} className="form">
           <label>
@@ -156,11 +159,16 @@ export default function UniversityPanel({ onComplete }) {
         </form>
       </div>
 
-      <div className="card">
-        <h2>Report</h2>
-        {!universityAssessment && <p className="subtitle">Submit your portfolio to see your checklist and feedback.</p>}
+      <MarkupPanel
+        title="Where you stand"
+        loading={loading}
+        loadingLabel="Checking your portfolio against the course…"
+        invitation="Pick a course and fill in what you have. It comes back measured against that course's own baseline, not a generic one."
+        sections={['Checklist', 'Feedback', 'Recommendations']}
+        result={universityAssessment}
+      >
         {universityAssessment && <UniversityReport result={universityAssessment} />}
-      </div>
+      </MarkupPanel>
     </div>
   );
 }

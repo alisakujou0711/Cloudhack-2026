@@ -667,6 +667,7 @@ label {
   display: flex;
   align-items: center;
   gap: 2rem;
+  flex-wrap: wrap;
   padding: 1rem 2rem;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -685,6 +686,26 @@ label {
   display: flex;
   gap: 0.5rem;
   flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+.tab {
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .app-header {
+    gap: 0.75rem 1rem;
+    padding: 0.85rem 1rem;
+  }
+  .tabs {
+    order: 3;
+    flex-basis: 100%;
+  }
 }
 
 .tab {
@@ -727,6 +748,7 @@ label {
 .app-main {
   flex: 1;
   padding: 2rem;
+  min-width: 0;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -742,6 +764,12 @@ label {
 @media (max-width: 900px) {
   .page-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .app-main {
+    padding: 1.5rem 1rem 2rem;
   }
 }
 
@@ -1207,17 +1235,7 @@ label {
   flex: 1;
 }
 
-/* Application Optimization: upload + type picker */
-.optimize-upload-card {
-  margin-bottom: 1.25rem;
-}
-.optimize-type-card {
-  margin-bottom: 1.25rem;
-}
-.optimize-type-card h3 {
-  margin-top: 0;
-}
-
+/* Inspirations mode switcher (these tiles used to serve the optimization type picker too) */
 .type-option-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1284,25 +1302,680 @@ label {
   gap: 0.6rem;
 }
 
-.optimize-panel {
-  margin-top: 0.5rem;
+/* Application Optimization — the desk
+   The signed-in app is cool grey and indigo everywhere else. This one page carries the manuscript
+   palette inward from the sign-in screen, because it is the only place a student's own document
+   is the subject rather than the input. Declared on .optimize, the way .auth-screen declares its
+   own, so it cannot leak into History or Interviews. */
+.optimize {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --o-ink: #14172b;
+  --o-paper: #fcfaf4;
+  --o-rule: rgba(20, 23, 43, 0.14);
+  --o-graphite: #a8a294;
+  --o-strike: #9b3232;
+  --o-written: #14532d;
 }
-.change-type-link {
-  display: inline-block;
+
+.desk {
+  max-width: 70rem;
+}
+
+.desk-headline {
+  margin: 0.25rem 0 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.95rem, 3.2vw, 2.7rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--o-ink);
+  text-wrap: balance;
+}
+
+.desk-deck {
+  margin: 0.85rem 0 0;
+  max-width: 54ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.specimen-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 2.75rem;
+}
+
+/* The four documents, as paper */
+.specimen-option {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0;
+  background: none;
+  border: none;
+  text-align: left;
+  color: inherit;
+  border-radius: 6px;
+}
+.specimen-option:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 6px;
+}
+
+.specimen-frame {
+  position: relative;
+  display: block;
   margin-bottom: 0.75rem;
-  font-size: 0.85rem;
+  background: var(--o-paper);
+  border: 1px solid var(--o-rule);
+  /* Paper has corners. The rest of the app rounds to 14px; this deliberately does not. */
+  border-radius: 2px;
+  box-shadow: 0 1px 1px rgba(20, 23, 43, 0.05), 0 10px 20px -14px rgba(20, 23, 43, 0.45);
+  transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.22s ease;
+}
+.specimen-option:hover .specimen-frame,
+.specimen-option:focus-visible .specimen-frame {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 2px rgba(20, 23, 43, 0.05), 0 20px 32px -18px rgba(20, 23, 43, 0.5);
 }
 
-.doc-uploader-prompt {
-  font-weight: 700;
+/* A ribbon hung over the top edge of the one we would open first. */
+.specimen-option.is-suggested .specimen-frame::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: 1.15rem;
+  width: 1.35rem;
+  height: 1.9rem;
+  background: var(--primary);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%);
+}
+
+/* Always present, only sometimes filled, so all four document names share one baseline. */
+.specimen-suggested {
+  min-height: 1.05rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.specimen-name {
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--o-ink);
+  letter-spacing: -0.005em;
+}
+
+.specimen-promise {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  max-width: 32ch;
+}
+
+.specimen {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.spec-paper {
+  fill: var(--o-paper);
+}
+.spec-head {
+  fill: rgba(20, 23, 43, 0.68);
+}
+.spec-body {
+  fill: rgba(20, 23, 43, 0.24);
+}
+.spec-dot {
+  fill: rgba(20, 23, 43, 0.34);
+}
+.spec-grade {
+  fill: rgba(20, 23, 43, 0.42);
+}
+.spec-rule {
+  stroke: var(--o-rule);
+  stroke-width: 1;
+}
+/* Ruled paper's margin is drawn in red, and so is this one. */
+.spec-margin {
+  stroke: rgba(155, 50, 50, 0.3);
+}
+.spec-cut {
+  fill: rgba(155, 50, 50, 0.28);
+}
+.spec-strike {
+  stroke: var(--o-strike);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.spec-written {
+  fill: rgba(20, 83, 45, 0.5);
+}
+.spec-tick-field {
+  fill: rgba(20, 83, 45, 0.1);
+}
+.spec-tick {
+  fill: none;
+  stroke: var(--o-written);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.spec-leader {
+  fill: none;
+  stroke: rgba(155, 50, 50, 0.45);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.spec-signature {
+  fill: none;
+  stroke: rgba(20, 23, 43, 0.45);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.spec-note-dot {
+  fill: rgba(155, 50, 50, 0.25);
+}
+.spec-note-field {
+  fill: rgba(155, 50, 50, 0.07);
+}
+
+/* Hovering a specimen replays the mark being made on it — the product's own mechanic, previewed
+   on the document it belongs to. */
+.spec-mark > * {
+  transform-box: fill-box;
+}
+.specimen-option:hover .spec-strike,
+.specimen-option:focus-visible .spec-strike,
+.specimen-option:hover .spec-cut,
+.specimen-option:focus-visible .spec-cut,
+.specimen-option:hover .spec-written,
+.specimen-option:focus-visible .spec-written,
+.specimen-option:hover .spec-note-field,
+.specimen-option:focus-visible .spec-note-field {
+  transform-origin: left center;
+  animation: spec-sweep 480ms cubic-bezier(0.3, 0.8, 0.4, 1) both;
+}
+.specimen-option:hover .spec-written,
+.specimen-option:focus-visible .spec-written {
+  animation-delay: 260ms;
+}
+.specimen-option:hover .spec-tick,
+.specimen-option:focus-visible .spec-tick,
+.specimen-option:hover .spec-signature,
+.specimen-option:focus-visible .spec-signature {
+  stroke-dasharray: 44;
+  animation: spec-draw 620ms ease-out both;
+}
+
+@keyframes spec-sweep {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes spec-draw {
+  from {
+    stroke-dashoffset: 44;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (max-width: 1080px) {
+  .specimen-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
+  }
+}
+@media (max-width: 560px) {
+  .specimen-grid {
+    grid-template-columns: 1fr;
+  }
+  .specimen-frame {
+    max-width: 11rem;
+  }
+}
+
+/* The rail: once a document is open, the picker becomes a way back and a way across. */
+.optimize-panel {
+  margin-top: 0;
+}
+
+.doc-rail {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.7rem;
+  margin-bottom: 1.6rem;
+}
+
+.rail-back {
+  background: none;
+  border: none;
+  padding: 0.35rem 0;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: 4px;
+}
+.rail-back::before {
+  content: '\2190\00a0';
+}
+.rail-back:hover {
+  color: var(--o-ink);
+}
+
+.rail-tabs {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  border-left: 1px solid var(--border);
+  padding-left: 1rem;
+}
+
+.rail-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.34rem 0.75rem;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  font-family: inherit;
   font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.rail-tab:hover:not(.is-active) {
+  background: var(--optional-bg);
+  color: var(--o-ink);
+}
+.rail-tab.is-active {
+  background: var(--o-ink);
+  color: #ffffff;
+}
+/* The form side */
+.work-card {
+  border-radius: 4px;
+  padding: 1.6rem 1.6rem 1.75rem;
+}
+
+.panel-title {
+  margin: 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.7rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--o-ink);
+}
+
+.panel-deck {
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* Only the two-step flows get numbers, because only they are a sequence. */
+.panel-steps {
+  display: flex;
+  gap: 1.4rem;
+  list-style: none;
+  counter-reset: step;
+  margin: 1.25rem 0 0;
+  padding: 0 0 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.panel-steps li {
+  counter-increment: step;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--o-graphite);
+}
+.panel-steps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.7rem;
+}
+.panel-steps li.is-current {
+  color: var(--o-ink);
+}
+.panel-steps li.is-current::before {
+  background: var(--o-ink);
+  border-color: var(--o-ink);
+  color: #ffffff;
+}
+.panel-steps li.is-done {
+  color: var(--text-muted);
+}
+.panel-steps li.is-done::before {
+  content: '\2713';
+  background: var(--o-written);
+  border-color: var(--o-written);
+  color: #ffffff;
+}
+
+/* The native file control is the least considered thing on every one of these forms. */
+.optimize .file-upload-row input[type='file'] {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: #fbfaf6;
+  border: 1px dashed #d3d7e0;
+  border-radius: 8px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.optimize .file-upload-row input[type='file']:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: #fbfbff;
+}
+.optimize .file-upload-row input[type='file']::file-selector-button {
+  margin-right: 0.7rem;
+  padding: 0.4rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--text);
-  margin: 0 0 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.placeholder-card {
-  text-align: center;
-  padding: 3rem 2rem;
+/* The markup side: paper, with the margin rule the marks hang against. */
+.markup {
+  position: relative;
+  min-height: 27rem;
+  padding: 1.5rem 1.75rem 1.9rem 2.25rem;
+  background: var(--o-paper);
+  border: 1px solid var(--o-rule);
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(20, 23, 43, 0.04), 0 16px 34px -26px rgba(20, 23, 43, 0.45);
+}
+.markup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1.1rem;
+  width: 1px;
+  background: rgba(155, 50, 50, 0.16);
+}
+
+.markup-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--o-rule);
+}
+.markup-head h2 {
+  margin: 0;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--o-ink);
+}
+.markup-status {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.markup-status.is-done {
+  color: var(--o-written);
+}
+
+.markup-body {
+  margin-top: 1.35rem;
+}
+
+.markup-invitation {
+  margin: 0 0 2rem;
+  max-width: 56ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* What is coming, before anything has been sent. */
+.markup-ghost {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.ghost-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.ghost-heading {
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.05rem;
+  color: var(--o-graphite);
+}
+.ghost-line {
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(20, 23, 43, 0.055);
+}
+
+/* The wait, which is the one thing on this page that moves on its own: a pass being made over
+   the page, lines cut and rewritten, until the real markup arrives. */
+.pen-pass {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.pen-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.pen-line {
+  position: relative;
+  display: block;
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(20, 23, 43, 0.1);
+}
+.pen-row.is-revised .pen-line::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: var(--o-strike);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: pen-strike 4s var(--row-delay) infinite;
+}
+.pen-written {
+  display: block;
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(20, 83, 45, 0.32);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: pen-write 4s var(--row-delay) infinite;
+}
+
+@keyframes pen-strike {
+  0% {
+    transform: scaleX(0);
+  }
+  14%,
+  78% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+@keyframes pen-write {
+  0%,
+  14% {
+    transform: scaleX(0);
+  }
+  40%,
+  78% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+/* The one reveal: the markup arriving. */
+.markup-report {
+  animation: markup-in 340ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes markup-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.markup-report h3 {
+  margin: 1.75rem 0 0.5rem;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--o-ink);
+}
+.markup-report > div > h3:first-child {
+  margin-top: 0;
+}
+.markup-report h4 {
+  margin: 1.2rem 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.markup-report p,
+.markup-report li {
+  line-height: 1.6;
+}
+
+
+/* Report components, on paper: the tints they carry on a white card read as UI panels stuck onto
+   the page, so inside .markup they become the page's own annotations. */
+.markup .reviewer-note {
+  background: rgba(20, 23, 43, 0.035);
+  border-color: var(--o-rule);
+  border-radius: 4px;
+  color: var(--o-ink);
+}
+.markup .qa-item,
+.markup .checklist li {
+  background: rgba(20, 23, 43, 0.025);
+  border-color: var(--o-rule);
+  border-radius: 4px;
+}
+.markup .checklist li.met {
+  background: rgba(20, 83, 45, 0.06);
+  border-color: rgba(20, 83, 45, 0.22);
+}
+.markup .checklist li.unmet {
+  background: rgba(155, 50, 50, 0.055);
+  border-color: rgba(155, 50, 50, 0.22);
+}
+.markup .met .check-icon {
+  color: var(--o-written);
+}
+.markup .unmet .check-icon {
+  color: var(--o-strike);
+}
+/* The course being measured against is the thing the whole panel is about, so it gets the
+   page's own voice rather than sitting below the badge as body copy. */
+.markup .report-summary > p:first-of-type {
+  margin: 0.5rem 0 0.35rem;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 1.15rem;
+  color: var(--o-ink);
+}
+.markup .score-line {
+  margin: 0;
+}
+
+.markup .badge {
+  background: rgba(20, 23, 43, 0.06);
+  color: var(--o-ink);
+  border-radius: 3px;
+  letter-spacing: 0;
+}
+.markup .diff-bullet {
+  background: rgba(20, 23, 43, 0.03);
+  border-radius: 4px;
+}
+.markup .qa-sample-answer {
+  background: rgba(20, 23, 43, 0.03);
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .specimen-frame,
+  .rail-tab {
+    transition: none;
+  }
+  .specimen-option:hover .specimen-frame,
+  .specimen-option:focus-visible .specimen-frame {
+    transform: none;
+  }
+  .spec-mark > *,
+  .markup-report {
+    animation: none !important;
+  }
+  /* The pass still has to say that work is happening — it holds its finished state instead of
+     running. */
+  .pen-row.is-revised .pen-line::after,
+  .pen-written {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 900px) {
+  .markup {
+    min-height: 0;
+  }
 }
 
 /* Essay / cover-letter Q&A */
