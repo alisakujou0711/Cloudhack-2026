@@ -25,6 +25,22 @@ npm run dev
 
 Open http://localhost:5173.
 
+### Demo account
+
+The server seeds one account on its first boot against a new database, already carrying a
+profile and several finished optimization runs in History:
+
+    Email:    demo@portfoliopath.app
+    Password: portfoliopath
+
+Sign in with those on the normal sign-in screen — there is no demo button. The same credentials
+are printed in the server's startup log. Or create your own account with **Sign up** and start
+from an empty one.
+
+Seeding only happens when that account is absent, so restarting the server never overwrites work
+in progress — including a demo account whose data has been cleared, which stays cleared. Delete
+`server/data/portfoliopath.db` to get the seeded content back.
+
 ## LLM integration
 
 The server calls an LLM (Gemini or Claude) for classification, feedback generation, and the

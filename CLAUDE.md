@@ -14,7 +14,9 @@ gallery, a history log, and a context-aware chatbot. `README.md` is the product 
 
 Accounts are email + password, backed by a SQLite file the server creates on first boot
 (`server/db.js`). Everything a student produces is one JSON state document per account, held in
-that database and read and written over `/api/state` — nothing is kept in browser storage.
+that database and read and written over `/api/state` — nothing is kept in browser storage. A
+fresh database is seeded with one worked-in demo account (`demo@portfoliopath.app` /
+`portfoliopath`) — the credentials the startup log prints.
 
 ## Commands
 
@@ -96,6 +98,7 @@ the code still runs.
 | `docs/features/chatbot.md` | Working on the chatbot, chat context, or `ChatUIContext` |
 | `docs/features/history.md` | Working on the history log, snapshots, or bookmarking |
 | `docs/features/inspirations.md` | Working on the sample essay/resume galleries |
+| `docs/features/demo-account.md` | Touching the seeded demo account, its fixtures, or boot-time seeding |
 
 ### Adding a feature doc
 

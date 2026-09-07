@@ -11,7 +11,7 @@ no workspace config.
 | Package | Port | Entry | Notes |
 | --- | --- | --- | --- |
 | `client/` | 5173 | `client/src/main.jsx` | Vite + React 19, `BrowserRouter`, plain CSS |
-| `server/` | 4000 | `server/index.js` | Express 5, CommonJS, `node --watch` in dev. `app.js` builds and exports the configured app; `index.js` only listens |
+| `server/` | 4000 | `server/index.js` | Express 5, CommonJS, `node --watch` in dev. `app.js` builds and exports the configured app; `index.js` listens, and seeds the demo account (`docs/features/demo-account.md`) — the only two things it does |
 
 `server/db.js` opens a SQLite file (`better-sqlite3`, synchronous) and applies the schema on
 import — `users`, `sessions`, and `user_state` (one state document per account) — with every

@@ -2,36 +2,7 @@
 // create-if-not-exists, so a second boot finds the first boot's account intact.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('path');
-const { spawn } = require('child_process');
-const { createClient, temporaryDatabase, freePort } = require('./helpers/testServer');
-
-const serverDir = path.join(__dirname, '..');
-
-function startServerProcess({ port, databasePath }) {
-  const child = spawn(process.execPath, ['index.js'], {
-    cwd: serverDir,
-    env: { ...process.env, PORT: String(port), DATABASE_PATH: databasePath },
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-
-  const ready = new Promise((resolve, reject) => {
-    let output = '';
-    child.stdout.on('data', (chunk) => {
-      output += chunk;
-      if (output.includes('listening')) resolve();
-    });
-    child.on('exit', (code) => reject(new Error(`server exited early (${code}): ${output}`)));
-  });
-
-  return {
-    ready,
-    async stop() {
-      child.kill();
-      await new Promise((resolve) => child.on('exit', resolve));
-    },
-  };
-}
+const { startServerProcess, createClient, temporaryDatabase, freePort } = require('./helpers/testServer');
 
 test('an account survives a restart against the same database file', async () => {
   const database = temporaryDatabase();
