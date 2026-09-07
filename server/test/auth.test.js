@@ -260,6 +260,113 @@ test('changing the email requires a session', async () => {
   assert.match(res.body.error, /auth/i);
 });
 
+test('changing the password with the correct current one succeeds and keeps the session', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'rotating@example.com', password: PASSWORD });
+
+  const res = await client.patch('/account/password', {
+    currentPassword: PASSWORD,
+    newPassword: 'a-much-better-one',
+  });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.ok, true);
+
+  const me = await client.get('/auth/me');
+  assert.equal(me.status, 200, 'the session that made the change keeps working');
+  assert.equal(me.body.user.email, 'rotating@example.com');
+});
+
+test('after changing the password the new one signs in and the old one does not', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'rotated@example.com', password: PASSWORD });
+  await client.patch('/account/password', { currentPassword: PASSWORD, newPassword: 'a-much-better-one' });
+
+  const withNew = await harness
+    .client()
+    .post('/auth/login', { email: 'rotated@example.com', password: 'a-much-better-one' });
+  assert.equal(withNew.status, 200);
+
+  const withOld = await harness
+    .client()
+    .post('/auth/login', { email: 'rotated@example.com', password: PASSWORD });
+  assert.equal(withOld.status, 401);
+});
+
+test('changing the password revokes every other session and keeps the one making the change', async () => {
+  const owner = harness.client();
+  await owner.post('/auth/signup', { email: 'watched@example.com', password: PASSWORD });
+
+  // A second session on the same account — the one the student came here to get rid of.
+  const watcher = harness.client();
+  const watcherLogin = await watcher.post('/auth/login', { email: 'watched@example.com', password: PASSWORD });
+  assert.equal(watcherLogin.status, 200);
+  assert.equal((await watcher.get('/auth/me')).status, 200, 'the second session works before the change');
+
+  const res = await owner.patch('/account/password', {
+    currentPassword: PASSWORD,
+    newPassword: 'a-much-better-one',
+  });
+  assert.equal(res.status, 200);
+
+  assert.equal((await watcher.get('/auth/me')).status, 401, 'the other session is revoked');
+  assert.equal((await owner.get('/auth/me')).status, 200, 'the session that made the change is not');
+});
+
+test('changing the password with a wrong current one is refused and changes nothing', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'guarded-pw@example.com', password: PASSWORD });
+
+  const res = await client.patch('/account/password', {
+    currentPassword: 'not-the-password',
+    newPassword: 'a-much-better-one',
+  });
+  assert.equal(res.status, 400, 'a wrong password is not a dead session — it belongs beside the control');
+  assert.match(res.body.error, /password/i);
+
+  assert.equal((await client.get('/auth/me')).status, 200, 'nothing was revoked');
+  const stillOld = await harness
+    .client()
+    .post('/auth/login', { email: 'guarded-pw@example.com', password: PASSWORD });
+  assert.equal(stillOld.status, 200, 'the old password still signs in');
+});
+
+test('a new password below the minimum length is refused with the rule stated', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'short@example.com', password: PASSWORD });
+
+  const res = await client.patch('/account/password', { currentPassword: PASSWORD, newPassword: 'short' });
+  assert.equal(res.status, 400);
+  assert.match(res.body.error, /at least 8 characters/i);
+
+  const stillOld = await harness
+    .client()
+    .post('/auth/login', { email: 'short@example.com', password: PASSWORD });
+  assert.equal(stillOld.status, 200);
+});
+
+test('changing the password without a field is rejected', async () => {
+  const client = harness.client();
+  await client.post('/auth/signup', { email: 'partial-pw@example.com', password: PASSWORD });
+
+  assert.equal((await client.patch('/account/password', { newPassword: 'a-much-better-one' })).status, 400);
+  assert.equal((await client.patch('/account/password', { currentPassword: PASSWORD })).status, 400);
+
+  const stillOld = await harness
+    .client()
+    .post('/auth/login', { email: 'partial-pw@example.com', password: PASSWORD });
+  assert.equal(stillOld.status, 200);
+});
+
+test('changing the password requires a session', async () => {
+  const res = await harness.client().patch(
+    '/account/password',
+    { currentPassword: PASSWORD, newPassword: 'a-much-better-one' },
+    { sendCookies: false },
+  );
+  assert.equal(res.status, 401);
+  assert.match(res.body.error, /auth/i);
+});
+
 test('the health check stays open — it is the one endpoint outside the gate', async () => {
   const res = await harness.client().get('/health', { sendCookies: false });
   assert.equal(res.status, 200);

@@ -35,6 +35,7 @@ methods are in `client/src/api/client.js`.
 | `POST /auth/logout` | — | `{ok: true}`, session deleted, cookie cleared | `auth.signOut` |
 | `GET /auth/me` | — | `{user}` or `401` | `auth.getSessionUser` |
 | `PATCH /account/email` | `{email, currentPassword}` — both required | `{user}` carrying the new address | `auth.changeEmail` |
+| `PATCH /account/password` | `{currentPassword, newPassword}` — both required, new one min 8 chars | `{ok: true}`, every other session revoked | `auth.changePassword` |
 | `GET /state` | — | the account's whole state document, `{}` when nothing is saved yet | `userState.readState` |
 | `PUT /state` | the whole state document as the body | `{ok: true}`, the stored document replaced | `userState.replaceState` |
 | `DELETE /state` | — | `{ok: true}`, the document reset to the empty one a new account holds | `userState.clearState` |
@@ -70,6 +71,13 @@ methods are in `client/src/api/client.js`.
   as it is at sign-up; only sign-in has to stay silent. Sessions key on the account rather than the
   address, so all of them survive, including the one making the request — but the client must
   replace its held account from the response or it keeps showing the old address.
+- **`/account/password`** — the current password is required for the same reason as above, and a
+  wrong one is the same **`400`**. The new one is held to sign-up's minimum, stated in the message.
+  Unlike the email change this one **revokes**: every other session on the account is deleted and
+  the one making the request is kept, which is the whole point — a change that left a watching
+  session alive would not protect anybody, and one that revoked all of them would sign the owner
+  out of the tab they are standing in. Password *reset* is deliberately absent: there is no mail
+  transport, so a forgotten password still means a new account.
 - **`/state`** — one JSON document per account, mirroring `defaultState()` in `AppContext`,
   stored opaquely: nothing on the server reads inside it. The document travels as itself in both
   directions, not wrapped in an envelope. `PUT` replaces it **wholesale** — it does not merge —

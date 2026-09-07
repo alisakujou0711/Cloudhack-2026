@@ -11,7 +11,7 @@ const { classifyDocument } = require('../services/documentClassifier');
 const { assessEssays } = require('../services/essayOptimization');
 const { assessCoverLetter } = require('../services/coverLetterOptimization');
 const { prepareInterview } = require('../services/interviewPrep');
-const { signUp, signIn, signOut, changeEmail } = require('../services/auth');
+const { signUp, signIn, signOut, changeEmail, changePassword } = require('../services/auth');
 const { readState, replaceState, clearState } = require('../services/userState');
 const {
   setSessionCookie,
@@ -89,6 +89,26 @@ router.patch('/account/email', (req, res) => {
       return res.status(400).json({ error: 'email and currentPassword are required' });
     }
     res.json({ user: changeEmail({ userId: req.user.id, email, currentPassword }) });
+  } catch (err) {
+    sendAuthError(res, err);
+  }
+});
+
+// Unlike the email change, this one revokes: every other session on the account goes, and the
+// one making the request stays. Why that is the point of the feature is at `services/auth.js`.
+router.patch('/account/password', (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'currentPassword and newPassword are required' });
+    }
+    changePassword({
+      userId: req.user.id,
+      currentPassword,
+      newPassword,
+      keepSessionToken: req.sessionToken,
+    });
+    res.json({ ok: true });
   } catch (err) {
     sendAuthError(res, err);
   }

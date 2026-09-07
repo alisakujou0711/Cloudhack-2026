@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
+import { api } from '../api/client';
 import { useApp, EDUCATION_LEVELS } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 
 // How long the "Saved" line stays up. Long enough to be read on the way to the next thing, short
 // enough that it is gone before it becomes part of the page.
 const CONFIRMATION_MS = 2500;
+
+// The account's minimum, restated where the new password is typed rather than left to be guessed.
+// The server enforces it too and stays the authority (`server/services/auth.js`); this copy exists
+// so the rule is on screen before the field is submitted.
+const PASSWORD_MIN_LENGTH = 8;
 
 // A confirmation that retires itself, and can be retired early — one left standing beside a
 // control that is ready to be pressed again reads as though the next change had been saved too.
@@ -145,7 +151,7 @@ function ProfileCard() {
 // The email address is part of the account, not the profile: it is what sign-in matches, so it
 // takes an endpoint of its own rather than riding the state document's whole-document write, and
 // the form asks for the current password (`server/services/auth.js:99`).
-function AccountSecurityCard() {
+function EmailChange() {
   const { account, changeEmail } = useAuth();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
@@ -186,15 +192,7 @@ function AccountSecurityCard() {
   };
 
   return (
-    <section className="card settings-card">
-      <div className="settings-card-head">
-        <h2>Account and security</h2>
-        <p className="subtitle">
-          The address you sign in with. Changing it asks for your password, and you stay signed in
-          here.
-        </p>
-      </div>
-
+    <>
       <div className="settings-row">
         <div>
           <p className="settings-row-label">Email address</p>
@@ -262,6 +260,167 @@ function AccountSecurityCard() {
           </div>
         </form>
       )}
+    </>
+  );
+}
+
+// The current password first, so an unattended session cannot be used to lock the owner out, and
+// the new one twice, so a typo does not silently become the password. Succeeding revokes every
+// other session on the account and keeps this one — the point of the feature, and the reason
+// nothing here has to touch AuthContext: the held account is unchanged.
+function PasswordChange() {
+  const [open, setOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [error, setError] = useState('');
+  const [pending, setPending] = useState(false);
+  const [changed, setChanged] = useConfirmation();
+
+  const close = () => {
+    setOpen(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmation('');
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!currentPassword || !newPassword || !confirmation) {
+      setError('Enter your current password, then the new one twice.');
+      return;
+    }
+    // Both rules are enforced on the server too. Refusing them here means a typo is answered by
+    // the fields that made it, rather than by a round trip that has already been sent.
+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
+      setError(`Your new password must be at least ${PASSWORD_MIN_LENGTH} characters.`);
+      return;
+    }
+    if (newPassword !== confirmation) {
+      setError('The two new passwords don’t match.');
+      return;
+    }
+    setError('');
+    setPending(true);
+    try {
+      await api.changePassword({ currentPassword, newPassword });
+      close();
+      setChanged(true);
+    } catch (err) {
+      // A wrong current password comes back 400, so it lands here beside the field that asked for
+      // it — the session is fine, and the central session-expired handling never sees it.
+      setError(err.message);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="settings-row">
+        <div>
+          <p className="settings-row-label">Password</p>
+          <p className="settings-row-value">
+            Changing it signs out every other device and keeps you signed in here.
+          </p>
+        </div>
+        <div className="settings-row-actions">
+          {changed && (
+            <span className="settings-saved" role="status">
+              Password updated
+            </span>
+          )}
+          {!open && (
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => {
+                setChanged(false);
+                setOpen(true);
+              }}
+            >
+              Change
+            </button>
+          )}
+        </div>
+      </div>
+
+      {open && (
+        <form className="settings-fields" onSubmit={handleSubmit}>
+          <label htmlFor="settings-current-password">
+            Current password
+            <input
+              id="settings-current-password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </label>
+
+          <label htmlFor="settings-new-password">
+            New password
+            <input
+              id="settings-new-password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+              aria-describedby="settings-new-password-hint"
+            />
+            <span id="settings-new-password-hint" className="settings-hint">
+              At least {PASSWORD_MIN_LENGTH} characters
+            </span>
+          </label>
+
+          <label htmlFor="settings-confirm-password">
+            New password again
+            <input
+              id="settings-confirm-password"
+              type="password"
+              value={confirmation}
+              onChange={(e) => setConfirmation(e.target.value)}
+              autoComplete="new-password"
+            />
+          </label>
+
+          {error && (
+            <p className="error-text" role="alert">
+              {error}
+            </p>
+          )}
+
+          <div className="settings-actions">
+            <button type="submit" className="btn-primary" disabled={pending}>
+              {pending ? 'Changing…' : 'Change password'}
+            </button>
+            <button type="button" className="btn-ghost" onClick={close} disabled={pending}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+    </>
+  );
+}
+
+// The two credentials the account signs in with, in one card because they are guarded the same
+// way: neither will change anything without the current password.
+function AccountSecurityCard() {
+  return (
+    <section className="card settings-card">
+      <div className="settings-card-head">
+        <h2>Account and security</h2>
+        <p className="subtitle">
+          What you sign in with. Both changes ask for your current password, and you stay signed in
+          here.
+        </p>
+      </div>
+
+      <EmailChange />
+
+      <PasswordChange />
     </section>
   );
 }

@@ -9,7 +9,7 @@ session cookie, and one state document per Account read and written over `/api/s
 | Path | Role |
 | --- | --- |
 | `server/db.js` | Opens the SQLite file and applies the three-table schema on import |
-| `server/services/auth.js` | Hashing, sign-up / sign-in / sign-out, session tokens, `getSessionUser`, `changeEmail` |
+| `server/services/auth.js` | Hashing, sign-up / sign-in / sign-out, session tokens, `getSessionUser`, `changeEmail`, `changePassword` |
 | `server/services/userState.js` | Read, replace, and clear the one document an Account holds |
 | `server/middleware/auth.js` | The `pp_session` cookie helpers and the `requireAuth` guard |
 | `server/routes/api.js` | The auth and state endpoints, and the `router.use(requireAuth)` line |
@@ -42,6 +42,10 @@ session cookie, and one state document per Account read and written over `/api/s
    checks the current one (`services/auth.js:103`). Sessions key on the Account id, so the Session
    survives; `changeEmail` in `AuthContext` replaces the held Account from the response
    (`AuthContext.jsx:64`).
+9. `PATCH /account/password` verifies the current password the same way, then rehashes and deletes
+   every Session row on the Account except the one making the request
+   (`services/auth.js:changePassword`). Nothing the client holds changes, so the settings page
+   calls `api.changePassword` directly rather than through `AuthContext`.
 
 The client-side rules these steps lean on — the two gates, why auth and app state are separate
 contexts, and how a queued write stays scoped to its Account — are stated once in
@@ -65,6 +69,9 @@ the shape of `defaultState()`, never wrapped in an envelope. Request shapes: `do
 - **Sign-in must not reveal whether an email is registered.** A wrong password and an unknown email
   share one 401 and one message (`server/services/auth.js:15`); sign-up necessarily reveals it, so
   splitting sign-in's cases turns the form into an account-enumeration oracle.
+- **Changing the password revokes every other Session and keeps the current one.** The student
+  changes it because someone may have watched them type it; leaving that Session alive would not
+  do the thing they came to do, and revoking all of them would eject the owner as well.
 - **Seeding is keyed on the demo Account existing, not on what it holds**, so a restart never
   overwrites a demo in progress. See `docs/features/demo-account.md`.
 - **`DATABASE_PATH` exists so tests can redirect the file, and for nothing else.** It stays

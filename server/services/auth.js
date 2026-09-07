@@ -125,4 +125,23 @@ function changeEmail({ userId, email, currentPassword }) {
   return publicUser({ ...row, email: normalized });
 }
 
-module.exports = { signUp, signIn, signOut, getSessionUser, changeEmail };
+// Changing the password is the one credential change that revokes: a change that left the
+// watcher's session alive would not do the thing the student came here to do. `keepSessionToken`
+// is the one that survives, so protecting yourself does not eject you from the tab you are in.
+// Password *reset* stays out of scope — there is no mail transport, and a forgotten password
+// still means a new account.
+function changePassword({ userId, currentPassword, newPassword, keepSessionToken }) {
+  verifyPassword(userId, currentPassword);
+  const next = String(newPassword);
+  if (next.length < PASSWORD_MIN_LENGTH) {
+    throw httpError(400, `Password must be at least ${PASSWORD_MIN_LENGTH} characters`);
+  }
+  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+    .run(bcrypt.hashSync(next, BCRYPT_COST), userId);
+  // `!= ''` rather than a null comparison: an absent token has to revoke everything, and
+  // `token != NULL` is NULL in SQL, which would quietly delete nothing.
+  db.prepare('DELETE FROM sessions WHERE user_id = ? AND token != ?')
+    .run(userId, keepSessionToken || '');
+}
+
+module.exports = { signUp, signIn, signOut, getSessionUser, changeEmail, changePassword };

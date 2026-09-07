@@ -62,6 +62,10 @@ export const api = {
   // A wrong current password comes back 400, not 401, so it stays out of the session-expired
   // path above and lands beside the control that asked for it.
   changeEmail: (payload) => request('/account/email', { method: 'PATCH', body: JSON.stringify(payload) }),
+  // Same 400-not-401 reasoning as above. Nothing about the held account changes, so unlike
+  // `changeEmail` this one has no counterpart on AuthContext — but every *other* session on the
+  // account is revoked server-side.
+  changePassword: (payload) => request('/account/password', { method: 'PATCH', body: JSON.stringify(payload) }),
   // The state document travels as itself, not inside an envelope: what GET returns is what PUT
   // takes back.
   getState: () => request('/state'),
