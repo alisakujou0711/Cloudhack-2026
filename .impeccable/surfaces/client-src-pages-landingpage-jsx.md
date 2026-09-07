@@ -46,6 +46,11 @@ Signature interaction — **the revision pass**: as each sheet enters view, exac
 strikes, its replacement writes itself beneath, and the reason surfaces in the margin. One at a
 time, never two.
 
+SECOND MOVEMENT (added): the page is scrolled the way a reviewer works down a draft. The bar is
+fixed and carries a chapter readout and an ink rail with a tick per part; and one section pins its
+sheet while three steps are pulled past it, each resolving exactly one bullet — taken, refused,
+left alone — with a measured pen tracking the pass in the margin. No third motion idea.
+
 FORM: The Desk; index 3 of 7 ranked structures; seed key `c1b544d3`.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the

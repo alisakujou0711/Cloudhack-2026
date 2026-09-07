@@ -19,11 +19,15 @@ persisted state.
 1. `/` renders `LandingPage` when `isAuthenticated` is false; with a session it redirects through
    the normal gate to `/app/optimize` (or `/onboarding`). See `docs/architecture.md`.
 2. On mount the page adds `landing-active` to `<html>` and removes it on unmount.
-3. `useInView` fires once per sheet as it reaches the viewport, adding `.is-in`.
+3. `useInView` fires once per sheet and per `SectionHead` as it reaches the viewport, adding
+   `.is-in`; the hero instead gets `.is-ready` on the frame after mount.
 4. On the two sheets that carry one, `Revision` runs the pass: strike → write → reason.
-5. `useScrolledPast` watches the hero's `.lp-actions`; once it is above the viewport the top bar
-   gets `.is-docked` and becomes fixed, and it undocks on the way back up.
-6. Every CTA is a `<Link>` to `/signin`. There is no form and no auth on this page.
+5. The bar is fixed from the first frame. `useScrollNarration` writes `--lp-scroll` on it once per
+   animation frame and measures each chapter's tick position; `useActiveChapter` names the chapter
+   in the bar; `useScrolledPast` watches the hero's `.lp-actions` and adds `.is-docked` past it.
+6. `DecisionAct` pins its sheet while `useActiveStep` walks the step blocks, resolving one bullet
+   per step and moving the measured pen to it.
+7. Every CTA is a `<Link>` to `/signin`. There is no form and no auth on this page.
 
 ## Contract
 
@@ -44,7 +48,7 @@ None — no endpoint, no state key. All content is module-level constants in the
   number, employer, or achievement. A new example must clear the same bar.
 - **The page never shows a score.** Consistent with the rest of the app.
 - **Reduced motion gets the resolved state, not the animation** — `Revision` renders the applied
-  phase and the sheets skip their entrance. Content is visible by default: if
+  phase, the sheets and headings skip their entrance, and the act unpins with every bullet judged. Content is visible by default: if
   `IntersectionObserver` is missing, `useInView` returns `true` immediately.
 - **`useInView` takes a `rootMargin` *string*, never an options object.** An object literal is a
   new identity every render, which tears the observer down before it can deliver its asynchronous
@@ -55,12 +59,22 @@ None — no endpoint, no state key. All content is module-level constants in the
   as it scrolls into view.
 - **Dark stays scoped.** All colour lives in `.landing`'s `--lp-*` tokens; `html.landing-active`
   exists only so overscroll and the scrollbar match the page. Nothing dark belongs on `:root`.
-- The desk is the one authored motion moment. Don't add a second entrance choreography per
-  section.
+- **Two authored motion moments, and no third.** The revision pass on a sheet, and the pinned
+  act where scrolling *is* the interaction. Everything else is one shared vocabulary — sheets rise,
+  headings resolve out of blur — and a new section joins it rather than inventing a third idea.
+- **The act's stage is sticky against its grid area, so it needs `align-items: start`** on
+  `.lp-act-grid`, and plain block layout below 900px. A one-column grid gives the stage an area
+  exactly its own height and sticky has nowhere to travel.
+- **`--lp-scroll` is written on the header, never held in React state** — a render per scroll
+  frame to move a 2px rule is the most expensive way to draw the cheapest thing on the page. Tick
+  positions *are* state; they change only when the document's height does. Every `CHAPTERS` id must
+  exist on a section, or its tick is dropped and the readout freezes on the chapter before it.
+- **Step dimming is gated on `.is-guided`.** Without `IntersectionObserver` — or under reduced
+  motion — nothing will ever brighten a dimmed step, so the act renders resolved and legible.
 - **`overflow-x: clip` belongs on `.landing main`, not on `.landing`.** It bounds the hero's lamp,
   but a clip on an ancestor of the top bar clips the bar out of existence the moment it docks.
-- **`.lp-topbar-slot` holds `--lp-bar-h` whether or not the bar is in it.** The bar is out of flow
-  from the first frame, so docking repaints and never reflows; giving the bar back its own space
+- **`.lp-topbar-slot` holds `--lp-bar-h` whether or not the bar is in it.** The bar is fixed from
+  the first frame, so docking changes material and height only; giving the bar back its own space
   in the flow reintroduces a jump at the docking threshold.
 - **`useScrolledPast` measures on notification, never from the entry.** An
   `IntersectionObserverEntry` carries a rect from when the crossing was recorded and a batched

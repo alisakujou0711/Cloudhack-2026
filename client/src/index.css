@@ -4491,22 +4491,18 @@ label {
    --------------------------------------------------------------------------- */
 
 /* The document carries the ink while this page is mounted, so overscroll
-   rubber-banding shows the desk rather than the app's pale background. */
+   rubber-banding shows the desk rather than the app's pale background.
+   `scroll-behavior` stays at its default: GSAP animates every jump on this page, and a browser
+   smoothing a scroll GSAP is already tweening is a feedback loop, not a nicety. */
 html.landing-active {
   background: #0e1120;
   color-scheme: dark;
   scrollbar-color: #3a405c #14172b;
-  scroll-behavior: smooth;
 }
-@media (prefers-reduced-motion: reduce) {
-  html.landing-active {
-    scroll-behavior: auto;
-  }
-}
-/* The hero's jump link lands the heading clear of the top edge — and clear of the bar, which
-   is docked by the time any in-page jump has finished scrolling. */
+/* The fallback for a hash landing or a keyboard jump GSAP did not run: the heading lands clear of
+   the top edge and clear of the bar. */
 .landing [id] {
-  scroll-margin-top: calc(var(--lp-bar-docked-h, 3.9rem) + 1.75rem);
+  scroll-margin-top: calc(var(--lp-bar-h, 3.9rem) + 1.75rem);
 }
 
 .landing {
@@ -4522,8 +4518,10 @@ html.landing-active {
   --lp-on-desk-soft: #a8b0c6;
   --lp-paper-under: #f6f7fb;
   --lp-tab: #dcdfe9;
-  --lp-bar-h: 4.6rem;
-  --lp-bar-docked-h: 3.9rem;
+  /* One bar height, not two: the bar is only ever seen past the hero, so it has one material and
+     one size. */
+  --lp-bar-h: 3.9rem;
+  --lp-wp-inset: 20px;
   --lp-sheet-shadow: 0 26px 60px -22px rgba(0, 0, 0, 0.65);
   --lp-sheet-shadow-low: 0 12px 30px -16px rgba(0, 0, 0, 0.55);
   --lp-rule: rgba(238, 240, 246, 0.14);
@@ -4576,14 +4574,14 @@ html.landing-active {
 
 /* --- Header ---------------------------------------------------------------- */
 
-/* The wordmark and the sign-in bubble are one bar. It leaves the flow from the first frame and
-   the slot above keeps its height, so the switch to `fixed` moves nothing on the page. */
-.lp-topbar-slot {
-  height: var(--lp-bar-h);
-}
-
+/* The wordmark, the chapter readout, the sign-in bubble and the rail are one bar. It belongs to the
+   document rather than to the title card: over the hero there is nothing to report and nothing to
+   navigate, so it is not there at all, and it takes the desk in front of the drafts the moment the
+   first section arrives. The tone is held at alpha and the paper ghosts through it, so it reads as
+   material rather than as a panel of its own — the blur is what keeps the wordmark legible while a
+   white sheet passes under it. */
 .lp-header {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -4591,42 +4589,26 @@ html.landing-active {
   height: var(--lp-bar-h);
   display: flex;
   align-items: center;
-  border-bottom: 1px solid transparent;
-  transition:
-    height 0.3s cubic-bezier(0.16, 0.84, 0.3, 1),
-    background 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-/* Past the hero's Get started, the bar lifts off the page and rides above the sheets. The desk
-   tone is held at alpha and the paper ghosts through it, so it reads as the desk in front of the
-   drafts rather than a panel of its own — the blur is what keeps the wordmark legible while a
-   white sheet passes under it. */
-.lp-header.is-docked {
-  position: fixed;
-  height: var(--lp-bar-docked-h);
   background: rgba(20, 23, 43, 0.9);
-  border-bottom-color: rgba(238, 240, 246, 0.11);
+  border-bottom: 1px solid rgba(238, 240, 246, 0.3);
   box-shadow: 0 14px 34px -24px rgba(0, 0, 0, 0.9);
-  animation: lp-bar-dock 0.34s cubic-bezier(0.16, 0.84, 0.3, 1) both;
+  translate: 0 -100%;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    translate 0.42s cubic-bezier(0.16, 0.84, 0.3, 1),
+    opacity 0.28s ease;
+}
+.lp-header.is-shown {
+  translate: 0 0;
+  opacity: 1;
+  pointer-events: auto;
 }
 @supports (backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px)) {
-  .lp-header.is-docked {
+  .lp-header {
     background: rgba(20, 23, 43, 0.72);
     -webkit-backdrop-filter: blur(16px) saturate(1.3);
     backdrop-filter: blur(16px) saturate(1.3);
-  }
-}
-
-@keyframes lp-bar-dock {
-  from {
-    translate: 0 -100%;
-    opacity: 0;
-  }
-  to {
-    translate: 0 0;
-    opacity: 1;
   }
 }
 
@@ -4639,6 +4621,213 @@ html.landing-active {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  position: relative;
+}
+
+/* Where the reader is, named rather than numbered — the bar reads out the part of the document
+   under the fold line, the way a page header names the chapter. It is a readout of something the
+   document already says in its own order, so it is decorative to assistive technology. */
+.lp-chapter {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lp-on-desk-soft);
+  white-space: nowrap;
+}
+.lp-chapter::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--lp-accent-lift);
+  box-shadow: 0 0 9px rgba(165, 180, 252, 0.75);
+}
+/* Keyed on the chapter index, so a new label resolves out of the dark instead of swapping. */
+.lp-chapter span {
+  animation: lp-chapter-in 0.42s cubic-bezier(0.16, 0.84, 0.3, 1) both;
+}
+@keyframes lp-chapter-in {
+  from {
+    opacity: 0;
+    translate: 0 5px;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    filter: blur(0);
+  }
+}
+
+/* The rail is the pass down the page: a hairline of ink drawn left to right as the reader
+   descends, with a waypoint where each part of the document begins. `--lp-scroll` is written on the
+   header once per animation frame and read here by a composited `scale`, so a scroll frame costs
+   a transform and nothing else. The waypoints are placed by their measured share of the scrollable
+   distance — evenly spaced marks would be a diagram of a document rather than of this one. */
+.lp-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: rgba(238, 240, 246, 0.18);
+}
+.lp-rail-fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  scale: var(--lp-scroll, 0) 1;
+  background: linear-gradient(90deg, rgba(79, 70, 229, 0.45), var(--lp-accent) 62%, var(--lp-accent-lift));
+  pointer-events: none;
+}
+/* The nib. It fades up over the first quarter of the page rather than sitting at zero on load,
+   where it would read as a stray dot in the corner. `opacity` clamps above 1 on its own. */
+.lp-rail-head {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  margin-left: calc(var(--lp-scroll, 0) * 100%);
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--lp-accent-lift);
+  box-shadow: 0 0 10px 1px rgba(165, 180, 252, 0.8);
+  opacity: calc(var(--lp-scroll, 0) * 4);
+  pointer-events: none;
+}
+
+/* A waypoint is a mark on the rail and a control at the same time. At rest it is a tick — the page
+   reporting where a part begins; reached for, it opens into a dot and names itself, because a
+   destination you cannot read is not somewhere you can choose to go. The button around it is
+   transparent and far larger than the mark: a 2px tick is not a click target.
+   The track is inset by half a hit area at each end, or the first and last waypoints would sit half
+   off the edge of the screen. The fill and the nib keep the full 0–100% track. */
+.lp-waypoint {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-left: calc(var(--at, 0) * (100% - 2 * var(--lp-wp-inset)) + var(--lp-wp-inset));
+  translate: -50% -50%;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.lp-waypoint-dot {
+  width: 2px;
+  height: 9px;
+  border-radius: 1px;
+  background: rgba(238, 240, 246, 0.42);
+  box-shadow: 0 0 0 0 rgba(165, 180, 252, 0);
+  transition:
+    width 0.24s cubic-bezier(0.16, 0.84, 0.3, 1),
+    height 0.24s cubic-bezier(0.16, 0.84, 0.3, 1),
+    border-radius 0.24s cubic-bezier(0.16, 0.84, 0.3, 1),
+    background 0.2s ease,
+    box-shadow 0.24s ease;
+}
+.lp-waypoint:hover .lp-waypoint-dot,
+.lp-waypoint:focus-visible .lp-waypoint-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--lp-on-desk);
+}
+/* The part being read takes the rail's own ink, so the readout in the middle of the bar and the
+   mark on the rail are saying the same thing in the same colour. */
+.lp-waypoint[aria-current] .lp-waypoint-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--lp-accent-lift);
+  box-shadow: 0 0 10px 1px rgba(165, 180, 252, 0.8);
+}
+.lp-waypoint:focus-visible {
+  outline: none;
+}
+.lp-waypoint:focus-visible .lp-waypoint-dot {
+  box-shadow: 0 0 0 2px var(--lp-desk), 0 0 0 4px var(--lp-accent-lift);
+}
+.lp-waypoint:active .lp-waypoint-dot {
+  width: 9px;
+  height: 9px;
+}
+
+/* The name hangs below the bar, on the bar's own material — it passes over white paper, and
+   uppercase micro-type on ink would be unreadable there without a ground of its own. */
+.lp-waypoint-label {
+  position: absolute;
+  top: calc(100% - 3px);
+  left: 50%;
+  translate: -50% 3px;
+  padding: 0.28rem 0.55rem;
+  border-radius: 5px;
+  border: 1px solid rgba(238, 240, 246, 0.14);
+  background: rgba(20, 23, 43, 0.94);
+  box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.95);
+  white-space: nowrap;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lp-on-desk-soft);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, translate 0.18s cubic-bezier(0.16, 0.84, 0.3, 1);
+}
+.lp-waypoint:hover .lp-waypoint-label,
+.lp-waypoint:focus-visible .lp-waypoint-label {
+  opacity: 1;
+  translate: -50% 0;
+}
+/* The two at the ends of the rail have no room to centre their name under themselves. */
+.lp-waypoint:first-of-type .lp-waypoint-label {
+  left: -4px;
+  translate: 0 3px;
+}
+.lp-waypoint:first-of-type:hover .lp-waypoint-label,
+.lp-waypoint:first-of-type:focus-visible .lp-waypoint-label {
+  translate: 0 0;
+}
+.lp-waypoint:last-of-type .lp-waypoint-label {
+  left: auto;
+  right: -4px;
+  translate: 0 3px;
+}
+.lp-waypoint:last-of-type:hover .lp-waypoint-label,
+.lp-waypoint:last-of-type:focus-visible .lp-waypoint-label {
+  translate: 0 0;
+}
+
+/* Same reasoning as the sign-in bubble: a finger needs more than the mark. */
+@media (pointer: coarse) {
+  .landing {
+    --lp-wp-inset: 24px;
+  }
+  .lp-waypoint {
+    width: 44px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 760px) {
+  .lp-chapter {
+    display: none;
+  }
 }
 
 .lp-brand {
@@ -4730,16 +4919,48 @@ html.landing-active {
   max-width: 68ch;
 }
 
+/* A heading resolves out of the dark rather than sliding in — the sheets' easing carried on blur
+   and a short rise, so paper and type do not perform the same entrance. Two children, one small
+   delay between them: a stagger this page is allowed exactly once per heading. */
+.lp-section-head > * {
+  opacity: 0;
+  translate: 0 14px;
+  filter: blur(9px);
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 0.84, 0.3, 1),
+    translate 0.75s cubic-bezier(0.16, 0.84, 0.3, 1),
+    filter 0.75s cubic-bezier(0.16, 0.84, 0.3, 1);
+}
+.lp-section-head > * + * {
+  transition-delay: 0.09s;
+}
+.lp-section-head.is-in > * {
+  opacity: 1;
+  translate: 0 0;
+  filter: blur(0);
+}
+
 /* --- Hero ------------------------------------------------------------------ */
 
+/* The title card owns the whole screen and nothing else appears on it: the reader either has the
+   desk in front of them or has begun reading, never half of each. The hero's own copy is centred
+   inside that screen with the padding kept generous, so the sheet stops well clear of the fold
+   rather than butting against it and hinting at what follows. */
 .lp-hero {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: clamp(2rem, 5vw, 5rem);
   align-items: center;
-  padding-top: clamp(2rem, 5vh, 4rem);
-  padding-bottom: clamp(5rem, 12vh, 10rem);
+  align-content: center;
+  min-height: 100dvh;
+  padding-top: clamp(3rem, 8vh, 6rem);
+  padding-bottom: clamp(3rem, 8vh, 6rem);
+}
+@supports not (height: 100dvh) {
+  .lp-hero {
+    min-height: 100vh;
+  }
 }
 
 /* The lamp over the desk — bounded to the hero it lights. */
@@ -4829,6 +5050,32 @@ html.landing-active {
 .lp-quiet-link:hover {
   color: var(--lp-on-desk);
   border-bottom-color: var(--lp-accent-lift);
+}
+
+/* The curtain. The opening copy resolves a line at a time on the frame after mount, and the sheet
+   comes up with it from slightly further back — the desk being lit, not a list appearing. */
+.lp-hero-copy > *,
+.lp-hero .lp-sheet-hero {
+  opacity: 0;
+  translate: 0 22px;
+  filter: blur(10px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 0.84, 0.3, 1),
+    translate 0.9s cubic-bezier(0.16, 0.84, 0.3, 1),
+    filter 0.9s cubic-bezier(0.16, 0.84, 0.3, 1);
+}
+.lp-hero .lp-sheet-hero {
+  translate: 0 34px;
+  transition-delay: 0.12s;
+}
+.lp-hero-copy > *:nth-child(2) { transition-delay: 0.1s; }
+.lp-hero-copy > *:nth-child(3) { transition-delay: 0.18s; }
+.lp-hero-copy > *:nth-child(4) { transition-delay: 0.26s; }
+.lp-hero.is-ready .lp-hero-copy > *,
+.lp-hero.is-ready .lp-sheet-hero {
+  opacity: 1;
+  translate: 0 0;
+  filter: blur(0);
 }
 
 /* --- Sheets ---------------------------------------------------------------- */
@@ -5141,79 +5388,278 @@ html.landing-active {
   color: var(--lp-ink-soft);
 }
 
-/* --- Decide ----------------------------------------------------------------- */
+/* --- The pinned act -------------------------------------------------------- */
 
-.lp-sheet-decide {
-  max-width: 74rem;
-  padding: clamp(1.5rem, 3vw, 2.6rem) clamp(1.5rem, 3vw, 3rem);
-}
-/* The rows are the content; the paper is allowed to run wider than they do. */
-.lp-sheet-decide .lp-decision-lines {
-  max-width: 64ch;
-}
-.lp-decision {
+/* The one place on the page where scrolling *is* the interaction. The sheet holds still while the
+   argument is pulled past it, and each step resolves exactly one bullet — taken, refused, or left
+   alone. The sheet's entrance is suppressed because a sticky element that also slides has two
+   ideas about where it is. */
+
+.lp-act-grid {
   display: grid;
-  grid-template-columns: 7.5rem minmax(0, 1fr);
-  gap: 1.5rem;
-  padding: 1.35rem 0;
-  border-bottom: 1px solid var(--lp-paper-edge);
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
 }
-.lp-decision:last-child {
+
+/* The stage is given the whole screen below the bar rather than a top offset, so the sheet it holds
+   sits in the middle of the reader's view and stays there — centring by measurement would need the
+   sheet's height, and the sheet's height changes with the copy. Sticky rather than a GSAP pin: a
+   pinned grid column needs `pinSpacing: false`, which collapses the column it was holding open. */
+.lp-act-stage {
+  position: sticky;
+  top: var(--lp-bar-h);
+  height: calc(100dvh - var(--lp-bar-h));
+  display: grid;
+  place-items: center;
+}
+@supports not (height: 100dvh) {
+  .lp-act-stage {
+    height: calc(100vh - var(--lp-bar-h));
+  }
+}
+
+.lp-sheet-act {
+  rotate: -0.5deg;
+  padding: clamp(1.6rem, 3vw, 2.4rem);
+  width: 100%;
+  max-width: 34rem;
+}
+
+.lp-act-lines {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+/* The pen. It is measured onto the active row rather than stepped through fixed offsets, because
+   the three bullets are three different heights — and its travel is the only thing on the page
+   that reports the reader's scroll position back to them in ink. */
+.lp-pen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  border-radius: 2px;
+  height: var(--pen-h, 0px);
+  translate: 0 var(--pen-y, 0px);
+  background: var(--lp-accent);
+  box-shadow: 0 0 14px 1px rgba(79, 70, 229, 0.55);
+  opacity: 0;
+  transition:
+    translate 0.62s cubic-bezier(0.16, 0.84, 0.3, 1),
+    height 0.62s cubic-bezier(0.16, 0.84, 0.3, 1),
+    opacity 0.3s ease;
+}
+.lp-act-lines.has-pen .lp-pen {
+  opacity: 1;
+}
+
+/* Focus follows the pen: a bullet it has not reached yet is held out of focus rather than hidden,
+   so the sheet is always a whole page of work and never a list being built. */
+.lp-act-row {
+  padding: 1.15rem 0.7rem;
+  margin-inline: -0.7rem;
+  border-bottom: 1px solid var(--lp-paper-edge);
+  border-radius: 3px;
+  font-size: 0.97rem;
+  line-height: 1.6;
+  transition: opacity 0.5s ease, filter 0.5s ease, background 0.5s ease;
+}
+/* The paper under the pen takes the faintest wash — the line being read, not a line selected. */
+.lp-act-row.is-live {
+  background: rgba(79, 70, 229, 0.045);
+}
+.lp-act-row:first-of-type {
+  padding-top: 0;
+}
+.lp-act-row:last-of-type {
   border-bottom: none;
   padding-bottom: 0;
 }
-.lp-decision:first-child {
-  padding-top: 0;
+.lp-act-row.is-pending {
+  opacity: 0.38;
+  filter: blur(1.4px);
 }
-.lp-decision-label {
+/* A bullet the pen has passed stays at full strength: it is resolved work, and holding struck ink
+   at part opacity would take it under the page's contrast floor to say something the pen already
+   says. Only what has not been reached yet is held back. */
+.lp-act-row.is-shown {
+  opacity: 1;
+  filter: blur(0);
+}
+
+.lp-act-original {
+  color: var(--lp-ink);
+  text-decoration-line: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.6s ease, color 0.6s ease;
+}
+.lp-act-row.is-accepted.is-shown .lp-act-original {
+  text-decoration-color: rgba(28, 33, 48, 0.5);
+  color: var(--lp-ink-soft);
+}
+
+/* The replacement is wiped in from the left rather than typed: the typewriter is the hero's one
+   moment, and running it three more times here would spend it. */
+.lp-act-revised {
+  margin-top: 0.45rem;
+  color: var(--lp-accent);
+  font-weight: 500;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transition:
+    clip-path 0.72s cubic-bezier(0.16, 0.84, 0.3, 1),
+    opacity 0.32s ease,
+    color 0.4s ease 0.75s,
+    text-decoration-color 0.45s ease 0.75s;
+  text-decoration-line: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: transparent;
+}
+.lp-act-row.is-shown .lp-act-revised {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+}
+/* Refusal reads as a sequence, not a state: the proposal arrives in full and is then struck, on
+   the transition delay above. */
+.lp-act-row.is-rejected.is-shown .lp-act-revised {
+  color: var(--lp-ink-soft);
+  font-weight: 400;
+  text-decoration-color: rgba(28, 33, 48, 0.5);
+}
+
+.lp-act-verdict {
+  margin-top: 0.7rem;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding-top: 0.15rem;
+  opacity: 0;
+  translate: 0 4px;
+  transition: opacity 0.4s ease 0.55s, translate 0.4s ease 0.55s;
 }
-.lp-decision.is-accepted .lp-decision-label { color: #15803d; }
-.lp-decision.is-rejected .lp-decision-label { color: #b91c1c; }
-.lp-decision.is-untouched .lp-decision-label { color: var(--lp-ink-soft); }
+.lp-act-row.is-shown .lp-act-verdict {
+  opacity: 1;
+  translate: 0 0;
+}
+.lp-act-row.is-rejected .lp-act-verdict {
+  transition-delay: 1.15s;
+}
+.lp-act-row.is-accepted .lp-act-verdict { color: #15803d; }
+.lp-act-row.is-rejected .lp-act-verdict { color: #b91c1c; }
+.lp-act-row.is-untouched .lp-act-verdict { color: var(--lp-ink-soft); }
 
-.lp-decision-lines {
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-.lp-decision-original {
-  color: var(--lp-ink);
-}
-.lp-decision.is-accepted .lp-decision-original {
+.lp-act-foot {
+  margin-top: 1.3rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--lp-paper-edge);
+  font-size: 0.8rem;
+  line-height: 1.55;
   color: var(--lp-ink-soft);
-  text-decoration: line-through;
-  text-decoration-thickness: 1.5px;
-  text-decoration-color: rgba(28, 33, 48, 0.5);
+  opacity: 0;
+  transition: opacity 0.5s ease 0.3s;
 }
-.lp-decision-revised {
-  margin-top: 0.45rem;
-  color: var(--lp-accent);
-  font-weight: 500;
-}
-.lp-decision.is-rejected .lp-decision-revised {
-  color: var(--lp-ink-soft);
-  font-weight: 400;
-  text-decoration: line-through;
-  text-decoration-thickness: 1.5px;
-  text-decoration-color: rgba(28, 33, 48, 0.5);
-}
-.lp-decision-note {
-  margin-top: 0.7rem;
-  font-size: 0.83rem;
-  color: var(--lp-ink-soft);
-  line-height: 1.6;
+.lp-act-foot.is-shown {
+  opacity: 1;
 }
 
-.lp-footnote {
-  margin-top: 1.75rem;
-  max-width: 62ch;
-  font-size: 0.88rem;
-  line-height: 1.65;
+/* Each step owns a screen — literally one, so that the latch parking a step on the reading line
+   puts its neighbours off the screen entirely. Snapping alone would only stop the reader *resting*
+   between two steps; it would not stop both being legible at once. The dimming stays as the belt to
+   that brace, and exactly one step is ever lit. */
+.lp-step {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 38rem;
+  transition: opacity 0.55s ease, filter 0.55s ease;
+}
+@supports not (height: 100dvh) {
+  .lp-step {
+    min-height: 100vh;
+  }
+}
+.lp-act-steps.is-guided .lp-step {
+  opacity: 0.26;
+  filter: blur(2.5px);
+}
+.lp-act-steps.is-guided .lp-step.is-active {
+  opacity: 1;
+  filter: blur(0);
+}
+.lp-step h2 {
+  font-size: clamp(1.9rem, 3.4vw, 2.9rem);
+  letter-spacing: -0.022em;
+  line-height: 1.12;
+  margin-bottom: 1.1rem;
+}
+.lp-step h3 {
+  font-size: clamp(1.5rem, 2.4vw, 2.05rem);
+  letter-spacing: -0.02em;
+  line-height: 1.16;
+  margin-bottom: 0.9rem;
+}
+.lp-step p {
   color: var(--lp-on-desk-soft);
+  font-size: 1.02rem;
+  line-height: 1.68;
+  max-width: 46ch;
+}
+
+/* One column: the sheet becomes a masthead the steps run under, and it needs the desk behind it
+   or the paper below would read through its own edge on the way past. The stage gives up the full
+   screen it takes on a wide layout — here it is a band at the top, not a stage. */
+@media (max-width: 900px) {
+  .lp-act-grid {
+    display: block;
+  }
+  .lp-act-stage {
+    z-index: 2;
+    top: var(--lp-bar-h);
+    height: auto;
+    display: block;
+    margin-inline: calc(-1 * clamp(1.25rem, 5vw, 4.5rem));
+    padding: 1.1rem clamp(1.25rem, 5vw, 4.5rem) 1.6rem;
+    background: linear-gradient(to bottom, var(--lp-desk) 84%, rgba(20, 23, 43, 0));
+  }
+  .lp-sheet-act {
+    rotate: 0deg;
+    font-size: 0.92rem;
+    max-width: none;
+  }
+  .lp-act-row {
+    padding-block: 0.8rem;
+  }
+
+  /* A phone cannot hold a whole resume still and read an argument beside it, so the sheet becomes
+     a window one bullet tall: the pen stops travelling and the paper is drawn up under it, the
+     last inch of it fading out rather than being cut. */
+  .lp-act-lines {
+    height: min(32vh, 260px);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, #000 76%, transparent);
+    mask-image: linear-gradient(to bottom, #000 76%, transparent);
+  }
+  .lp-act-strip {
+    translate: 0 calc(-1 * var(--pen-y, 0px));
+    transition: translate 0.62s cubic-bezier(0.16, 0.84, 0.3, 1);
+  }
+  .lp-pen {
+    translate: 0 0;
+  }
+  .lp-act-row:last-of-type {
+    padding-bottom: 1.15rem;
+  }
+
+  /* The copy is centred in the band the masthead leaves free, and the reading line the steps latch
+     onto moves down to match — a step is the one speaking exactly while its own paragraph is
+     readable. The step still owns a whole screen, so its neighbour is never on it. */
+  .lp-step {
+    justify-content: flex-end;
+    padding-bottom: clamp(3rem, 12vh, 7rem);
+  }
 }
 
 /* --- The rest of the desk ---------------------------------------------------- */
@@ -5358,24 +5804,20 @@ html.landing-active {
 }
 
 @media (max-width: 620px) {
-  .lp-decision {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.55rem;
-  }
   .landing {
-    --lp-bar-h: 3.9rem;
-    /* Enough to keep the 44px touch target off both edges of the docked bar. */
-    --lp-bar-docked-h: 3.7rem;
+    /* Enough to keep the 44px touch target off both edges of the bar. */
+    --lp-bar-h: 3.7rem;
   }
   .lp-more-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
   /* On a phone the whole point has to clear the fold: the struck line and its replacement are the
-     argument, so the copy above them gives up its slack rather than pushing them off-screen. */
+     argument, so the copy above them gives up its slack rather than pushing them off-screen. The
+     hero still owns exactly one screen — if the copy overflows it, the gate stands down. */
   .lp-hero {
-    padding-top: 0.5rem;
-    padding-bottom: clamp(3rem, 8vh, 5rem);
+    padding-top: 1.25rem;
+    padding-bottom: clamp(1.5rem, 5vh, 3rem);
     gap: 1.6rem;
   }
   .lp-hero h1 {
@@ -5443,13 +5885,59 @@ html.landing-active {
   .lp-signin:hover {
     translate: 0 0;
   }
-  /* Under reduce the bar is simply there when it is there: no slide in from above, and no
-     height change to watch. */
+  /* Under reduce the bar is simply there when it is there: it arrives without sliding in. The rail
+     keeps reporting the scroll position — that is a readout, not an animation — and the waypoints
+     keep opening, because a control that does not answer a hover is a broken control. */
   .lp-header {
-    transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    transition: opacity 0.2s ease;
   }
-  .lp-header.is-docked {
+  .lp-chapter span {
     animation: none;
+  }
+
+  /* The curtain and the headings are simply already up. */
+  .lp-hero-copy > *,
+  .lp-hero .lp-sheet-hero,
+  .lp-section-head > * {
+    opacity: 1;
+    translate: 0 0;
+    filter: none;
+    transition: none;
+  }
+
+  /* The act keeps its argument and gives up its choreography: the sheet stops pinning, every
+     bullet is resolved and in focus, and the steps are the paragraphs they always were. Nothing
+     latches, so nothing needs a screen of its own to latch onto. */
+  .lp-act-stage {
+    position: static;
+    height: auto;
+    display: block;
+  }
+  .lp-pen {
+    display: none;
+  }
+  .lp-act-row,
+  .lp-act-row.is-pending,
+  .lp-act-row.is-shown {
+    opacity: 1;
+    filter: none;
+    transition: none;
+  }
+  .lp-act-revised,
+  .lp-act-verdict,
+  .lp-act-foot {
+    opacity: 1;
+    clip-path: none;
+    translate: 0 0;
+    transition: none;
+  }
+  .lp-step {
+    min-height: 0;
+    opacity: 1;
+    filter: none;
+    transition: none;
+    justify-content: flex-start;
+    padding-bottom: 2.5rem;
   }
 
   /* The arrival is the whole point of opening the page, so under reduce it is simply already
